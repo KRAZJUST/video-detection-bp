@@ -1,3 +1,17 @@
+""" 
+Search for frames in a video by query using CLIP. 
+
+This script extracts frames from a video at a specified interval and searches for relevant images based on a query using the CLIP model.
+For the script to work correctly, you need to have all the required libraries installed. You can install them using the following command: 
+    pip install torch torchvision transformers opencv-python pillow
+
+Usage:
+    python clip_detection.py --video_path <path_to_video> --query <search_query> --output_dir <output_directory> [--interval <interval>]
+
+    NOTE: for the correct functionality of the script, the treshold value should be adjusted in the code and the query should be VERY specific,
+          for example instead of searching for 'ambulance' the query should be 'yellow emergency vehicle ambulance'.
+"""
+
 import os
 import cv2
 import torch
@@ -5,27 +19,40 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from typing import List, Tuple
 import argparse
+import torch.nn.functional as F
 
 class CLIPImageSearcher:
     def __init__(self, model_name: str):
         self.processor = CLIPProcessor.from_pretrained(model_name)
         self.model = CLIPModel.from_pretrained(model_name)
 
-    def search_images(self, images: List[Image.Image], query: str):
+    def search_images(self, images: List[Image.Image], query: str, threshold: float = 0.5):
         """Search images based on the query using CLIP."""
         inputs = self.processor(text=[query], images=images, return_tensors="pt", padding=True)
 
         with torch.no_grad():
             outputs = self.model(**inputs)
 
-        # Calculate cosine similarities
-        logits_per_image = outputs.logits_per_image        # Stores image-text similarity scores
-        probs = logits_per_image.softmax(dim=1)            # Uses softmax to get the label probabilities
+        # Extracts embeddings for images and text
+        image_embeds = outputs.image_embeds
+        text_embeds = outputs.text_embeds
 
-        # Get the indices of the top matches
-        top_indices = probs.argsort(descending=True)
+        # Normalizes embeddings
+        image_embeds = F.normalize(image_embeds, p=2, dim=-1)
+        text_embeds = F.normalize(text_embeds, p=2, dim=-1)
 
-        return [(i, probs[0, i].item()) for i in top_indices[0]]
+        # Calculates cosine similarity scores
+        similarity_scores = torch.matmul(image_embeds, text_embeds.T).squeeze()
+
+        # TODO: remove debug prints
+        for i, score in enumerate(similarity_scores):
+            print(f"Frame {i}: Similarity score = {score.item()}")
+
+        # Filters frames based on cosine similarity score that exceed the threshold
+        top_indices = [(i, similarity_scores[i].item()) for i in range(len(similarity_scores)) if similarity_scores[i].item() > threshold]
+
+        # Return the indices and their similarity scores that exceed the threshold
+        return top_indices
 
 class VideoFrameExtractor:
     @staticmethod
@@ -33,61 +60,58 @@ class VideoFrameExtractor:
         """Extract frames from the video at a specified interval in seconds and save them."""
         frames = []
         cap = cv2.VideoCapture(video_path)
-
         if not cap.isOpened():
-            print("Error: Unable to open video file.")
-            return frames
+            raise Exception(f"ERROR: Unable to open video file '{video_path}'")
+
+        # Get basic video information
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = frame_count / fps
+
+        print(f"Video FPS: {fps}")
+        print(f"Total frames: {frame_count}")
+        print(f"Video duration (s): {duration:.2f}")
 
         last_extracted_time = -1
-        frame_count = 0
 
         # Ensure the output directory exists
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
         while cap.isOpened():
-            current_frame = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000  # Current time in seconds
+            current_time = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000  # Current time in seconds
             ret, frame = cap.read()
 
             if not ret:
                 break
 
-            if current_frame >= last_extracted_time + interval:
+            if current_time >= last_extracted_time + interval:
                 # Convert frame from BGR (OpenCV format) to RGB (PIL format)
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 pil_image = Image.fromarray(frame_rgb)
                 
-                # Save the frame as an image
-                frame_filename = os.path.join(output_dir, f"frame_{frame_count:04d}.png")
-                pil_image.save(frame_filename)
-                print(f"Saved frame {frame_count} at {current_frame:.2f}s: {frame_filename}")
-
-                frames.append((pil_image, current_frame))
-                last_extracted_time = current_frame
-                frame_count += 1
+                frames.append((pil_image, current_time))
+                last_extracted_time = current_time
 
         cap.release()
         return frames
 
-
-def save_images(images: List[Image.Image], indices: List[int], timestamps: List[float], output_dir: str):
-    """Save images to the specified output directory and create a text file with timestamps."""
+def save_results(found_indices: List[int], images: List[Image.Image], timestamps: List[float], output_dir: str):
+    """Save the found images and their metadata."""
+    # Ensure output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
-    # Save images
-    for index in indices:
-        image_path = os.path.join(output_dir, f"frame_{index}.png")
-        images[index].save(image_path)
-        print(f"Saved: {image_path}")
-
-    # Save timestamps to a text file
+    # Save images and their corresponding timestamps
     with open(os.path.join(output_dir, "found_frames.txt"), "w") as f:
-        for index in indices:
-            f.write(f"Frame: {index}, Timestamp: {timestamps[index]:.2f}s\n")
+        for index in found_indices:
+            image_path = os.path.join(output_dir, f"frame_{int(timestamps[index])}s.png")
+            images[index].save(image_path)
+            f.write(f"Frame {index}, Timestamp: {timestamps[index]:.2f}s, Image saved at: {image_path}\n")
+            print(f"Saved: {image_path} at {timestamps[index]:.2f}s")
 
 def main(video_path: str, query: str, output_dir: str, interval: int = 2):
-    print(query)
+    print(f"Query: {query}")
     clip_searcher = CLIPImageSearcher(model_name="openai/clip-vit-base-patch32")
 
     # Extract frames from the video
@@ -95,18 +119,20 @@ def main(video_path: str, query: str, output_dir: str, interval: int = 2):
     frames = [frame[0] for frame in frames_with_timestamps]
     timestamps = [frame[1] for frame in frames_with_timestamps]
 
+    # TODO: add a threshold as CLI argument
+    threshold = 0.20
     # Search for relevant images based on the query
-    results = clip_searcher.search_images(frames, query)
+    results = clip_searcher.search_images(frames, query, threshold)
 
-    # Save results to the output directory
-    save_images(frames, [index for index, _ in results], timestamps, output_dir)
+    # Save results (images and metadata) where query was found
+    found_indices = [index for index, _ in results]
+    save_results(found_indices, frames, timestamps, output_dir)
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="Search images in a video by query using CLIP.")
-    parser.add_argument("video_path", type=str, help="Path to the video file.")
-    parser.add_argument("query", type=str, help="Search query (e.g., 'a girl in a red dress').")
-    parser.add_argument("output_dir", type=str, help="Directory to save the found images.")
+    parser = argparse.ArgumentParser(description="Search frames in a video by query using CLIP.")
+    parser.add_argument("--video_path", type=str, help="Path to the video file.")
+    parser.add_argument("--output_dir", type=str, help="Directory to save the found images.")
+    parser.add_argument("--query", type=str, help="Search query (e.g., 'a girl in a red dress').")
     parser.add_argument("--interval", type=int, default=2, help="Time interval in seconds to extract frames.")
 
     args = parser.parse_args()

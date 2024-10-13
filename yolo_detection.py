@@ -54,7 +54,7 @@ class YOLODetector:
                     class_name=class_name,
                     confidence=confidence,
                     bbox=(xmin, ymin, xmax, ymax),
-                    # Placeholder, will be set in VideoProcessor
+                    # Placeholder - will be set in VideoProcessor
                     timestamp=0.0
                 ))
         return detections
