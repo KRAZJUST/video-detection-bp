@@ -51,7 +51,7 @@ class YOLODetector:
             for box in result.boxes:
                 class_idx = int(box.cls[0])
                 class_name = self.class_names.get(class_idx, "Unknown")
-                if class_name in ['person', 'car']:
+                if class_name in ['person', 'car', 'truck']:
                     confidence = float(box.conf[0])
                     xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
                     detections.append(Detection(
@@ -77,44 +77,49 @@ class ColorFilter:
             # TODO: add more options
         }
 
-    def is_color_present(self, image: np.ndarray, bbox: Tuple[int, int, int, int], color: str) -> bool:
+    def detect_dominant_color(self, image: np.ndarray, bbox: Tuple[int, int, int, int]) -> str:
         """
-        NOTE: Not used in the current implementation on the initial indexing.
+        Detect the most prominent color within the bounding box of the image.
 
-        Check if the specified color is present within the bounding box of the image.
-        
         Args:
             image (np.ndarray): The original frame in BGR format.
             bbox (Tuple[int, int, int, int]): Bounding box coordinates (xmin, ymin, xmax, ymax).
-            color (str): The color to filter by.
-        
-        Returns:
-            bool: True if the color is present, False otherwise.
-        """
-        if color not in self.color_ranges:
-            raise Exception(f"Color '{color} not supported.'")
 
+        Returns:
+            str: The name of the most prominent color, or 'none' if no color is prominent.
+        """
         xmin, ymin, xmax, ymax = bbox
         roi = image[ymin:ymax, xmin:xmax]
 
         if roi.size == 0:
-            return False
+            return 'none'
 
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        mask = None
-        for lower, upper in self.color_ranges[color]:
-            lower_np = np.array(lower, dtype=np.uint8)
-            upper_np = np.array(upper, dtype=np.uint8)
-            current_mask = cv2.inRange(hsv, lower_np, upper_np)
-            if mask is None:
-                mask = current_mask
-            else:
-                mask = cv2.bitwise_or(mask, current_mask)
 
-        # Calculate the percentage of the ROI that matches the color
-        color_presence = np.sum(mask) / 255 / mask.size
-        # Treshold (set on the precision the user requires TODO: maybe add it as cli argument)
-        return color_presence > 0.05
+        color_presence = {}
+        # Loops through each color and calculate the percentage of that color in the ROI
+        for color, ranges in self.color_ranges.items():
+            mask = None
+            for lower, upper in ranges:
+                lower_np = np.array(lower, dtype=np.uint8)
+                upper_np = np.array(upper, dtype=np.uint8)
+                current_mask = cv2.inRange(hsv, lower_np, upper_np)
+                if mask is None:
+                    mask = current_mask
+                else:
+                    mask = cv2.bitwise_or(mask, current_mask)
+
+            # Calculates the percentage of the ROI that matches the color
+            percentage = np.sum(mask) / 255 / mask.size
+            color_presence[color] = percentage
+
+        # Finds the color with the highest percentage presence
+        dominant_color = max(color_presence, key=color_presence.get)
+
+        # Returns the dominant color if it's presence is above threshold, otherwise 'none' TODO: add threshold as parameter and CLI argument
+        if color_presence[dominant_color] > 0.05:
+            return dominant_color
+        return 'none'
 
 class VideoProcessor:
     def __init__(self, video_path: str, output_dir: str, query: str, interval: int = 30):
@@ -143,8 +148,8 @@ class VideoProcessor:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         
-        # Create directory for frames
-        self.frames_output_dir = os.path.join(self.output_dir, "found_frames")
+        # Creates directory for frames
+        self.frames_output_dir = os.path.join(self.output_dir, "extracted_frames")
         os.makedirs(self.frames_output_dir, exist_ok=True)
 
         # Get the text file where the detected objects will be stored with confidence score and timestamps
@@ -159,13 +164,13 @@ class VideoProcessor:
             'stream=width,height,avg_frame_rate,nb_frames,duration', '-of', 'json', video_path
         ]
         
-        # Execute the ffprobe command
+        # Executes the ffprobe command
         result = subprocess.run(ffprobe_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         # Parse the result as JSON
         video_info = json.loads(result.stdout)
         
-        # Extract required information
+        # Extracts required information
         if 'streams' in video_info and len(video_info['streams']) > 0:
             stream_info = video_info['streams'][0]
             width = stream_info.get('width', 'Unknown')
@@ -174,7 +179,7 @@ class VideoProcessor:
             nb_frames = stream_info.get('nb_frames', 'Unknown')
             avg_frame_rate = stream_info.get('avg_frame_rate', 'Unknown')
             
-            # Parse frame rate (if it's available as a fraction)
+            # Parses frame rate (if it's available as a fraction)
             fps = eval(avg_frame_rate) if '/' in avg_frame_rate else avg_frame_rate
             
             return {
@@ -199,10 +204,10 @@ class VideoProcessor:
 
     def process_video(self):
         """
-        Process the video: extract frames with FFmpeg, detect objects, filter by query, save frames, and log detections.
+        Process the video: extract frames with FFmpeg, detect objects, and log them with necessary informations and dominant color.
         """
 
-        # Get video information
+        # Gets video information
         video_info = self.get_video_info(self.video_path)
         if video_info is None:
             print("Failed to get video information.")
@@ -214,15 +219,16 @@ class VideoProcessor:
             'ffmpeg', '-i', self.video_path,                               # path to input video
             '-vf', f'select=not(mod(n\\,{self.interval}))',                # Selects every nth frame (interval)
             '-vsync', 'vfr',
+            '-start_number', '0',                                          # Starts frame numbering from 0
             f'{self.frames_output_dir}/frame_%04d.jpg'                     # Output frame path
         ]
         
-        # Start the FFmpeg process
+        # Starts the FFmpeg process
         ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # Wait for the process to finish
         ffmpeg_process.wait()
 
-         # Read the saved frames for processing
+         # Reads the saved frames for processing
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
 
         frame_number = 0
@@ -230,36 +236,36 @@ class VideoProcessor:
         for frame_number, frame_file in enumerate(frame_files):
             print(f"Processing frame {frame_file}")
             
-            # Read the saved frame
+            # Reads the saved frame
             frame = cv2.imread(frame_file)
 
-            # Run YOLO detection on the frame
+            # Runs YOLO detection on the frame
             detections = self.detector.detect_objects(frame)
-            # Calculate timestamp by multiplying frame number by interval
+            # Calculates timestamp by multiplying frame number by interval
             timestamp = frame_number * (1 / video_info['fps']) * self.interval
 
-            # Update timestamp in detections
+            # Logs detections
             for det in detections:
-                det.timestamp = timestamp
+                # Gets the dominant color within the bounding box
+                dominant_color = self.color_filter.detect_dominant_color(frame, det.bbox)
 
-            # Log detections
-            for det in detections:
                 log_entry = {
                     "frame_number": frame_number,
                     "frame_file": frame_file,
                     "timestamp": timestamp,
                     "class_name": det.class_name,
                     "confidence": det.confidence,
-                    "bbox": det.bbox
+                    "bbox": det.bbox,
+                    "dominant_color": dominant_color
                 }
                 self.log_entries.append(log_entry)
 
-        # Clean up the FFmpeg process
+        # Cleans up the FFmpeg process
         ffmpeg_process.stdout.close()
         ffmpeg_process.stderr.close()
         ffmpeg_process.wait()
 
-        # Write log file in JSON format for better readability and later processing
+        # Writes log file in JSON format for better readability and later processing
         with open(self.log_file_path, 'w') as log_file:
             json.dump(self.log_entries, log_file, indent=4)
         print(f"Metadata log saved to '{self.log_file_path}'.")
