@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from typing import List, Tuple
 from ultralytics import YOLO
 from PIL import Image
+import subprocess
+import json
+import glob
 
 @dataclass
 class Detection:
@@ -48,15 +51,16 @@ class YOLODetector:
             for box in result.boxes:
                 class_idx = int(box.cls[0])
                 class_name = self.class_names.get(class_idx, "Unknown")
-                confidence = float(box.conf[0])
-                xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
-                detections.append(Detection(
-                    class_name=class_name,
-                    confidence=confidence,
-                    bbox=(xmin, ymin, xmax, ymax),
-                    # Placeholder - will be set in VideoProcessor
-                    timestamp=0.0
-                ))
+                if class_name in ['person', 'car']:
+                    confidence = float(box.conf[0])
+                    xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
+                    detections.append(Detection(
+                        class_name=class_name,
+                        confidence=confidence,
+                        bbox=(xmin, ymin, xmax, ymax),
+                        # Placeholder - will be set in VideoProcessor
+                        timestamp=0.0
+                    ))
         return detections
 
 class ColorFilter:
@@ -75,6 +79,8 @@ class ColorFilter:
 
     def is_color_present(self, image: np.ndarray, bbox: Tuple[int, int, int, int], color: str) -> bool:
         """
+        NOTE: Not used in the current implementation on the initial indexing.
+
         Check if the specified color is present within the bounding box of the image.
         
         Args:
@@ -111,7 +117,7 @@ class ColorFilter:
         return color_presence > 0.05
 
 class VideoProcessor:
-    def __init__(self, video_path: str, output_dir: str, query: str, interval: int = 2):
+    def __init__(self, video_path: str, output_dir: str, query: str, interval: int = 30):
         """
         Initialize the VideoProcessor.
         
@@ -137,82 +143,133 @@ class VideoProcessor:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         
-        # Create directory for frames where the query was detected
+        # Create directory for frames
         self.frames_output_dir = os.path.join(self.output_dir, "found_frames")
         os.makedirs(self.frames_output_dir, exist_ok=True)
 
         # Get the text file where the detected objects will be stored with confidence score and timestamps
         self.log_file_path = os.path.join(self.output_dir, "detection_log.txt")
 
+    def get_video_info(self, video_path):
+        """ Function to extract video information using FFmpeg. """
+
+        # ffprobe command to extract video information in JSON format
+        ffprobe_command = [
+            'ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
+            'stream=width,height,avg_frame_rate,nb_frames,duration', '-of', 'json', video_path
+        ]
+        
+        # Execute the ffprobe command
+        result = subprocess.run(ffprobe_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        # Parse the result as JSON
+        video_info = json.loads(result.stdout)
+        
+        # Extract required information
+        if 'streams' in video_info and len(video_info['streams']) > 0:
+            stream_info = video_info['streams'][0]
+            width = stream_info.get('width', 'Unknown')
+            height = stream_info.get('height', 'Unknown')
+            duration = stream_info.get('duration', 'Unknown')
+            nb_frames = stream_info.get('nb_frames', 'Unknown')
+            avg_frame_rate = stream_info.get('avg_frame_rate', 'Unknown')
+            
+            # Parse frame rate (if it's available as a fraction)
+            fps = eval(avg_frame_rate) if '/' in avg_frame_rate else avg_frame_rate
+            
+            return {
+                'width': width,
+                'height': height,
+                'duration': float(duration),
+                'nb_frames': int(nb_frames),
+                'fps': fps
+            }
+        
+        return None
+    
+    def print_video_info(self, video_info):
+        """ Helper function to print video information. """
+
+        print(f"Video Info:")
+        print(f" - Resolution: {video_info['width']}x{video_info['height']}")
+        print(f" - Duration: {video_info['duration']} seconds")
+        print(f" - Frame Rate: {video_info['fps']} fps")
+        print(f" - Total Frames: {video_info['nb_frames']}")
+        print(f" - Frames to Process: {video_info['nb_frames'] / self.interval}")
+
     def process_video(self):
         """
-        Process the video: extract frames, detect objects, filter by query, save frames, and log detections.
+        Process the video: extract frames with FFmpeg, detect objects, filter by query, save frames, and log detections.
         """
-        cap = cv2.VideoCapture(self.video_path)
-        if not cap.isOpened():
-            raise Exception(f"ERROR: Unable to open video file '{self.video_path}'.")
 
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count / fps
+        # Get video information
+        video_info = self.get_video_info(self.video_path)
+        if video_info is None:
+            print("Failed to get video information.")
+        else: 
+            self.print_video_info(video_info)
 
-        print(f"Video FPS: {fps}")
-        print(f"Total frames: {frame_count}")
-        print(f"Video duration (s): {duration:.2f}")
+        # Defines FFmpeg command to extract frames at regular intervals (self.interval in seconds)
+        ffmpeg_command = [
+            'ffmpeg', '-i', self.video_path,                               # path to input video
+            '-vf', f'select=not(mod(n\\,{self.interval}))',                # Selects every nth frame (interval)
+            '-vsync', 'vfr',
+            f'{self.frames_output_dir}/frame_%04d.jpg'                     # Output frame path
+        ]
+        
+        # Start the FFmpeg process
+        ffmpeg_process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Wait for the process to finish
+        ffmpeg_process.wait()
 
-        current_time = 0.0
+         # Read the saved frames for processing
+        frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
+
         frame_number = 0
 
-        while cap.isOpened() and current_time <= duration:
-            cap.set(cv2.CAP_PROP_POS_MSEC, current_time * 1000)
-            ret, frame = cap.read()
-            if not ret:
-                break
+        for frame_number, frame_file in enumerate(frame_files):
+            print(f"Processing frame {frame_file}")
+            
+            # Read the saved frame
+            frame = cv2.imread(frame_file)
 
-            frame_number += 1
+            # Run YOLO detection on the frame
             detections = self.detector.detect_objects(frame)
-            timestamp = current_time
+            # Calculate timestamp by multiplying frame number by interval
+            timestamp = frame_number * (1 / video_info['fps']) * self.interval
 
             # Update timestamp in detections
             for det in detections:
                 det.timestamp = timestamp
 
-            # Check for the query in detections
-            found = False
+            # Log detections
             for det in detections:
-                if det.class_name == self.object_query:
-                    if self.color_filter.is_color_present(frame, det.bbox, self.color_query):
-                        found = True
-                        break
-
-            if found:
-                # Save the frame
-                frame_filename = os.path.join(self.frames_output_dir, f"frame_{int(timestamp)}s.png")
-                cv2.imwrite(frame_filename, frame)
-                print(f"Saved frame at {timestamp:.2f}s: {frame_filename}")
-
-                # Log all detections in this frame
-                log_entry = f"Frame {frame_number}, Timestamp: {timestamp:.2f}s\n"
-                for det in detections:
-                    log_entry += f" - Detected: {det.class_name}, Confidence: {det.confidence:.2f}, Timestamp: {det.timestamp:.2f}s\n"
-                log_entry += "\n"
+                log_entry = {
+                    "frame_number": frame_number,
+                    "frame_file": frame_file,
+                    "timestamp": timestamp,
+                    "class_name": det.class_name,
+                    "confidence": det.confidence,
+                    "bbox": det.bbox
+                }
                 self.log_entries.append(log_entry)
 
-            current_time += self.interval
+        # Clean up the FFmpeg process
+        ffmpeg_process.stdout.close()
+        ffmpeg_process.stderr.close()
+        ffmpeg_process.wait()
 
-        cap.release()
-
-        # Write log file
+        # Write log file in JSON format for better readability and later processing
         with open(self.log_file_path, 'w') as log_file:
-            log_file.writelines(self.log_entries)
-        print(f"Detection log saved to '{self.log_file_path}'.")
+            json.dump(self.log_entries, log_file, indent=4)
+        print(f"Metadata log saved to '{self.log_file_path}'.")
 
 def main():
     parser = argparse.ArgumentParser(description='YOLO Object Detection with Color Filtering')
     parser.add_argument('--video_path', type=str, help='Path to input video file')
     parser.add_argument('--output_dir', type=str, help='Directory to save output frames and logs')
     parser.add_argument('--query', type=str, help='Search query in the format "color object", e.g., "red car"')
-    parser.add_argument('--interval', type=int, default=2, help='Time interval in seconds to extract frames. Default is one frame each two seconds.')
+    parser.add_argument('--interval', type=int, default=30, help='Time interval in seconds to extract frames. Default is one frame each two seconds.')
 
     args = parser.parse_args()
 
