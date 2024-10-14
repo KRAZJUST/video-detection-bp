@@ -4,12 +4,12 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.6606156229972839,
+        "confidence": 0.6775164008140564,
         "bbox": [
-            903,
-            485,
-            936,
-            514
+            778,
+            439,
+            825,
+            475
         ]
     },
     {
@@ -17,10 +17,10 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.6503294110298157,
+        "confidence": 0.6666767597198486,
         "bbox": [
             683,
-            470,
+            472,
             755,
             519
         ]
@@ -30,24 +30,11 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.5581883192062378,
+        "confidence": 0.6463369131088257,
         "bbox": [
-            778,
-            443,
-            823,
-            475
-        ]
-    },
-    {
-        "frame_number": 0,
-        "frame_file": "outputs/found_frames/frame_0001.jpg",
-        "timestamp": 0.0,
-        "class_name": "car",
-        "confidence": 0.3590773344039917,
-        "bbox": [
-            833,
-            428,
-            864,
+            831,
+            425,
+            863,
             452
         ]
     },
@@ -56,12 +43,12 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.28967535495758057,
+        "confidence": 0.4744947552680969,
         "bbox": [
-            867,
-            416,
-            896,
-            437
+            1186,
+            556,
+            1271,
+            662
         ]
     },
     {
@@ -69,12 +56,12 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.2737971246242523,
+        "confidence": 0.2826707363128662,
         "bbox": [
-            982,
-            489,
+            981,
+            452,
             1027,
-            528
+            526
         ]
     },
     {
@@ -82,12 +69,12 @@
         "frame_file": "outputs/found_frames/frame_0001.jpg",
         "timestamp": 0.0,
         "class_name": "car",
-        "confidence": 0.2653157114982605,
+        "confidence": 0.27304697036743164,
         "bbox": [
-            887,
-            411,
-            910,
-            433
+            858,
+            422,
+            892,
+            446
         ]
     },
     {
@@ -95,12 +82,12 @@
         "frame_file": "outputs/found_frames/frame_0002.jpg",
         "timestamp": 2.77864238410596,
         "class_name": "car",
-        "confidence": 0.5655872225761414,
+        "confidence": 0.559416651725769,
         "bbox": [
-            765,
-            433,
-            810,
-            469
+            764,
+            429,
+            813,
+            471
         ]
     },
     {
@@ -108,25 +95,51 @@
         "frame_file": "outputs/found_frames/frame_0002.jpg",
         "timestamp": 2.77864238410596,
         "class_name": "car",
-        "confidence": 0.46242669224739075,
-        "bbox": [
-            654,
-            464,
-            734,
-            517
-        ]
-    },
-    {
-        "frame_number": 1,
-        "frame_file": "outputs/found_frames/frame_0002.jpg",
-        "timestamp": 2.77864238410596,
-        "class_name": "car",
-        "confidence": 0.3922184407711029,
+        "confidence": 0.49541205167770386,
         "bbox": [
             822,
-            421,
-            859,
+            416,
+            865,
             448
+        ]
+    },
+    {
+        "frame_number": 1,
+        "frame_file": "outputs/found_frames/frame_0002.jpg",
+        "timestamp": 2.77864238410596,
+        "class_name": "car",
+        "confidence": 0.4274577498435974,
+        "bbox": [
+            845,
+            411,
+            882,
+            440
+        ]
+    },
+    {
+        "frame_number": 1,
+        "frame_file": "outputs/found_frames/frame_0002.jpg",
+        "timestamp": 2.77864238410596,
+        "class_name": "car",
+        "confidence": 0.29136112332344055,
+        "bbox": [
+            821,
+            414,
+            878,
+            447
+        ]
+    },
+    {
+        "frame_number": 1,
+        "frame_file": "outputs/found_frames/frame_0002.jpg",
+        "timestamp": 2.77864238410596,
+        "class_name": "car",
+        "confidence": 0.2666698098182678,
+        "bbox": [
+            653,
+            472,
+            715,
+            521
         ]
     },
     {
@@ -134,11 +147,11 @@
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
         "class_name": "car",
-        "confidence": 0.8918875455856323,
+        "confidence": 0.8448798656463623,
         "bbox": [
-            74,
+            75,
             437,
-            336,
+            335,
             609
         ]
     },
@@ -146,13 +159,13 @@
         "frame_number": 2,
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
-        "class_name": "person",
-        "confidence": 0.686235249042511,
+        "class_name": "car",
+        "confidence": 0.8391945362091064,
         "bbox": [
-            542,
-            282,
-            564,
-            348
+            531,
+            313,
+            662,
+            411
         ]
     },
     {
@@ -160,37 +173,11 @@
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
         "class_name": "car",
-        "confidence": 0.6642951369285583,
+        "confidence": 0.7212241888046265,
         "bbox": [
-            700,
-            271,
-            796,
-            345
-        ]
-    },
-    {
-        "frame_number": 2,
-        "frame_file": "outputs/found_frames/frame_0003.jpg",
-        "timestamp": 5.55728476821192,
-        "class_name": "car",
-        "confidence": 0.6554923057556152,
-        "bbox": [
-            530,
-            312,
-            664,
-            410
-        ]
-    },
-    {
-        "frame_number": 2,
-        "frame_file": "outputs/found_frames/frame_0003.jpg",
-        "timestamp": 5.55728476821192,
-        "class_name": "car",
-        "confidence": 0.5934681296348572,
-        "bbox": [
-            793,
+            794,
             251,
-            860,
+            862,
             306
         ]
     },
@@ -199,12 +186,12 @@
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
         "class_name": "car",
-        "confidence": 0.5619965195655823,
+        "confidence": 0.6718132495880127,
         "bbox": [
-            913,
-            226,
-            954,
-            256
+            700,
+            269,
+            795,
+            347
         ]
     },
     {
@@ -212,10 +199,10 @@
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
         "class_name": "car",
-        "confidence": 0.5346305966377258,
+        "confidence": 0.6067157983779907,
         "bbox": [
-            856,
-            239,
+            858,
+            240,
             905,
             283
         ]
@@ -224,13 +211,39 @@
         "frame_number": 2,
         "frame_file": "outputs/found_frames/frame_0003.jpg",
         "timestamp": 5.55728476821192,
-        "class_name": "car",
-        "confidence": 0.3423677980899811,
+        "class_name": "person",
+        "confidence": 0.5338543653488159,
         "bbox": [
-            953,
-            204,
-            995,
-            237
+            541,
+            282,
+            565,
+            347
+        ]
+    },
+    {
+        "frame_number": 2,
+        "frame_file": "outputs/found_frames/frame_0003.jpg",
+        "timestamp": 5.55728476821192,
+        "class_name": "car",
+        "confidence": 0.519108235836029,
+        "bbox": [
+            952,
+            205,
+            994,
+            238
+        ]
+    },
+    {
+        "frame_number": 2,
+        "frame_file": "outputs/found_frames/frame_0003.jpg",
+        "timestamp": 5.55728476821192,
+        "class_name": "car",
+        "confidence": 0.5182479619979858,
+        "bbox": [
+            913,
+            228,
+            958,
+            256
         ]
     },
     {
@@ -238,12 +251,12 @@
         "frame_file": "outputs/found_frames/frame_0004.jpg",
         "timestamp": 8.33592715231788,
         "class_name": "car",
-        "confidence": 0.7566319108009338,
+        "confidence": 0.8125017881393433,
         "bbox": [
-            337,
-            361,
+            336,
+            359,
             514,
-            488
+            487
         ]
     },
     {
@@ -251,12 +264,12 @@
         "frame_file": "outputs/found_frames/frame_0004.jpg",
         "timestamp": 8.33592715231788,
         "class_name": "person",
-        "confidence": 0.7428999543190002,
+        "confidence": 0.7005745768547058,
         "bbox": [
-            562,
-            276,
-            588,
-            349
+            564,
+            277,
+            587,
+            347
         ]
     },
     {
@@ -264,12 +277,38 @@
         "frame_file": "outputs/found_frames/frame_0004.jpg",
         "timestamp": 8.33592715231788,
         "class_name": "car",
-        "confidence": 0.6817187070846558,
+        "confidence": 0.700542151927948,
         "bbox": [
-            613,
-            300,
+            737,
+            265,
+            818,
+            330
+        ]
+    },
+    {
+        "frame_number": 3,
+        "frame_file": "outputs/found_frames/frame_0004.jpg",
+        "timestamp": 8.33592715231788,
+        "class_name": "car",
+        "confidence": 0.6608036160469055,
+        "bbox": [
+            875,
+            238,
+            918,
+            269
+        ]
+    },
+    {
+        "frame_number": 3,
+        "frame_file": "outputs/found_frames/frame_0004.jpg",
+        "timestamp": 8.33592715231788,
+        "class_name": "car",
+        "confidence": 0.6436430811882019,
+        "bbox": [
+            612,
+            298,
             727,
-            384
+            381
         ]
     },
     {
@@ -277,11 +316,24 @@
         "frame_file": "outputs/found_frames/frame_0004.jpg",
         "timestamp": 8.33592715231788,
         "class_name": "car",
-        "confidence": 0.6444531083106995,
+        "confidence": 0.6378213167190552,
         "bbox": [
-            919,
+            812,
+            255,
+            869,
+            298
+        ]
+    },
+    {
+        "frame_number": 3,
+        "frame_file": "outputs/found_frames/frame_0004.jpg",
+        "timestamp": 8.33592715231788,
+        "class_name": "car",
+        "confidence": 0.5487242341041565,
+        "bbox": [
+            921,
             219,
-            972,
+            970,
             253
         ]
     },
@@ -290,38 +342,12 @@
         "frame_file": "outputs/found_frames/frame_0004.jpg",
         "timestamp": 8.33592715231788,
         "class_name": "car",
-        "confidence": 0.5962199568748474,
+        "confidence": 0.27917996048927307,
         "bbox": [
-            875,
-            237,
-            922,
-            271
-        ]
-    },
-    {
-        "frame_number": 3,
-        "frame_file": "outputs/found_frames/frame_0004.jpg",
-        "timestamp": 8.33592715231788,
-        "class_name": "car",
-        "confidence": 0.5594300031661987,
-        "bbox": [
-            815,
-            255,
-            871,
-            299
-        ]
-    },
-    {
-        "frame_number": 3,
-        "frame_file": "outputs/found_frames/frame_0004.jpg",
-        "timestamp": 8.33592715231788,
-        "class_name": "car",
-        "confidence": 0.4413406550884247,
-        "bbox": [
-            736,
-            263,
-            820,
-            328
+            735,
+            280,
+            812,
+            331
         ]
     },
     {
@@ -329,12 +355,12 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.8162755370140076,
+        "confidence": 0.8629680871963501,
         "bbox": [
-            69,
-            468,
-            174,
-            639
+            70,
+            465,
+            176,
+            638
         ]
     },
     {
@@ -342,11 +368,24 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.694206178188324,
+        "confidence": 0.8058714866638184,
         "bbox": [
-            444,
-            340,
-            603,
+            756,
+            266,
+            828,
+            319
+        ]
+    },
+    {
+        "frame_number": 4,
+        "frame_file": "outputs/found_frames/frame_0005.jpg",
+        "timestamp": 11.11456953642384,
+        "class_name": "car",
+        "confidence": 0.7399858236312866,
+        "bbox": [
+            445,
+            335,
+            602,
             450
         ]
     },
@@ -355,37 +394,11 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.6882516741752625,
-        "bbox": [
-            755,
-            262,
-            830,
-            320
-        ]
-    },
-    {
-        "frame_number": 4,
-        "frame_file": "outputs/found_frames/frame_0005.jpg",
-        "timestamp": 11.11456953642384,
-        "class_name": "car",
-        "confidence": 0.6135023832321167,
-        "bbox": [
-            879,
-            231,
-            930,
-            271
-        ]
-    },
-    {
-        "frame_number": 4,
-        "frame_file": "outputs/found_frames/frame_0005.jpg",
-        "timestamp": 11.11456953642384,
-        "class_name": "car",
-        "confidence": 0.5728775262832642,
+        "confidence": 0.7172777652740479,
         "bbox": [
             826,
             247,
-            883,
+            885,
             291
         ]
     },
@@ -393,13 +406,13 @@
         "frame_number": 4,
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
-        "class_name": "person",
-        "confidence": 0.49002593755722046,
+        "class_name": "car",
+        "confidence": 0.6742212176322937,
         "bbox": [
-            586,
-            276,
-            609,
-            341
+            881,
+            232,
+            932,
+            269
         ]
     },
     {
@@ -407,38 +420,25 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.48716437816619873,
+        "confidence": 0.5953651070594788,
         "bbox": [
             656,
-            317,
-            743,
-            363
-        ]
-    },
-    {
-        "frame_number": 4,
-        "frame_file": "outputs/found_frames/frame_0005.jpg",
-        "timestamp": 11.11456953642384,
-        "class_name": "car",
-        "confidence": 0.45047321915626526,
-        "bbox": [
-            985,
-            193,
-            1014,
-            223
-        ]
-    },
-    {
-        "frame_number": 4,
-        "frame_file": "outputs/found_frames/frame_0005.jpg",
-        "timestamp": 11.11456953642384,
-        "class_name": "car",
-        "confidence": 0.3256484866142273,
-        "bbox": [
-            667,
             287,
             761,
-            357
+            361
+        ]
+    },
+    {
+        "frame_number": 4,
+        "frame_file": "outputs/found_frames/frame_0005.jpg",
+        "timestamp": 11.11456953642384,
+        "class_name": "person",
+        "confidence": 0.5736909508705139,
+        "bbox": [
+            584,
+            273,
+            610,
+            342
         ]
     },
     {
@@ -446,12 +446,12 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.32034382224082947,
+        "confidence": 0.36873945593833923,
         "bbox": [
-            656,
-            296,
-            750,
-            364
+            984,
+            194,
+            1013,
+            222
         ]
     },
     {
@@ -459,12 +459,12 @@
         "frame_file": "outputs/found_frames/frame_0005.jpg",
         "timestamp": 11.11456953642384,
         "class_name": "car",
-        "confidence": 0.2695765793323517,
+        "confidence": 0.28057751059532166,
         "bbox": [
-            802,
-            371,
-            840,
-            395
+            1163,
+            233,
+            1203,
+            281
         ]
     },
     {
@@ -472,11 +472,11 @@
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
         "class_name": "car",
-        "confidence": 0.91653972864151,
+        "confidence": 0.8852274417877197,
         "bbox": [
-            73,
-            421,
-            340,
+            75,
+            420,
+            341,
             599
         ]
     },
@@ -485,12 +485,12 @@
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
         "class_name": "car",
-        "confidence": 0.8673838376998901,
+        "confidence": 0.7795366048812866,
         "bbox": [
-            672,
+            671,
             287,
             761,
-            353
+            354
         ]
     },
     {
@@ -498,37 +498,11 @@
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
         "class_name": "car",
-        "confidence": 0.7565597891807556,
+        "confidence": 0.6928139925003052,
         "bbox": [
-            496,
-            323,
-            645,
-            426
-        ]
-    },
-    {
-        "frame_number": 5,
-        "frame_file": "outputs/found_frames/frame_0006.jpg",
-        "timestamp": 13.893211920529803,
-        "class_name": "car",
-        "confidence": 0.717128574848175,
-        "bbox": [
-            770,
-            263,
-            841,
-            311
-        ]
-    },
-    {
-        "frame_number": 5,
-        "frame_file": "outputs/found_frames/frame_0006.jpg",
-        "timestamp": 13.893211920529803,
-        "class_name": "car",
-        "confidence": 0.5908108949661255,
-        "bbox": [
-            831,
-            245,
-            889,
+            832,
+            244,
+            890,
             285
         ]
     },
@@ -537,11 +511,11 @@
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
         "class_name": "car",
-        "confidence": 0.5708825588226318,
+        "confidence": 0.6711192727088928,
         "bbox": [
             939,
             207,
-            986,
+            988,
             246
         ]
     },
@@ -549,13 +523,13 @@
         "frame_number": 5,
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
-        "class_name": "person",
-        "confidence": 0.5588077902793884,
+        "class_name": "car",
+        "confidence": 0.6698786020278931,
         "bbox": [
-            607,
-            267,
-            634,
-            330
+            496,
+            323,
+            644,
+            426
         ]
     },
     {
@@ -563,12 +537,25 @@
         "frame_file": "outputs/found_frames/frame_0006.jpg",
         "timestamp": 13.893211920529803,
         "class_name": "car",
-        "confidence": 0.29137179255485535,
+        "confidence": 0.6251472234725952,
         "bbox": [
-            1099,
-            268,
-            1196,
-            331
+            767,
+            262,
+            842,
+            311
+        ]
+    },
+    {
+        "frame_number": 5,
+        "frame_file": "outputs/found_frames/frame_0006.jpg",
+        "timestamp": 13.893211920529803,
+        "class_name": "person",
+        "confidence": 0.5536255836486816,
+        "bbox": [
+            607,
+            266,
+            630,
+            328
         ]
     },
     {
@@ -576,12 +563,12 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "car",
-        "confidence": 0.7924817800521851,
+        "confidence": 0.7539995312690735,
         "bbox": [
-            211,
-            384,
-            434,
-            536
+            210,
+            383,
+            436,
+            532
         ]
     },
     {
@@ -589,12 +576,12 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "car",
-        "confidence": 0.7484560608863831,
+        "confidence": 0.7280471920967102,
         "bbox": [
-            696,
-            281,
-            783,
-            342
+            541,
+            324,
+            658,
+            405
         ]
     },
     {
@@ -602,12 +589,12 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "person",
-        "confidence": 0.732894778251648,
+        "confidence": 0.7126838564872742,
         "bbox": [
-            629,
-            263,
+            626,
+            262,
             650,
-            326
+            328
         ]
     },
     {
@@ -615,12 +602,12 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "car",
-        "confidence": 0.7115985155105591,
+        "confidence": 0.6698254942893982,
         "bbox": [
-            542,
-            322,
-            659,
-            404
+            697,
+            283,
+            784,
+            342
         ]
     },
     {
@@ -628,11 +615,24 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "car",
-        "confidence": 0.6730139851570129,
+        "confidence": 0.6253481507301331,
         "bbox": [
-            788,
-            253,
-            855,
+            884,
+            223,
+            942,
+            265
+        ]
+    },
+    {
+        "frame_number": 6,
+        "frame_file": "outputs/found_frames/frame_0007.jpg",
+        "timestamp": 16.67185430463576,
+        "class_name": "car",
+        "confidence": 0.5774176120758057,
+        "bbox": [
+            785,
+            254,
+            856,
             301
         ]
     },
@@ -641,25 +641,12 @@
         "frame_file": "outputs/found_frames/frame_0007.jpg",
         "timestamp": 16.67185430463576,
         "class_name": "car",
-        "confidence": 0.61528480052948,
+        "confidence": 0.4459148049354553,
         "bbox": [
-            884,
-            223,
-            941,
-            264
-        ]
-    },
-    {
-        "frame_number": 6,
-        "frame_file": "outputs/found_frames/frame_0007.jpg",
-        "timestamp": 16.67185430463576,
-        "class_name": "car",
-        "confidence": 0.2778988480567932,
-        "bbox": [
-            1099,
-            268,
-            1195,
-            331
+            814,
+            255,
+            857,
+            299
         ]
     },
     {
@@ -667,12 +654,12 @@
         "frame_file": "outputs/found_frames/frame_0008.jpg",
         "timestamp": 19.45049668874172,
         "class_name": "car",
-        "confidence": 0.8778771758079529,
+        "confidence": 0.8514264225959778,
         "bbox": [
-            68,
-            454,
-            201,
-            654
+            67,
+            456,
+            203,
+            651
         ]
     },
     {
@@ -680,11 +667,24 @@
         "frame_file": "outputs/found_frames/frame_0008.jpg",
         "timestamp": 19.45049668874172,
         "class_name": "car",
-        "confidence": 0.7617183923721313,
+        "confidence": 0.8472285270690918,
         "bbox": [
-            352,
-            369,
-            507,
+            580,
+            313,
+            692,
+            390
+        ]
+    },
+    {
+        "frame_number": 7,
+        "frame_file": "outputs/found_frames/frame_0008.jpg",
+        "timestamp": 19.45049668874172,
+        "class_name": "car",
+        "confidence": 0.8169376254081726,
+        "bbox": [
+            353,
+            367,
+            509,
             477
         ]
     },
@@ -693,22 +693,9 @@
         "frame_file": "outputs/found_frames/frame_0008.jpg",
         "timestamp": 19.45049668874172,
         "class_name": "car",
-        "confidence": 0.7351969480514526,
+        "confidence": 0.7682484984397888,
         "bbox": [
-            582,
-            310,
-            693,
-            389
-        ]
-    },
-    {
-        "frame_number": 7,
-        "frame_file": "outputs/found_frames/frame_0008.jpg",
-        "timestamp": 19.45049668874172,
-        "class_name": "car",
-        "confidence": 0.6899916529655457,
-        "bbox": [
-            741,
+            739,
             266,
             819,
             320
@@ -719,11 +706,11 @@
         "frame_file": "outputs/found_frames/frame_0008.jpg",
         "timestamp": 19.45049668874172,
         "class_name": "car",
-        "confidence": 0.601893961429596,
+        "confidence": 0.6046997308731079,
         "bbox": [
-            834,
-            240,
-            891,
+            835,
+            238,
+            893,
             282
         ]
     },
@@ -732,25 +719,12 @@
         "frame_file": "outputs/found_frames/frame_0008.jpg",
         "timestamp": 19.45049668874172,
         "class_name": "person",
-        "confidence": 0.4738702178001404,
+        "confidence": 0.3275451064109802,
         "bbox": [
-            654,
-            263,
-            677,
-            308
-        ]
-    },
-    {
-        "frame_number": 7,
-        "frame_file": "outputs/found_frames/frame_0008.jpg",
-        "timestamp": 19.45049668874172,
-        "class_name": "car",
-        "confidence": 0.2643604278564453,
-        "bbox": [
-            1098,
-            266,
-            1198,
-            331
+            655,
+            261,
+            679,
+            311
         ]
     },
     {
@@ -758,50 +732,11 @@
         "frame_file": "outputs/found_frames/frame_0009.jpg",
         "timestamp": 22.22913907284768,
         "class_name": "car",
-        "confidence": 0.8659444451332092,
-        "bbox": [
-            68,
-            478,
-            140,
-            636
-        ]
-    },
-    {
-        "frame_number": 8,
-        "frame_file": "outputs/found_frames/frame_0009.jpg",
-        "timestamp": 22.22913907284768,
-        "class_name": "car",
-        "confidence": 0.8598256707191467,
-        "bbox": [
-            157,
-            416,
-            364,
-            556
-        ]
-    },
-    {
-        "frame_number": 8,
-        "frame_file": "outputs/found_frames/frame_0009.jpg",
-        "timestamp": 22.22913907284768,
-        "class_name": "car",
-        "confidence": 0.8521391749382019,
-        "bbox": [
-            687,
-            279,
-            780,
-            342
-        ]
-    },
-    {
-        "frame_number": 8,
-        "frame_file": "outputs/found_frames/frame_0009.jpg",
-        "timestamp": 22.22913907284768,
-        "class_name": "car",
-        "confidence": 0.7986879348754883,
+        "confidence": 0.8655776381492615,
         "bbox": [
             434,
-            348,
-            582,
+            347,
+            581,
             446
         ]
     },
@@ -810,12 +745,51 @@
         "frame_file": "outputs/found_frames/frame_0009.jpg",
         "timestamp": 22.22913907284768,
         "class_name": "car",
-        "confidence": 0.6619375944137573,
+        "confidence": 0.8604192137718201,
         "bbox": [
-            792,
+            156,
+            413,
+            366,
+            556
+        ]
+    },
+    {
+        "frame_number": 8,
+        "frame_file": "outputs/found_frames/frame_0009.jpg",
+        "timestamp": 22.22913907284768,
+        "class_name": "car",
+        "confidence": 0.844637930393219,
+        "bbox": [
+            68,
+            480,
+            139,
+            635
+        ]
+    },
+    {
+        "frame_number": 8,
+        "frame_file": "outputs/found_frames/frame_0009.jpg",
+        "timestamp": 22.22913907284768,
+        "class_name": "car",
+        "confidence": 0.7205274105072021,
+        "bbox": [
+            787,
             246,
-            857,
-            298
+            861,
+            301
+        ]
+    },
+    {
+        "frame_number": 8,
+        "frame_file": "outputs/found_frames/frame_0009.jpg",
+        "timestamp": 22.22913907284768,
+        "class_name": "car",
+        "confidence": 0.6953759789466858,
+        "bbox": [
+            688,
+            281,
+            779,
+            341
         ]
     },
     {
@@ -823,25 +797,12 @@
         "frame_file": "outputs/found_frames/frame_0009.jpg",
         "timestamp": 22.22913907284768,
         "class_name": "person",
-        "confidence": 0.39104577898979187,
+        "confidence": 0.47051823139190674,
         "bbox": [
-            675,
-            255,
-            695,
-            309
-        ]
-    },
-    {
-        "frame_number": 8,
-        "frame_file": "outputs/found_frames/frame_0009.jpg",
-        "timestamp": 22.22913907284768,
-        "class_name": "car",
-        "confidence": 0.29694271087646484,
-        "bbox": [
-            1099,
-            392,
-            1189,
-            458
+            676,
+            251,
+            698,
+            311
         ]
     },
     {
@@ -849,12 +810,12 @@
         "frame_file": "outputs/found_frames/frame_0009.jpg",
         "timestamp": 22.22913907284768,
         "class_name": "person",
-        "confidence": 0.28144386410713196,
+        "confidence": 0.32375916838645935,
         "bbox": [
-            666,
-            252,
-            684,
-            309
+            669,
+            251,
+            696,
+            311
         ]
     },
     {
@@ -862,12 +823,12 @@
         "frame_file": "outputs/found_frames/frame_0010.jpg",
         "timestamp": 25.007781456953644,
         "class_name": "car",
-        "confidence": 0.8642364144325256,
+        "confidence": 0.8751723766326904,
         "bbox": [
-            627,
-            293,
-            732,
-            364
+            125,
+            421,
+            339,
+            567
         ]
     },
     {
@@ -875,10 +836,10 @@
         "frame_file": "outputs/found_frames/frame_0010.jpg",
         "timestamp": 25.007781456953644,
         "class_name": "car",
-        "confidence": 0.8621419668197632,
+        "confidence": 0.8530459403991699,
         "bbox": [
             67,
-            478,
+            480,
             139,
             637
         ]
@@ -888,25 +849,12 @@
         "frame_file": "outputs/found_frames/frame_0010.jpg",
         "timestamp": 25.007781456953644,
         "class_name": "car",
-        "confidence": 0.8561782240867615,
+        "confidence": 0.8478360176086426,
         "bbox": [
-            126,
-            422,
-            339,
-            567
-        ]
-    },
-    {
-        "frame_number": 9,
-        "frame_file": "outputs/found_frames/frame_0010.jpg",
-        "timestamp": 25.007781456953644,
-        "class_name": "car",
-        "confidence": 0.8017645478248596,
-        "bbox": [
-            339,
-            372,
+            340,
+            371,
             506,
-            484
+            482
         ]
     },
     {
@@ -914,12 +862,12 @@
         "frame_file": "outputs/found_frames/frame_0010.jpg",
         "timestamp": 25.007781456953644,
         "class_name": "car",
-        "confidence": 0.7624598741531372,
+        "confidence": 0.7992681860923767,
         "bbox": [
             741,
             257,
-            825,
-            317
+            824,
+            319
         ]
     },
     {
@@ -927,25 +875,12 @@
         "frame_file": "outputs/found_frames/frame_0010.jpg",
         "timestamp": 25.007781456953644,
         "class_name": "car",
-        "confidence": 0.30926385521888733,
+        "confidence": 0.7903397679328918,
         "bbox": [
-            1098,
-            267,
-            1197,
-            331
-        ]
-    },
-    {
-        "frame_number": 9,
-        "frame_file": "outputs/found_frames/frame_0010.jpg",
-        "timestamp": 25.007781456953644,
-        "class_name": "person",
-        "confidence": 0.28972840309143066,
-        "bbox": [
-            644,
-            253,
-            663,
-            302
+            627,
+            298,
+            733,
+            364
         ]
     },
     {
@@ -953,12 +888,25 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "car",
-        "confidence": 0.8499286770820618,
+        "confidence": 0.8748232126235962,
+        "bbox": [
+            123,
+            421,
+            339,
+            566
+        ]
+    },
+    {
+        "frame_number": 10,
+        "frame_file": "outputs/found_frames/frame_0011.jpg",
+        "timestamp": 27.786423841059605,
+        "class_name": "car",
+        "confidence": 0.8559302687644958,
         "bbox": [
             68,
-            479,
+            481,
             137,
-            636
+            637
         ]
     },
     {
@@ -966,12 +914,12 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "car",
-        "confidence": 0.8188628554344177,
+        "confidence": 0.844435453414917,
         "bbox": [
-            125,
-            422,
-            339,
-            567
+            332,
+            377,
+            495,
+            486
         ]
     },
     {
@@ -979,11 +927,11 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "car",
-        "confidence": 0.8067668080329895,
+        "confidence": 0.811295747756958,
         "bbox": [
-            568,
+            566,
             309,
-            686,
+            685,
             388
         ]
     },
@@ -992,12 +940,12 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "car",
-        "confidence": 0.8016969561576843,
+        "confidence": 0.7937139272689819,
         "bbox": [
-            332,
-            379,
-            496,
-            488
+            686,
+            270,
+            780,
+            339
         ]
     },
     {
@@ -1005,37 +953,11 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "car",
-        "confidence": 0.7514352202415466,
+        "confidence": 0.5487883687019348,
         "bbox": [
-            687,
-            271,
-            781,
-            338
-        ]
-    },
-    {
-        "frame_number": 10,
-        "frame_file": "outputs/found_frames/frame_0011.jpg",
-        "timestamp": 27.786423841059605,
-        "class_name": "person",
-        "confidence": 0.4464806914329529,
-        "bbox": [
-            632,
-            261,
-            654,
-            306
-        ]
-    },
-    {
-        "frame_number": 10,
-        "frame_file": "outputs/found_frames/frame_0011.jpg",
-        "timestamp": 27.786423841059605,
-        "class_name": "car",
-        "confidence": 0.4209447205066681,
-        "bbox": [
-            969,
-            178,
-            1011,
+            968,
+            180,
+            1012,
             236
         ]
     },
@@ -1043,13 +965,13 @@
         "frame_number": 10,
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
-        "class_name": "car",
-        "confidence": 0.407993882894516,
+        "class_name": "person",
+        "confidence": 0.5383270382881165,
         "bbox": [
-            1098,
-            268,
-            1196,
-            331
+            632,
+            261,
+            653,
+            311
         ]
     },
     {
@@ -1057,12 +979,25 @@
         "frame_file": "outputs/found_frames/frame_0011.jpg",
         "timestamp": 27.786423841059605,
         "class_name": "person",
-        "confidence": 0.2920624315738678,
+        "confidence": 0.442778080701828,
         "bbox": [
             719,
-            236,
-            747,
-            271
+            233,
+            744,
+            272
+        ]
+    },
+    {
+        "frame_number": 10,
+        "frame_file": "outputs/found_frames/frame_0011.jpg",
+        "timestamp": 27.786423841059605,
+        "class_name": "car",
+        "confidence": 0.25929948687553406,
+        "bbox": [
+            1163,
+            234,
+            1204,
+            280
         ]
     },
     {
@@ -1070,9 +1005,9 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "car",
-        "confidence": 0.8701187968254089,
+        "confidence": 0.8824744820594788,
         "bbox": [
-            124,
+            123,
             423,
             340,
             566
@@ -1083,25 +1018,12 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "car",
-        "confidence": 0.852113664150238,
-        "bbox": [
-            332,
-            378,
-            497,
-            488
-        ]
-    },
-    {
-        "frame_number": 11,
-        "frame_file": "outputs/found_frames/frame_0012.jpg",
-        "timestamp": 30.56506622516556,
-        "class_name": "car",
-        "confidence": 0.8390047550201416,
+        "confidence": 0.8636128902435303,
         "bbox": [
             68,
-            478,
-            137,
-            636
+            480,
+            136,
+            637
         ]
     },
     {
@@ -1109,12 +1031,12 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "car",
-        "confidence": 0.6928007006645203,
+        "confidence": 0.8561379313468933,
         "bbox": [
-            517,
-            319,
-            648,
-            407
+            331,
+            378,
+            495,
+            486
         ]
     },
     {
@@ -1122,11 +1044,11 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "car",
-        "confidence": 0.6362941265106201,
+        "confidence": 0.624250054359436,
         "bbox": [
-            632,
+            630,
             283,
-            741,
+            740,
             359
         ]
     },
@@ -1135,12 +1057,12 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "car",
-        "confidence": 0.295183390378952,
+        "confidence": 0.5479110479354858,
         "bbox": [
-            1099,
-            267,
-            1198,
-            331
+            517,
+            319,
+            647,
+            405
         ]
     },
     {
@@ -1148,25 +1070,12 @@
         "frame_file": "outputs/found_frames/frame_0012.jpg",
         "timestamp": 30.56506622516556,
         "class_name": "person",
-        "confidence": 0.2924152910709381,
+        "confidence": 0.25307199358940125,
         "bbox": [
-            705,
-            233,
-            721,
-            281
-        ]
-    },
-    {
-        "frame_number": 11,
-        "frame_file": "outputs/found_frames/frame_0012.jpg",
-        "timestamp": 30.56506622516556,
-        "class_name": "person",
-        "confidence": 0.2892872095108032,
-        "bbox": [
-            742,
-            242,
+            743,
+            243,
             766,
-            301
+            298
         ]
     },
     {
@@ -1174,9 +1083,9 @@
         "frame_file": "outputs/found_frames/frame_0013.jpg",
         "timestamp": 33.34370860927152,
         "class_name": "car",
-        "confidence": 0.8664195537567139,
+        "confidence": 0.8856834173202515,
         "bbox": [
-            124,
+            123,
             423,
             339,
             566
@@ -1187,25 +1096,12 @@
         "frame_file": "outputs/found_frames/frame_0013.jpg",
         "timestamp": 33.34370860927152,
         "class_name": "car",
-        "confidence": 0.8590297698974609,
-        "bbox": [
-            332,
-            378,
-            496,
-            489
-        ]
-    },
-    {
-        "frame_number": 12,
-        "frame_file": "outputs/found_frames/frame_0013.jpg",
-        "timestamp": 33.34370860927152,
-        "class_name": "car",
-        "confidence": 0.8414382338523865,
+        "confidence": 0.8631925582885742,
         "bbox": [
             68,
-            478,
-            137,
-            636
+            481,
+            136,
+            637
         ]
     },
     {
@@ -1213,11 +1109,24 @@
         "frame_file": "outputs/found_frames/frame_0013.jpg",
         "timestamp": 33.34370860927152,
         "class_name": "car",
-        "confidence": 0.7028377652168274,
+        "confidence": 0.8543433547019958,
         "bbox": [
-            482,
-            336,
-            617,
+            330,
+            378,
+            495,
+            487
+        ]
+    },
+    {
+        "frame_number": 12,
+        "frame_file": "outputs/found_frames/frame_0013.jpg",
+        "timestamp": 33.34370860927152,
+        "class_name": "car",
+        "confidence": 0.8197183012962341,
+        "bbox": [
+            483,
+            335,
+            615,
             421
         ]
     },
@@ -1226,10 +1135,10 @@
         "frame_file": "outputs/found_frames/frame_0013.jpg",
         "timestamp": 33.34370860927152,
         "class_name": "car",
-        "confidence": 0.6175747513771057,
+        "confidence": 0.5585424304008484,
         "bbox": [
-            591,
-            297,
+            590,
+            295,
             704,
             378
         ]
@@ -1238,65 +1147,26 @@
         "frame_number": 12,
         "frame_file": "outputs/found_frames/frame_0013.jpg",
         "timestamp": 33.34370860927152,
-        "class_name": "person",
-        "confidence": 0.5041303038597107,
-        "bbox": [
-            689,
-            238,
-            710,
-            289
-        ]
-    },
-    {
-        "frame_number": 12,
-        "frame_file": "outputs/found_frames/frame_0013.jpg",
-        "timestamp": 33.34370860927152,
-        "class_name": "person",
-        "confidence": 0.4920961856842041,
-        "bbox": [
-            757,
-            242,
-            775,
-            296
-        ]
-    },
-    {
-        "frame_number": 12,
-        "frame_file": "outputs/found_frames/frame_0013.jpg",
-        "timestamp": 33.34370860927152,
         "class_name": "car",
-        "confidence": 0.4396645128726959,
+        "confidence": 0.45977163314819336,
         "bbox": [
-            888,
-            228,
+            887,
+            226,
             956,
-            291
-        ]
-    },
-    {
-        "frame_number": 12,
-        "frame_file": "outputs/found_frames/frame_0013.jpg",
-        "timestamp": 33.34370860927152,
-        "class_name": "car",
-        "confidence": 0.3700069487094879,
-        "bbox": [
-            1099,
-            268,
-            1195,
-            332
-        ]
-    },
-    {
-        "frame_number": 12,
-        "frame_file": "outputs/found_frames/frame_0013.jpg",
-        "timestamp": 33.34370860927152,
-        "class_name": "car",
-        "confidence": 0.28545433282852173,
-        "bbox": [
-            888,
-            250,
-            955,
             292
+        ]
+    },
+    {
+        "frame_number": 12,
+        "frame_file": "outputs/found_frames/frame_0013.jpg",
+        "timestamp": 33.34370860927152,
+        "class_name": "person",
+        "confidence": 0.284213662147522,
+        "bbox": [
+            756,
+            245,
+            776,
+            297
         ]
     },
     {
@@ -1304,10 +1174,10 @@
         "frame_file": "outputs/found_frames/frame_0014.jpg",
         "timestamp": 36.12235099337748,
         "class_name": "car",
-        "confidence": 0.8527888655662537,
+        "confidence": 0.8868710994720459,
         "bbox": [
-            124,
-            423,
+            123,
+            422,
             339,
             566
         ]
@@ -1317,12 +1187,12 @@
         "frame_file": "outputs/found_frames/frame_0014.jpg",
         "timestamp": 36.12235099337748,
         "class_name": "car",
-        "confidence": 0.8498843312263489,
+        "confidence": 0.8672764897346497,
         "bbox": [
-            332,
+            330,
             378,
             495,
-            488
+            486
         ]
     },
     {
@@ -1330,10 +1200,10 @@
         "frame_file": "outputs/found_frames/frame_0014.jpg",
         "timestamp": 36.12235099337748,
         "class_name": "car",
-        "confidence": 0.8397419452667236,
+        "confidence": 0.8601399064064026,
         "bbox": [
             68,
-            479,
+            480,
             137,
             637
         ]
@@ -1343,12 +1213,12 @@
         "frame_file": "outputs/found_frames/frame_0014.jpg",
         "timestamp": 36.12235099337748,
         "class_name": "car",
-        "confidence": 0.7072632908821106,
+        "confidence": 0.7441833019256592,
         "bbox": [
-            468,
-            337,
+            470,
+            334,
             601,
-            427
+            428
         ]
     },
     {
@@ -1356,38 +1226,12 @@
         "frame_file": "outputs/found_frames/frame_0014.jpg",
         "timestamp": 36.12235099337748,
         "class_name": "car",
-        "confidence": 0.6465383768081665,
+        "confidence": 0.5951520800590515,
         "bbox": [
-            564,
-            302,
-            684,
-            390
-        ]
-    },
-    {
-        "frame_number": 13,
-        "frame_file": "outputs/found_frames/frame_0014.jpg",
-        "timestamp": 36.12235099337748,
-        "class_name": "car",
-        "confidence": 0.376408189535141,
-        "bbox": [
-            805,
-            256,
-            902,
-            348
-        ]
-    },
-    {
-        "frame_number": 13,
-        "frame_file": "outputs/found_frames/frame_0014.jpg",
-        "timestamp": 36.12235099337748,
-        "class_name": "car",
-        "confidence": 0.34560608863830566,
-        "bbox": [
-            1099,
-            267,
-            1197,
-            333
+            570,
+            300,
+            686,
+            387
         ]
     },
     {
@@ -1395,12 +1239,12 @@
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
         "class_name": "car",
-        "confidence": 0.8469335436820984,
+        "confidence": 0.8910592198371887,
         "bbox": [
-            125,
+            123,
             422,
-            339,
-            567
+            340,
+            566
         ]
     },
     {
@@ -1408,10 +1252,23 @@
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
         "class_name": "car",
-        "confidence": 0.8428919315338135,
+        "confidence": 0.8677398562431335,
+        "bbox": [
+            330,
+            378,
+            495,
+            486
+        ]
+    },
+    {
+        "frame_number": 14,
+        "frame_file": "outputs/found_frames/frame_0015.jpg",
+        "timestamp": 38.90099337748344,
+        "class_name": "car",
+        "confidence": 0.8614855408668518,
         "bbox": [
             68,
-            479,
+            480,
             137,
             637
         ]
@@ -1421,12 +1278,12 @@
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
         "class_name": "car",
-        "confidence": 0.8408674597740173,
+        "confidence": 0.7940877676010132,
         "bbox": [
-            332,
-            377,
-            495,
-            489
+            469,
+            336,
+            597,
+            430
         ]
     },
     {
@@ -1434,25 +1291,12 @@
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
         "class_name": "car",
-        "confidence": 0.7933602929115295,
-        "bbox": [
-            467,
-            337,
-            598,
-            431
-        ]
-    },
-    {
-        "frame_number": 14,
-        "frame_file": "outputs/found_frames/frame_0015.jpg",
-        "timestamp": 38.90099337748344,
-        "class_name": "car",
-        "confidence": 0.49982815980911255,
+        "confidence": 0.45333540439605713,
         "bbox": [
             563,
-            308,
-            650,
-            395
+            305,
+            662,
+            393
         ]
     },
     {
@@ -1460,11 +1304,11 @@
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
         "class_name": "car",
-        "confidence": 0.4608418345451355,
+        "confidence": 0.410577654838562,
         "bbox": [
-            844,
+            845,
             193,
-            928,
+            925,
             225
         ]
     },
@@ -1472,26 +1316,26 @@
         "frame_number": 14,
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
-        "class_name": "person",
-        "confidence": 0.39287322759628296,
+        "class_name": "car",
+        "confidence": 0.33498892188072205,
         "bbox": [
-            522,
-            292,
-            542,
-            336
+            564,
+            334,
+            644,
+            393
         ]
     },
     {
         "frame_number": 14,
         "frame_file": "outputs/found_frames/frame_0015.jpg",
         "timestamp": 38.90099337748344,
-        "class_name": "car",
-        "confidence": 0.38960686326026917,
+        "class_name": "person",
+        "confidence": 0.2817787230014801,
         "bbox": [
-            1098,
-            266,
-            1199,
-            332
+            521,
+            292,
+            542,
+            339
         ]
     },
     {
@@ -1499,10 +1343,10 @@
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
         "class_name": "car",
-        "confidence": 0.7452376484870911,
+        "confidence": 0.804924488067627,
         "bbox": [
-            461,
-            338,
+            466,
+            334,
             597,
             430
         ]
@@ -1512,12 +1356,38 @@
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
         "class_name": "car",
-        "confidence": 0.6734182238578796,
+        "confidence": 0.7335911989212036,
         "bbox": [
-            563,
-            302,
-            674,
-            390
+            565,
+            301,
+            677,
+            393
+        ]
+    },
+    {
+        "frame_number": 15,
+        "frame_file": "outputs/found_frames/frame_0016.jpg",
+        "timestamp": 41.6796357615894,
+        "class_name": "car",
+        "confidence": 0.6260221600532532,
+        "bbox": [
+            907,
+            197,
+            991,
+            228
+        ]
+    },
+    {
+        "frame_number": 15,
+        "frame_file": "outputs/found_frames/frame_0016.jpg",
+        "timestamp": 41.6796357615894,
+        "class_name": "car",
+        "confidence": 0.6197837591171265,
+        "bbox": [
+            68,
+            478,
+            134,
+            639
         ]
     },
     {
@@ -1525,10 +1395,10 @@
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
         "class_name": "person",
-        "confidence": 0.6400743126869202,
+        "confidence": 0.4528736174106598,
         "bbox": [
-            484,
-            296,
+            483,
+            294,
             509,
             361
         ]
@@ -1538,51 +1408,12 @@
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
         "class_name": "car",
-        "confidence": 0.5899516344070435,
+        "confidence": 0.41539353132247925,
         "bbox": [
-            69,
-            479,
-            132,
-            640
-        ]
-    },
-    {
-        "frame_number": 15,
-        "frame_file": "outputs/found_frames/frame_0016.jpg",
-        "timestamp": 41.6796357615894,
-        "class_name": "car",
-        "confidence": 0.44819626212120056,
-        "bbox": [
-            820,
-            198,
-            894,
-            229
-        ]
-    },
-    {
-        "frame_number": 15,
-        "frame_file": "outputs/found_frames/frame_0016.jpg",
-        "timestamp": 41.6796357615894,
-        "class_name": "car",
-        "confidence": 0.42204853892326355,
-        "bbox": [
-            910,
-            200,
-            987,
-            228
-        ]
-    },
-    {
-        "frame_number": 15,
-        "frame_file": "outputs/found_frames/frame_0016.jpg",
-        "timestamp": 41.6796357615894,
-        "class_name": "car",
-        "confidence": 0.389541357755661,
-        "bbox": [
-            1099,
-            266,
-            1198,
-            332
+            822,
+            196,
+            895,
+            230
         ]
     },
     {
@@ -1590,25 +1421,38 @@
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
         "class_name": "person",
-        "confidence": 0.35419899225234985,
+        "confidence": 0.38678979873657227,
         "bbox": [
-            636,
-            253,
-            656,
-            303
+            780,
+            235,
+            799,
+            279
         ]
     },
     {
         "frame_number": 15,
         "frame_file": "outputs/found_frames/frame_0016.jpg",
         "timestamp": 41.6796357615894,
-        "class_name": "car",
-        "confidence": 0.2840900719165802,
+        "class_name": "person",
+        "confidence": 0.3338494598865509,
         "bbox": [
-            408,
-            337,
-            598,
-            431
+            634,
+            252,
+            656,
+            302
+        ]
+    },
+    {
+        "frame_number": 15,
+        "frame_file": "outputs/found_frames/frame_0016.jpg",
+        "timestamp": 41.6796357615894,
+        "class_name": "person",
+        "confidence": 0.28267616033554077,
+        "bbox": [
+            340,
+            534,
+            378,
+            624
         ]
     },
     {
@@ -1616,10 +1460,10 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.865001916885376,
+        "confidence": 0.8820791244506836,
         "bbox": [
-            125,
-            421,
+            123,
+            420,
             339,
             567
         ]
@@ -1629,12 +1473,12 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.843597948551178,
+        "confidence": 0.8719465732574463,
         "bbox": [
-            332,
-            378,
+            331,
+            375,
             494,
-            489
+            486
         ]
     },
     {
@@ -1642,12 +1486,12 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.8335866332054138,
+        "confidence": 0.8571580648422241,
         "bbox": [
             68,
-            478,
+            479,
             137,
-            636
+            637
         ]
     },
     {
@@ -1655,11 +1499,11 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.7818652391433716,
+        "confidence": 0.7971401810646057,
         "bbox": [
-            467,
-            338,
-            597,
+            468,
+            333,
+            596,
             430
         ]
     },
@@ -1668,37 +1512,11 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.5976670384407043,
+        "confidence": 0.625242292881012,
         "bbox": [
-            558,
-            303,
-            674,
-            392
-        ]
-    },
-    {
-        "frame_number": 16,
-        "frame_file": "outputs/found_frames/frame_0017.jpg",
-        "timestamp": 44.45827814569536,
-        "class_name": "car",
-        "confidence": 0.5124179124832153,
-        "bbox": [
-            918,
-            196,
-            996,
-            227
-        ]
-    },
-    {
-        "frame_number": 16,
-        "frame_file": "outputs/found_frames/frame_0017.jpg",
-        "timestamp": 44.45827814569536,
-        "class_name": "car",
-        "confidence": 0.37196218967437744,
-        "bbox": [
-            799,
+            802,
             195,
-            860,
+            858,
             226
         ]
     },
@@ -1707,12 +1525,38 @@
         "frame_file": "outputs/found_frames/frame_0017.jpg",
         "timestamp": 44.45827814569536,
         "class_name": "car",
-        "confidence": 0.3334363102912903,
+        "confidence": 0.5994437336921692,
         "bbox": [
-            1098,
-            267,
-            1197,
-            332
+            562,
+            303,
+            676,
+            390
+        ]
+    },
+    {
+        "frame_number": 16,
+        "frame_file": "outputs/found_frames/frame_0017.jpg",
+        "timestamp": 44.45827814569536,
+        "class_name": "car",
+        "confidence": 0.5340380072593689,
+        "bbox": [
+            918,
+            197,
+            995,
+            229
+        ]
+    },
+    {
+        "frame_number": 16,
+        "frame_file": "outputs/found_frames/frame_0017.jpg",
+        "timestamp": 44.45827814569536,
+        "class_name": "person",
+        "confidence": 0.38391488790512085,
+        "bbox": [
+            792,
+            227,
+            808,
+            277
         ]
     },
     {
@@ -1720,12 +1564,12 @@
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.8307167291641235,
+        "confidence": 0.882876992225647,
         "bbox": [
-            124,
-            422,
+            123,
+            421,
             339,
-            567
+            566
         ]
     },
     {
@@ -1733,12 +1577,12 @@
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.8288421034812927,
+        "confidence": 0.8598746657371521,
         "bbox": [
             68,
-            478,
+            480,
             136,
-            636
+            637
         ]
     },
     {
@@ -1746,12 +1590,12 @@
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.7633859515190125,
+        "confidence": 0.8586297035217285,
         "bbox": [
             331,
-            379,
+            377,
             494,
-            488
+            487
         ]
     },
     {
@@ -1759,12 +1603,12 @@
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.7590882778167725,
+        "confidence": 0.7716525197029114,
         "bbox": [
-            468,
-            338,
+            469,
+            333,
             597,
-            430
+            429
         ]
     },
     {
@@ -1772,10 +1616,23 @@
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.6169894337654114,
+        "confidence": 0.6673941612243652,
         "bbox": [
-            920,
-            195,
+            565,
+            302,
+            677,
+            393
+        ]
+    },
+    {
+        "frame_number": 17,
+        "frame_file": "outputs/found_frames/frame_0018.jpg",
+        "timestamp": 47.236920529801324,
+        "class_name": "car",
+        "confidence": 0.5949129462242126,
+        "bbox": [
+            921,
+            194,
             999,
             227
         ]
@@ -1784,103 +1641,64 @@
         "frame_number": 17,
         "frame_file": "outputs/found_frames/frame_0018.jpg",
         "timestamp": 47.236920529801324,
-        "class_name": "person",
-        "confidence": 0.5364542007446289,
-        "bbox": [
-            404,
-            317,
-            430,
-            379
-        ]
-    },
-    {
-        "frame_number": 17,
-        "frame_file": "outputs/found_frames/frame_0018.jpg",
-        "timestamp": 47.236920529801324,
         "class_name": "car",
-        "confidence": 0.5201100707054138,
+        "confidence": 0.2752699851989746,
         "bbox": [
-            565,
-            304,
-            676,
-            390
+            1160,
+            231,
+            1203,
+            280
         ]
     },
     {
-        "frame_number": 17,
-        "frame_file": "outputs/found_frames/frame_0018.jpg",
-        "timestamp": 47.236920529801324,
+        "frame_number": 18,
+        "frame_file": "outputs/found_frames/frame_0019.jpg",
+        "timestamp": 50.01556291390729,
         "class_name": "car",
-        "confidence": 0.3764477074146271,
+        "confidence": 0.8786376714706421,
         "bbox": [
-            1099,
-            268,
-            1196,
-            332
+            124,
+            421,
+            339,
+            566
         ]
     },
     {
-        "frame_number": 17,
-        "frame_file": "outputs/found_frames/frame_0018.jpg",
-        "timestamp": 47.236920529801324,
-        "class_name": "person",
-        "confidence": 0.25456294417381287,
+        "frame_number": 18,
+        "frame_file": "outputs/found_frames/frame_0019.jpg",
+        "timestamp": 50.01556291390729,
+        "class_name": "car",
+        "confidence": 0.8664552569389343,
         "bbox": [
+            331,
+            378,
+            494,
+            486
+        ]
+    },
+    {
+        "frame_number": 18,
+        "frame_file": "outputs/found_frames/frame_0019.jpg",
+        "timestamp": 50.01556291390729,
+        "class_name": "car",
+        "confidence": 0.8574023842811584,
+        "bbox": [
+            68,
+            480,
+            136,
+            637
+        ]
+    },
+    {
+        "frame_number": 18,
+        "frame_file": "outputs/found_frames/frame_0019.jpg",
+        "timestamp": 50.01556291390729,
+        "class_name": "car",
+        "confidence": 0.7782642841339111,
+        "bbox": [
+            470,
+            333,
             597,
-            255,
-            617,
-            303
-        ]
-    },
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/found_frames/frame_0019.jpg",
-        "timestamp": 50.01556291390729,
-        "class_name": "car",
-        "confidence": 0.8373299837112427,
-        "bbox": [
-            68,
-            479,
-            137,
-            636
-        ]
-    },
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/found_frames/frame_0019.jpg",
-        "timestamp": 50.01556291390729,
-        "class_name": "car",
-        "confidence": 0.8318812251091003,
-        "bbox": [
-            123,
-            422,
-            339,
-            567
-        ]
-    },
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/found_frames/frame_0019.jpg",
-        "timestamp": 50.01556291390729,
-        "class_name": "car",
-        "confidence": 0.8170544505119324,
-        "bbox": [
-            333,
-            379,
-            493,
-            491
-        ]
-    },
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/found_frames/frame_0019.jpg",
-        "timestamp": 50.01556291390729,
-        "class_name": "car",
-        "confidence": 0.7641379237174988,
-        "bbox": [
-            467,
-            338,
-            598,
             431
         ]
     },
@@ -1889,12 +1707,25 @@
         "frame_file": "outputs/found_frames/frame_0019.jpg",
         "timestamp": 50.01556291390729,
         "class_name": "car",
-        "confidence": 0.704990804195404,
+        "confidence": 0.6633139848709106,
         "bbox": [
             924,
             196,
-            1000,
-            228
+            998,
+            227
+        ]
+    },
+    {
+        "frame_number": 18,
+        "frame_file": "outputs/found_frames/frame_0019.jpg",
+        "timestamp": 50.01556291390729,
+        "class_name": "car",
+        "confidence": 0.6448701024055481,
+        "bbox": [
+            563,
+            302,
+            677,
+            393
         ]
     },
     {
@@ -1902,12 +1733,12 @@
         "frame_file": "outputs/found_frames/frame_0019.jpg",
         "timestamp": 50.01556291390729,
         "class_name": "person",
-        "confidence": 0.5210974812507629,
+        "confidence": 0.3472261428833008,
         "bbox": [
-            399,
-            317,
+            398,
+            319,
             425,
-            380
+            382
         ]
     },
     {
@@ -1915,25 +1746,12 @@
         "frame_file": "outputs/found_frames/frame_0019.jpg",
         "timestamp": 50.01556291390729,
         "class_name": "car",
-        "confidence": 0.5170037150382996,
+        "confidence": 0.32128849625587463,
         "bbox": [
-            562,
-            303,
-            676,
-            391
-        ]
-    },
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/found_frames/frame_0019.jpg",
-        "timestamp": 50.01556291390729,
-        "class_name": "person",
-        "confidence": 0.3755650818347931,
-        "bbox": [
-            594,
-            255,
-            615,
-            304
+            984,
+            202,
+            1007,
+            225
         ]
     },
     {
@@ -1941,12 +1759,12 @@
         "frame_file": "outputs/found_frames/frame_0019.jpg",
         "timestamp": 50.01556291390729,
         "class_name": "car",
-        "confidence": 0.3106347918510437,
+        "confidence": 0.28404974937438965,
         "bbox": [
-            1099,
-            268,
-            1196,
-            331
+            1163,
+            231,
+            1203,
+            280
         ]
     },
     {
@@ -1954,12 +1772,38 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "car",
-        "confidence": 0.8376926183700562,
+        "confidence": 0.8786314129829407,
+        "bbox": [
+            124,
+            421,
+            339,
+            566
+        ]
+    },
+    {
+        "frame_number": 19,
+        "frame_file": "outputs/found_frames/frame_0020.jpg",
+        "timestamp": 52.79420529801324,
+        "class_name": "car",
+        "confidence": 0.8665503859519958,
+        "bbox": [
+            331,
+            378,
+            494,
+            486
+        ]
+    },
+    {
+        "frame_number": 19,
+        "frame_file": "outputs/found_frames/frame_0020.jpg",
+        "timestamp": 52.79420529801324,
+        "class_name": "car",
+        "confidence": 0.8584792613983154,
         "bbox": [
             68,
-            479,
-            137,
-            636
+            480,
+            136,
+            637
         ]
     },
     {
@@ -1967,37 +1811,11 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "car",
-        "confidence": 0.8316349983215332,
+        "confidence": 0.7792791724205017,
         "bbox": [
-            123,
-            422,
-            339,
-            567
-        ]
-    },
-    {
-        "frame_number": 19,
-        "frame_file": "outputs/found_frames/frame_0020.jpg",
-        "timestamp": 52.79420529801324,
-        "class_name": "car",
-        "confidence": 0.8171105980873108,
-        "bbox": [
+            470,
             333,
-            379,
-            493,
-            491
-        ]
-    },
-    {
-        "frame_number": 19,
-        "frame_file": "outputs/found_frames/frame_0020.jpg",
-        "timestamp": 52.79420529801324,
-        "class_name": "car",
-        "confidence": 0.7639645934104919,
-        "bbox": [
-            467,
-            338,
-            598,
+            597,
             431
         ]
     },
@@ -2006,12 +1824,25 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "car",
-        "confidence": 0.705595076084137,
+        "confidence": 0.6634027361869812,
         "bbox": [
             924,
             196,
-            1000,
-            228
+            998,
+            227
+        ]
+    },
+    {
+        "frame_number": 19,
+        "frame_file": "outputs/found_frames/frame_0020.jpg",
+        "timestamp": 52.79420529801324,
+        "class_name": "car",
+        "confidence": 0.6456475257873535,
+        "bbox": [
+            563,
+            302,
+            677,
+            393
         ]
     },
     {
@@ -2019,12 +1850,12 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "person",
-        "confidence": 0.5214037299156189,
+        "confidence": 0.34801825881004333,
         "bbox": [
-            399,
-            317,
+            398,
+            319,
             425,
-            380
+            382
         ]
     },
     {
@@ -2032,25 +1863,12 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "car",
-        "confidence": 0.516924262046814,
+        "confidence": 0.32207873463630676,
         "bbox": [
-            562,
-            303,
-            676,
-            391
-        ]
-    },
-    {
-        "frame_number": 19,
-        "frame_file": "outputs/found_frames/frame_0020.jpg",
-        "timestamp": 52.79420529801324,
-        "class_name": "person",
-        "confidence": 0.3755255937576294,
-        "bbox": [
-            594,
-            255,
-            615,
-            304
+            984,
+            202,
+            1007,
+            225
         ]
     },
     {
@@ -2058,12 +1876,12 @@
         "frame_file": "outputs/found_frames/frame_0020.jpg",
         "timestamp": 52.79420529801324,
         "class_name": "car",
-        "confidence": 0.3101045787334442,
+        "confidence": 0.2848042845726013,
         "bbox": [
-            1099,
-            268,
-            1196,
-            331
+            1163,
+            231,
+            1203,
+            280
         ]
     },
     {
@@ -2071,38 +1889,12 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.8825708031654358,
-        "bbox": [
-            239,
-            392,
-            435,
-            522
-        ]
-    },
-    {
-        "frame_number": 20,
-        "frame_file": "outputs/found_frames/frame_0021.jpg",
-        "timestamp": 55.57284768211921,
-        "class_name": "car",
-        "confidence": 0.8363044857978821,
-        "bbox": [
-            440,
-            344,
-            586,
-            438
-        ]
-    },
-    {
-        "frame_number": 20,
-        "frame_file": "outputs/found_frames/frame_0021.jpg",
-        "timestamp": 55.57284768211921,
-        "class_name": "car",
-        "confidence": 0.8230332136154175,
+        "confidence": 0.8854116797447205,
         "bbox": [
             694,
             424,
-            879,
-            571
+            877,
+            569
         ]
     },
     {
@@ -2110,12 +1902,12 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.612102746963501,
+        "confidence": 0.8568806648254395,
         "bbox": [
-            670,
-            292,
-            758,
-            360
+            238,
+            392,
+            434,
+            521
         ]
     },
     {
@@ -2123,12 +1915,12 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.5892358422279358,
+        "confidence": 0.8251226544380188,
         "bbox": [
-            756,
-            274,
-            819,
-            328
+            441,
+            347,
+            584,
+            439
         ]
     },
     {
@@ -2136,12 +1928,12 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.5887444019317627,
+        "confidence": 0.7449244856834412,
         "bbox": [
             550,
-            304,
+            303,
             676,
-            389
+            394
         ]
     },
     {
@@ -2149,12 +1941,38 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.5350537896156311,
+        "confidence": 0.6557115316390991,
         "bbox": [
-            796,
-            261,
+            668,
+            291,
+            761,
+            358
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "car",
+        "confidence": 0.5562885403633118,
+        "bbox": [
+            756,
+            275,
+            806,
+            329
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "car",
+        "confidence": 0.5438063144683838,
+        "bbox": [
+            792,
+            262,
             858,
-            311
+            310
         ]
     },
     {
@@ -2162,51 +1980,38 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.5041478276252747,
-        "bbox": [
-            1098,
-            267,
-            1196,
-            331
-        ]
-    },
-    {
-        "frame_number": 20,
-        "frame_file": "outputs/found_frames/frame_0021.jpg",
-        "timestamp": 55.57284768211921,
-        "class_name": "person",
-        "confidence": 0.40091678500175476,
-        "bbox": [
-            448,
-            296,
-            476,
-            375
-        ]
-    },
-    {
-        "frame_number": 20,
-        "frame_file": "outputs/found_frames/frame_0021.jpg",
-        "timestamp": 55.57284768211921,
-        "class_name": "person",
-        "confidence": 0.32594218850135803,
-        "bbox": [
-            1215,
-            245,
-            1235,
-            287
-        ]
-    },
-    {
-        "frame_number": 20,
-        "frame_file": "outputs/found_frames/frame_0021.jpg",
-        "timestamp": 55.57284768211921,
-        "class_name": "car",
-        "confidence": 0.3139215111732483,
+        "confidence": 0.45033931732177734,
         "bbox": [
             954,
-            205,
-            1009,
-            240
+            201,
+            1008,
+            238
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "person",
+        "confidence": 0.44281965494155884,
+        "bbox": [
+            449,
+            296,
+            475,
+            366
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "person",
+        "confidence": 0.38949495553970337,
+        "bbox": [
+            572,
+            266,
+            594,
+            313
         ]
     },
     {
@@ -2214,12 +2019,38 @@
         "frame_file": "outputs/found_frames/frame_0021.jpg",
         "timestamp": 55.57284768211921,
         "class_name": "car",
-        "confidence": 0.27591240406036377,
+        "confidence": 0.36339470744132996,
         "bbox": [
-            953,
-            206,
-            992,
-            238
+            790,
+            264,
+            838,
+            314
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "car",
+        "confidence": 0.3525395691394806,
+        "bbox": [
+            843,
+            245,
+            887,
+            296
+        ]
+    },
+    {
+        "frame_number": 20,
+        "frame_file": "outputs/found_frames/frame_0021.jpg",
+        "timestamp": 55.57284768211921,
+        "class_name": "car",
+        "confidence": 0.3443198502063751,
+        "bbox": [
+            766,
+            267,
+            824,
+            326
         ]
     }
 ]

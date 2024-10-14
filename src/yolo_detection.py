@@ -19,7 +19,7 @@ class Detection:
     timestamp: float
 
 class YOLODetector:
-    def __init__(self, model_path: str = 'yolov8n.pt', device: str = 'auto'):
+    def __init__(self, model_path: str = 'yolo11n.pt', device: str = 'auto'):
         """
         Initialize the YOLO detector.
         
