@@ -10,6 +10,7 @@ from PIL import Image
 import subprocess
 import json
 import glob
+import shutil
 
 @dataclass
 class Detection:
@@ -51,7 +52,7 @@ class YOLODetector:
             for box in result.boxes:
                 class_idx = int(box.cls[0])
                 class_name = self.class_names.get(class_idx, "Unknown")
-                if class_name in ['person', 'car', 'truck']:
+                if class_name in ['person', 'car', 'truck', 'bus', 'motorcycle']:
                     confidence = float(box.conf[0])
                     xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
                     detections.append(Detection(
@@ -228,7 +229,7 @@ class VideoProcessor:
         # Wait for the process to finish
         ffmpeg_process.wait()
 
-         # Reads the saved frames for processing
+        # Reads the saved frames for processing
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
 
         frame_number = 0
@@ -265,28 +266,100 @@ class VideoProcessor:
         ffmpeg_process.stderr.close()
         ffmpeg_process.wait()
 
-        # Writes log file in JSON format for better readability and later processing
+        # Save the log entries to a text file
+        self.save_log()
+
+    def save_log(self):
+        """
+        Save the log entries to a text file.
+        """
         with open(self.log_file_path, 'w') as log_file:
             json.dump(self.log_entries, log_file, indent=4)
-        print(f"Metadata log saved to '{self.log_file_path}'.")
+        print(f"Log saved to '{self.log_file_path}'.")
+
+
+class LogParser:
+    def __init__(self, log_file_path, query, output_dir):
+        self.log_file_path = log_file_path
+        self.query_color, self.query_object = self.parse_query(query)
+        self.found_log_entries = []
+        self.output_dir = output_dir
+        # Create a directory to save the found frames
+        self.found_dir = os.path.join(output_dir, 'found_frames')
+        os.makedirs(self.found_dir, exist_ok=True)
+
+    def parse_query(self, query):
+        """Parse the color and object from the query string."""
+        parts = query.split(' ')
+        if len(parts) == 2:
+            color, obj = parts
+            return color.lower(), obj.lower()
+        else:
+            raise ValueError("Query must be in the format 'color object', for example 'red car'")
+
+    def filter_log(self):
+        """Filter the detection log based on the query."""
+        with open(self.log_file_path, 'r') as log_file:
+            log_entries = json.load(log_file)
+
+            for entry in log_entries:
+                if self.matches_query(entry):
+                    # Add to found log entries
+                    self.found_log_entries.append(entry)
+                    
+                    # Copy the image to the found folder
+                    frame_file = entry['frame_file']
+                    shutil.copy(frame_file, self.found_dir)
+
+        # Save found log entries to a new JSON file
+        self.save_found_log()
+
+    def matches_query(self, entry):
+        """Check if the log entry matches the query."""
+        vehicle_query = ['car', 'truck', 'bus', 'motorcycle']
+
+        # Check if the object and color match the query
+        if self.query_object == 'vehicle':
+            object_matches = entry['class_name'].lower() in vehicle_query
+        else:
+            object_matches = entry['class_name'].lower() == self.query_object
+        color_matches = entry['dominant_color'].lower() == self.query_color
+
+        return object_matches and color_matches
+
+    def save_found_log(self):
+        """Save the filtered log entries to a new JSON file."""
+        found_log_path = os.path.join(self.output_dir, 'found_log.txt')
+        with open(found_log_path, 'w') as found_log_file:
+            json.dump(self.found_log_entries, found_log_file, indent=4)
+        print(f"Found log saved to '{found_log_path}'.")
+
 
 def main():
     parser = argparse.ArgumentParser(description='YOLO Object Detection with Color Filtering')
     parser.add_argument('--video_path', type=str, help='Path to input video file')
     parser.add_argument('--output_dir', type=str, help='Directory to save output frames and logs')
     parser.add_argument('--query', type=str, help='Search query in the format "color object", e.g., "red car"')
-    parser.add_argument('--interval', type=int, default=30, help='Time interval in seconds to extract frames. Default is one frame each two seconds.')
+    parser.add_argument('--interval', type=int, default=30, help='Time interval in which to extract frames (default: every 30th frame)')
 
     args = parser.parse_args()
 
+    # Run detection on the video
     processor = VideoProcessor(
         video_path=args.video_path,
         output_dir=args.output_dir,
         query=args.query,
         interval=args.interval
     )
-
     processor.process_video()
+
+    # Parse the log file to filter the results based on the query
+    log_parser = LogParser(
+        log_file_path=processor.log_file_path,
+        query=args.query,
+        output_dir=args.output_dir
+    )
+    log_parser.filter_log()
 
 if __name__ == '__main__':
     main()
