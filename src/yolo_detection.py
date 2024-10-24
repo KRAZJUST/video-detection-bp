@@ -11,6 +11,7 @@ import subprocess
 import json
 import glob
 import shutil
+import time
 
 @dataclass
 class Detection:
@@ -75,6 +76,9 @@ class ColorFilter:
             'blue': [((100, 150, 0), (140, 255, 255))],
             'green': [((40, 70, 70), (80, 255, 255))],
             'yellow': [((20, 100, 100), (30, 255, 255))],
+            'white': [((0, 0, 200), (180, 25, 255))],
+            'orange': [((10, 100, 100), (20, 255, 255))],
+            'purple': [((140, 50, 50), (160, 255, 255))],
             # TODO: add more options
         }
 
@@ -232,7 +236,8 @@ class VideoProcessor:
         # Reads the saved frames for processing
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
 
-        frame_number = 0
+        # Initialize a dictionary to store log entries
+        self.log_entries = {}
 
         for frame_number, frame_file in enumerate(frame_files):
             print(f"Processing frame {frame_file}")
@@ -245,12 +250,16 @@ class VideoProcessor:
             # Calculates timestamp by multiplying frame number by interval
             timestamp = frame_number * (1 / video_info['fps']) * self.interval
 
+             # Initialize a list to hold detections for this frame
+            frame_detections = []
+
             # Logs detections
             for det in detections:
                 # Gets the dominant color within the bounding box
                 dominant_color = self.color_filter.detect_dominant_color(frame, det.bbox)
 
-                log_entry = {
+                # Create a log entry for the detection
+                detection_entry = {
                     "frame_number": frame_number,
                     "frame_file": frame_file,
                     "timestamp": timestamp,
@@ -259,7 +268,11 @@ class VideoProcessor:
                     "bbox": det.bbox,
                     "dominant_color": dominant_color
                 }
-                self.log_entries.append(log_entry)
+                frame_detections.append(detection_entry)
+
+            # Store all detections for this frame under its frame number
+            if frame_detections:
+                self.log_entries[frame_number] = frame_detections
 
         # Cleans up the FFmpeg process
         ffmpeg_process.stdout.close()
@@ -278,54 +291,94 @@ class VideoProcessor:
         print(f"Log saved to '{self.log_file_path}'.")
 
 
-class LogParser:
-    def __init__(self, log_file_path, query, output_dir):
-        self.log_file_path = log_file_path
-        self.query_color, self.query_object = self.parse_query(query)
-        self.found_log_entries = []
+class DetectionParser:
+    def __init__(self, log_entries, query, output_dir):
+        self.log_entries = log_entries
+        self.queries = self.parse_complex_query(query)
+        self.found_log_entries = {}
         self.output_dir = output_dir
         # Create a directory to save the found frames
         self.found_dir = os.path.join(output_dir, 'found_frames')
         os.makedirs(self.found_dir, exist_ok=True)
 
-    def parse_query(self, query):
-        """Parse the color and object from the query string."""
-        parts = query.split(' ')
-        if len(parts) == 2:
-            color, obj = parts
-            return color.lower(), obj.lower()
-        else:
-            raise ValueError("Query must be in the format 'color object', for example 'red car'")
+    def parse_complex_query(self, query):
+        """
+        Parse multiple color-object pairs with support for AND/OR conditions.
+        Example input: 'red car and blue truck or yellow bus'
+        Output: [{'logic': 'AND', 'conditions': [('red', 'car'), ('blue', 'truck')]}, {'logic': 'OR', 'conditions': [('yellow', 'bus')]}]
+        """
+        # Split by 'or' first, then within each group split by 'and'
+        or_groups = [group.strip() for group in query.lower().split('or')]
+        parsed_queries = []
+        
+        for group in or_groups:
+            and_conditions = [condition.strip() for condition in group.split('and')]
+            conditions = []
+            for condition in and_conditions:
+                parts = condition.split(' ')
+                if len(parts) == 2:
+                    color, obj = parts
+                    conditions.append((color, obj))
+                else:
+                    raise ValueError("Query must be in the format 'color object', for example 'red car'")
+            parsed_queries.append({'logic': 'AND', 'conditions': conditions})
 
+        print(parsed_queries)
+        return parsed_queries
+    
     def filter_log(self):
         """Filter the detection log based on the query."""
-        with open(self.log_file_path, 'r') as log_file:
-            log_entries = json.load(log_file)
 
-            for entry in log_entries:
-                if self.matches_query(entry):
-                    # Add to found log entries
-                    self.found_log_entries.append(entry)
+        # Iterate through the log entries organized by frame number
+        for frame_number, detections in self.log_entries.items():
+            for entry in detections:
+                if self.matches_complex_query(entry):
+                    if frame_number not in self.found_log_entries:
+                        self.found_log_entries[frame_number] = []
+                    self.found_log_entries[frame_number].append(entry)
                     
                     # Copy the image to the found folder
                     frame_file = entry['frame_file']
                     shutil.copy(frame_file, self.found_dir)
 
-        # Save found log entries to a new JSON file
         self.save_found_log()
-
-    def matches_query(self, entry):
-        """Check if the log entry matches the query."""
+    
+    def matches_complex_query(self, entry):
+        """
+        Check if the log entry matches any of the complex queries.
+        A query can contain multiple conditions connected by 'AND' or 'OR'.
+        """
         vehicle_query = ['car', 'truck', 'bus', 'motorcycle']
 
-        # Check if the object and color match the query
-        if self.query_object == 'vehicle':
+        # Go through each 'OR' group
+        for query_group in self.queries:
+            if query_group['logic'] == 'AND':
+                # All conditions in this group must be satisfied
+                if all(self.matches_condition(entry, condition, vehicle_query) for condition in query_group['conditions']):
+                    return True
+            else:  # It's an OR logic
+                # At least one condition in this group must be satisfied
+                if any(self.matches_condition(entry, condition, vehicle_query) for condition in query_group['conditions']):
+                    return True
+                
+        return False
+
+    def matches_condition(self, entry, condition, vehicle_query):
+        """Check if a single condition (color-object pair) matches the log entry."""
+        query_color, query_object = condition
+        
+        # Object matching logic
+        if query_object == 'vehicle':
             object_matches = entry['class_name'].lower() in vehicle_query
         else:
-            object_matches = entry['class_name'].lower() == self.query_object
-        color_matches = entry['dominant_color'].lower() == self.query_color
+            object_matches = entry['class_name'].lower() == query_object
+        
+        # Color matching logic
+        color_matches = entry['dominant_color'].lower() == query_color
+        
+        confidence = entry['confidence']
 
-        return object_matches and color_matches
+        return object_matches and color_matches and confidence > 0.4
 
     def save_found_log(self):
         """Save the filtered log entries to a new JSON file."""
@@ -336,6 +389,8 @@ class LogParser:
 
 
 def main():
+    start_time = time.time()
+
     parser = argparse.ArgumentParser(description='YOLO Object Detection with Color Filtering')
     parser.add_argument('--video_path', type=str, help='Path to input video file')
     parser.add_argument('--output_dir', type=str, help='Directory to save output frames and logs')
@@ -343,6 +398,7 @@ def main():
     parser.add_argument('--interval', type=int, default=30, help='Time interval in which to extract frames (default: every 30th frame)')
 
     args = parser.parse_args()
+    argument_parsing_time = time.time()
 
     # Run detection on the video
     processor = VideoProcessor(
@@ -354,12 +410,14 @@ def main():
     processor.process_video()
 
     # Parse the log file to filter the results based on the query
-    log_parser = LogParser(
-        log_file_path=processor.log_file_path,
+    log_parser = DetectionParser(
+        log_entries=processor.log_entries,
         query=args.query,
         output_dir=args.output_dir
     )
     log_parser.filter_log()
+
+    print(f"Total time taken: {time.time() - start_time:.2f} seconds (Argument Parsing: {argument_parsing_time - start_time:.2f} seconds)")
 
 if __name__ == '__main__':
     main()

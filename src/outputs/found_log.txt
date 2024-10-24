@@ -1,100 +1,158 @@
-[
-    {
-        "frame_number": 18,
-        "frame_file": "outputs/extracted_frames/frame_0018.jpg",
-        "timestamp": 30.00933774834437,
-        "class_name": "bus",
-        "confidence": 0.3220851421356201,
-        "bbox": [
-            940,
-            191,
-            994,
-            255
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 19,
-        "frame_file": "outputs/extracted_frames/frame_0019.jpg",
-        "timestamp": 31.676523178807944,
-        "class_name": "truck",
-        "confidence": 0.4769992530345917,
-        "bbox": [
-            916,
-            196,
-            978,
-            271
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 22,
-        "frame_file": "outputs/extracted_frames/frame_0022.jpg",
-        "timestamp": 36.678079470198675,
-        "class_name": "bus",
-        "confidence": 0.5148946046829224,
-        "bbox": [
-            785,
-            231,
-            893,
-            365
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 22,
-        "frame_file": "outputs/extracted_frames/frame_0022.jpg",
-        "timestamp": 36.678079470198675,
-        "class_name": "truck",
-        "confidence": 0.49084511399269104,
-        "bbox": [
-            784,
-            234,
-            892,
-            365
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 23,
-        "frame_file": "outputs/extracted_frames/frame_0023.jpg",
-        "timestamp": 38.34526490066225,
-        "class_name": "bus",
-        "confidence": 0.6860148906707764,
-        "bbox": [
-            681,
-            263,
-            833,
-            437
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 24,
-        "frame_file": "outputs/extracted_frames/frame_0024.jpg",
-        "timestamp": 40.01245033112583,
-        "class_name": "truck",
-        "confidence": 0.7616392374038696,
-        "bbox": [
-            488,
-            305,
-            729,
-            564
-        ],
-        "dominant_color": "yellow"
-    },
-    {
-        "frame_number": 25,
-        "frame_file": "outputs/extracted_frames/frame_0025.jpg",
-        "timestamp": 41.6796357615894,
-        "class_name": "bus",
-        "confidence": 0.7711104154586792,
-        "bbox": [
-            71,
-            382,
-            524,
-            801
-        ],
-        "dominant_color": "yellow"
-    }
-]
+{
+    "5": [
+        {
+            "frame_number": 5,
+            "frame_file": "outputs/extracted_frames/frame_0005.jpg",
+            "timestamp": 8.33592715231788,
+            "class_name": "car",
+            "confidence": 0.704879105091095,
+            "bbox": [
+                736,
+                265,
+                817,
+                330
+            ],
+            "dominant_color": "blue"
+        }
+    ],
+    "8": [
+        {
+            "frame_number": 8,
+            "frame_file": "outputs/extracted_frames/frame_0008.jpg",
+            "timestamp": 13.337483443708608,
+            "class_name": "car",
+            "confidence": 0.5562750101089478,
+            "bbox": [
+                536,
+                313,
+                673,
+                412
+            ],
+            "dominant_color": "blue"
+        }
+    ],
+    "19": [
+        {
+            "frame_number": 19,
+            "frame_file": "outputs/extracted_frames/frame_0019.jpg",
+            "timestamp": 31.676523178807944,
+            "class_name": "truck",
+            "confidence": 0.4769992530345917,
+            "bbox": [
+                916,
+                196,
+                978,
+                271
+            ],
+            "dominant_color": "yellow"
+        }
+    ],
+    "22": [
+        {
+            "frame_number": 22,
+            "frame_file": "outputs/extracted_frames/frame_0022.jpg",
+            "timestamp": 36.678079470198675,
+            "class_name": "bus",
+            "confidence": 0.5148946046829224,
+            "bbox": [
+                785,
+                231,
+                893,
+                365
+            ],
+            "dominant_color": "yellow"
+        },
+        {
+            "frame_number": 22,
+            "frame_file": "outputs/extracted_frames/frame_0022.jpg",
+            "timestamp": 36.678079470198675,
+            "class_name": "truck",
+            "confidence": 0.49084511399269104,
+            "bbox": [
+                784,
+                234,
+                892,
+                365
+            ],
+            "dominant_color": "yellow"
+        }
+    ],
+    "23": [
+        {
+            "frame_number": 23,
+            "frame_file": "outputs/extracted_frames/frame_0023.jpg",
+            "timestamp": 38.34526490066225,
+            "class_name": "bus",
+            "confidence": 0.6860148906707764,
+            "bbox": [
+                681,
+                263,
+                833,
+                437
+            ],
+            "dominant_color": "yellow"
+        }
+    ],
+    "24": [
+        {
+            "frame_number": 24,
+            "frame_file": "outputs/extracted_frames/frame_0024.jpg",
+            "timestamp": 40.01245033112583,
+            "class_name": "truck",
+            "confidence": 0.7616392374038696,
+            "bbox": [
+                488,
+                305,
+                729,
+                564
+            ],
+            "dominant_color": "yellow"
+        }
+    ],
+    "25": [
+        {
+            "frame_number": 25,
+            "frame_file": "outputs/extracted_frames/frame_0025.jpg",
+            "timestamp": 41.6796357615894,
+            "class_name": "bus",
+            "confidence": 0.7711104154586792,
+            "bbox": [
+                71,
+                382,
+                524,
+                801
+            ],
+            "dominant_color": "yellow"
+        }
+    ],
+    "34": [
+        {
+            "frame_number": 34,
+            "frame_file": "outputs/extracted_frames/frame_0034.jpg",
+            "timestamp": 56.68430463576159,
+            "class_name": "car",
+            "confidence": 0.6428713798522949,
+            "bbox": [
+                577,
+                350,
+                677,
+                408
+            ],
+            "dominant_color": "blue"
+        },
+        {
+            "frame_number": 34,
+            "frame_file": "outputs/extracted_frames/frame_0034.jpg",
+            "timestamp": 56.68430463576159,
+            "class_name": "car",
+            "confidence": 0.42240265011787415,
+            "bbox": [
+                617,
+                323,
+                707,
+                399
+            ],
+            "dominant_color": "blue"
+        }
+    ]
+}
