@@ -1,0 +1,3577 @@
+{
+    "0": [
+        {
+            "class_name": "bus",
+            "confidence": 0.9064574241638184,
+            "bbox": [
+                217,
+                201,
+                308,
+                285
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7534236311912537,
+            "bbox": [
+                310,
+                214,
+                343,
+                236
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.716251015663147,
+            "bbox": [
+                352,
+                199,
+                374,
+                216
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5827017426490784,
+            "bbox": [
+                378,
+                193,
+                392,
+                206
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29459869861602783,
+            "bbox": [
+                446,
+                197,
+                467,
+                210
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2887563109397888,
+            "bbox": [
+                411,
+                222,
+                426,
+                232
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2778472602367401,
+            "bbox": [
+                445,
+                206,
+                467,
+                239
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2758246660232544,
+            "bbox": [
+                391,
+                192,
+                405,
+                202
+            ],
+            "timestamp": 0.0,
+            "track_id": null
+        }
+    ],
+    "1": [
+        {
+            "class_name": "bus",
+            "confidence": 0.9257423877716064,
+            "bbox": [
+                217,
+                201,
+                307,
+                285
+            ],
+            "timestamp": 1.667185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7256035208702087,
+            "bbox": [
+                354,
+                199,
+                375,
+                216
+            ],
+            "timestamp": 1.667185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6942521929740906,
+            "bbox": [
+                310,
+                214,
+                343,
+                236
+            ],
+            "timestamp": 1.667185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.627021074295044,
+            "bbox": [
+                377,
+                194,
+                392,
+                206
+            ],
+            "timestamp": 1.667185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.294187068939209,
+            "bbox": [
+                446,
+                197,
+                467,
+                211
+            ],
+            "timestamp": 1.667185430463576,
+            "track_id": null
+        }
+    ],
+    "2": [
+        {
+            "class_name": "bus",
+            "confidence": 0.9260436296463013,
+            "bbox": [
+                31,
+                153,
+                138,
+                299
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8409976363182068,
+            "bbox": [
+                169,
+                167,
+                250,
+                222
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7074810266494751,
+            "bbox": [
+                344,
+                119,
+                380,
+                146
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6774026155471802,
+            "bbox": [
+                285,
+                131,
+                336,
+                168
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6696999669075012,
+            "bbox": [
+                428,
+                95,
+                447,
+                111
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.665926992893219,
+            "bbox": [
+                239,
+                131,
+                250,
+                164
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5708280205726624,
+            "bbox": [
+                403,
+                106,
+                423,
+                123
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5625849366188049,
+            "bbox": [
+                376,
+                111,
+                404,
+                132
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.37714752554893494,
+            "bbox": [
+                444,
+                88,
+                458,
+                101
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3533492088317871,
+            "bbox": [
+                499,
+                122,
+                541,
+                207
+            ],
+            "timestamp": 3.334370860927152,
+            "track_id": null
+        }
+    ],
+    "3": [
+        {
+            "class_name": "car",
+            "confidence": 0.8611529469490051,
+            "bbox": [
+                254,
+                139,
+                310,
+                181
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8456226587295532,
+            "bbox": [
+                81,
+                188,
+                188,
+                257
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.7730874419212341,
+            "bbox": [
+                244,
+                128,
+                256,
+                162
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6548568606376648,
+            "bbox": [
+                326,
+                122,
+                365,
+                154
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.634293794631958,
+            "bbox": [
+                363,
+                113,
+                396,
+                137
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6204503774642944,
+            "bbox": [
+                419,
+                100,
+                439,
+                115
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6055405139923096,
+            "bbox": [
+                393,
+                109,
+                415,
+                127
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3914496600627899,
+            "bbox": [
+                436,
+                91,
+                455,
+                105
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.2560533881187439,
+            "bbox": [
+                499,
+                122,
+                541,
+                208
+            ],
+            "timestamp": 5.001556291390728,
+            "track_id": null
+        }
+    ],
+    "4": [
+        {
+            "class_name": "car",
+            "confidence": 0.8724853992462158,
+            "bbox": [
+                32,
+                227,
+                75,
+                300
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.855516791343689,
+            "bbox": [
+                213,
+                149,
+                278,
+                198
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6671233773231506,
+            "bbox": [
+                349,
+                116,
+                382,
+                143
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.571662187576294,
+            "bbox": [
+                250,
+                126,
+                261,
+                150
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5380060076713562,
+            "bbox": [
+                382,
+                111,
+                405,
+                131
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5252670645713806,
+            "bbox": [
+                303,
+                129,
+                349,
+                163
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4927729666233063,
+            "bbox": [
+                427,
+                95,
+                448,
+                111
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4673498868942261,
+            "bbox": [
+                408,
+                105,
+                428,
+                119
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4430483281612396,
+            "bbox": [
+                350,
+                123,
+                381,
+                143
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.40385034680366516,
+            "bbox": [
+                498,
+                122,
+                541,
+                207
+            ],
+            "timestamp": 6.668741721854304,
+            "track_id": null
+        }
+    ],
+    "5": [
+        {
+            "class_name": "person",
+            "confidence": 0.7154101133346558,
+            "bbox": [
+                256,
+                127,
+                267,
+                158
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6996501088142395,
+            "bbox": [
+                153,
+                165,
+                232,
+                221
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6909095644950867,
+            "bbox": [
+                278,
+                134,
+                331,
+                173
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6444896459579468,
+            "bbox": [
+                335,
+                121,
+                371,
+                150
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.585459291934967,
+            "bbox": [
+                397,
+                108,
+                417,
+                122
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5411575436592102,
+            "bbox": [
+                368,
+                115,
+                396,
+                136
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.508417546749115,
+            "bbox": [
+                417,
+                100,
+                440,
+                115
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2893087863922119,
+            "bbox": [
+                334,
+                128,
+                368,
+                150
+            ],
+            "timestamp": 8.33592715231788,
+            "track_id": null
+        }
+    ],
+    "6": [
+        {
+            "class_name": "car",
+            "confidence": 0.8379053473472595,
+            "bbox": [
+                54,
+                185,
+                161,
+                259
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7159116864204407,
+            "bbox": [
+                354,
+                118,
+                385,
+                142
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6941327452659607,
+            "bbox": [
+                384,
+                109,
+                410,
+                128
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6726465821266174,
+            "bbox": [
+                239,
+                146,
+                301,
+                189
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.646693229675293,
+            "bbox": [
+                316,
+                126,
+                359,
+                158
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5338935852050781,
+            "bbox": [
+                497,
+                166,
+                541,
+                208
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5320442914962769,
+            "bbox": [
+                407,
+                102,
+                431,
+                120
+            ],
+            "timestamp": 10.003112582781457,
+            "track_id": null
+        }
+    ],
+    "7": [
+        {
+            "class_name": "car",
+            "confidence": 0.7451313138008118,
+            "bbox": [
+                177,
+                158,
+                256,
+                215
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7058963179588318,
+            "bbox": [
+                336,
+                123,
+                371,
+                149
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6860708594322205,
+            "bbox": [
+                444,
+                89,
+                460,
+                102
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6456224918365479,
+            "bbox": [
+                287,
+                133,
+                338,
+                169
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6237489581108093,
+            "bbox": [
+                371,
+                111,
+                398,
+                134
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.6223180890083313,
+            "bbox": [
+                268,
+                122,
+                279,
+                156
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5292761325836182,
+            "bbox": [
+                394,
+                107,
+                419,
+                124
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.5263742804527283,
+            "bbox": [
+                177,
+                158,
+                256,
+                216
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.33198919892311096,
+            "bbox": [
+                335,
+                130,
+                369,
+                149
+            ],
+            "timestamp": 11.670298013245032,
+            "track_id": null
+        }
+    ],
+    "8": [
+        {
+            "class_name": "car",
+            "confidence": 0.739057719707489,
+            "bbox": [
+                79,
+                180,
+                187,
+                255
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6423808932304382,
+            "bbox": [
+                351,
+                117,
+                387,
+                141
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5969560146331787,
+            "bbox": [
+                313,
+                129,
+                353,
+                158
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.45412641763687134,
+            "bbox": [
+                274,
+                121,
+                287,
+                144
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.43750786781311035,
+            "bbox": [
+                382,
+                109,
+                409,
+                128
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.4368348717689514,
+            "bbox": [
+                241,
+                141,
+                305,
+                187
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4283587336540222,
+            "bbox": [
+                242,
+                142,
+                306,
+                187
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4125231206417084,
+            "bbox": [
+                431,
+                94,
+                450,
+                110
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.34826183319091797,
+            "bbox": [
+                497,
+                166,
+                541,
+                209
+            ],
+            "timestamp": 13.337483443708608,
+            "track_id": null
+        }
+    ],
+    "9": [
+        {
+            "class_name": "car",
+            "confidence": 0.8400483131408691,
+            "bbox": [
+                31,
+                217,
+                76,
+                292
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6133348941802979,
+            "bbox": [
+                416,
+                97,
+                441,
+                115
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6081271767616272,
+            "bbox": [
+                336,
+                120,
+                370,
+                146
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5737552642822266,
+            "bbox": [
+                285,
+                136,
+                330,
+                168
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5700942873954773,
+            "bbox": [
+                497,
+                168,
+                540,
+                208
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5226598978042603,
+            "bbox": [
+                180,
+                159,
+                260,
+                210
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.5056549906730652,
+            "bbox": [
+                180,
+                159,
+                260,
+                210
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3786100149154663,
+            "bbox": [
+                286,
+                145,
+                329,
+                169
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.28627344965934753,
+            "bbox": [
+                285,
+                136,
+                330,
+                168
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2711588442325592,
+            "bbox": [
+                369,
+                116,
+                399,
+                134
+            ],
+            "timestamp": 15.004668874172184,
+            "track_id": null
+        }
+    ],
+    "10": [
+        {
+            "class_name": "car",
+            "confidence": 0.6395659446716309,
+            "bbox": [
+                245,
+                148,
+                300,
+                184
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6188496351242065,
+            "bbox": [
+                318,
+                127,
+                357,
+                156
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.46804043650627136,
+            "bbox": [
+                286,
+                118,
+                295,
+                146
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.43119341135025024,
+            "bbox": [
+                95,
+                174,
+                196,
+                242
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.40384069085121155,
+            "bbox": [
+                497,
+                166,
+                539,
+                209
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.40033048391342163,
+            "bbox": [
+                399,
+                106,
+                425,
+                121
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.37365594506263733,
+            "bbox": [
+                357,
+                116,
+                388,
+                138
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3359573185443878,
+            "bbox": [
+                95,
+                174,
+                195,
+                242
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3077251613140106,
+            "bbox": [
+                400,
+                101,
+                428,
+                120
+            ],
+            "timestamp": 16.67185430463576,
+            "track_id": null
+        }
+    ],
+    "11": [
+        {
+            "class_name": "car",
+            "confidence": 0.6651003956794739,
+            "bbox": [
+                343,
+                120,
+                377,
+                143
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.5756377577781677,
+            "bbox": [
+                195,
+                157,
+                260,
+                203
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5140379071235657,
+            "bbox": [
+                287,
+                136,
+                324,
+                167
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.46987736225128174,
+            "bbox": [
+                31,
+                192,
+                128,
+                278
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.41985782980918884,
+            "bbox": [
+                31,
+                193,
+                128,
+                277
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3736072778701782,
+            "bbox": [
+                386,
+                104,
+                416,
+                126
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3179611265659332,
+            "bbox": [
+                287,
+                136,
+                325,
+                167
+            ],
+            "timestamp": 18.339039735099337,
+            "track_id": null
+        }
+    ],
+    "12": [
+        {
+            "class_name": "car",
+            "confidence": 0.8438931703567505,
+            "bbox": [
+                31,
+                211,
+                80,
+                286
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5724261999130249,
+            "bbox": [
+                253,
+                145,
+                304,
+                182
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5644420385360718,
+            "bbox": [
+                332,
+                122,
+                368,
+                147
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.4568346440792084,
+            "bbox": [
+                375,
+                108,
+                403,
+                130
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.4123075306415558,
+            "bbox": [
+                141,
+                169,
+                217,
+                226
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3205985426902771,
+            "bbox": [
+                375,
+                110,
+                403,
+                130
+            ],
+            "timestamp": 20.006225165562913,
+            "track_id": null
+        }
+    ],
+    "13": [
+        {
+            "class_name": "car",
+            "confidence": 0.7724676728248596,
+            "bbox": [
+                30,
+                216,
+                65,
+                289
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.6376384496688843,
+            "bbox": [
+                84,
+                185,
+                176,
+                247
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.6277217864990234,
+            "bbox": [
+                303,
+                112,
+                315,
+                144
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.48874977231025696,
+            "bbox": [
+                210,
+                157,
+                273,
+                197
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.48197227716445923,
+            "bbox": [
+                318,
+                126,
+                357,
+                153
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3580195903778076,
+            "bbox": [
+                361,
+                111,
+                393,
+                135
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.337002158164978,
+            "bbox": [
+                361,
+                114,
+                392,
+                134
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29449552297592163,
+            "bbox": [
+                332,
+                126,
+                359,
+                151
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.2626327574253082,
+            "bbox": [
+                496,
+                121,
+                542,
+                208
+            ],
+            "timestamp": 21.67341059602649,
+            "track_id": null
+        }
+    ],
+    "14": [
+        {
+            "class_name": "car",
+            "confidence": 0.8300366997718811,
+            "bbox": [
+                30,
+                218,
+                63,
+                289
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8113058805465698,
+            "bbox": [
+                175,
+                163,
+                247,
+                210
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6594069004058838,
+            "bbox": [
+                57,
+                191,
+                156,
+                257
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6261060833930969,
+            "bbox": [
+                350,
+                112,
+                384,
+                140
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5581611394882202,
+            "bbox": [
+                303,
+                129,
+                347,
+                158
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.49430540204048157,
+            "bbox": [
+                318,
+                130,
+                347,
+                157
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.39826059341430664,
+            "bbox": [
+                351,
+                121,
+                383,
+                141
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3660469353199005,
+            "bbox": [
+                302,
+                141,
+                343,
+                159
+            ],
+            "timestamp": 23.340596026490065,
+            "track_id": null
+        }
+    ],
+    "15": [
+        {
+            "class_name": "car",
+            "confidence": 0.8480701446533203,
+            "bbox": [
+                30,
+                216,
+                63,
+                291
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7392562031745911,
+            "bbox": [
+                156,
+                169,
+                230,
+                219
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6429091691970825,
+            "bbox": [
+                57,
+                193,
+                158,
+                258
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.630411684513092,
+            "bbox": [
+                286,
+                144,
+                321,
+                166
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.45003050565719604,
+            "bbox": [
+                337,
+                117,
+                373,
+                145
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4009741246700287,
+            "bbox": [
+                286,
+                138,
+                327,
+                165
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3367362916469574,
+            "bbox": [
+                336,
+                116,
+                374,
+                145
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.261553019285202,
+            "bbox": [
+                305,
+                136,
+                335,
+                163
+            ],
+            "timestamp": 25.00778145695364,
+            "track_id": null
+        }
+    ],
+    "16": [
+        {
+            "class_name": "car",
+            "confidence": 0.8562574982643127,
+            "bbox": [
+                31,
+                216,
+                63,
+                289
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7465589642524719,
+            "bbox": [
+                150,
+                171,
+                223,
+                221
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.690398633480072,
+            "bbox": [
+                56,
+                192,
+                154,
+                258
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6095861196517944,
+            "bbox": [
+                268,
+                140,
+                319,
+                171
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5885800123214722,
+            "bbox": [
+                268,
+                147,
+                312,
+                172
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5036829113960266,
+            "bbox": [
+                320,
+                121,
+                357,
+                151
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3110911250114441,
+            "bbox": [
+                320,
+                120,
+                363,
+                151
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.2588430941104889,
+            "bbox": [
+                497,
+                145,
+                540,
+                208
+            ],
+            "timestamp": 26.674966887417217,
+            "track_id": null
+        }
+    ],
+    "17": [
+        {
+            "class_name": "car",
+            "confidence": 0.8505003452301025,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6945116519927979,
+            "bbox": [
+                57,
+                193,
+                154,
+                258
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6101737022399902,
+            "bbox": [
+                150,
+                173,
+                208,
+                222
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5290431976318359,
+            "bbox": [
+                253,
+                143,
+                305,
+                177
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.44630545377731323,
+            "bbox": [
+                303,
+                124,
+                352,
+                158
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3587440252304077,
+            "bbox": [
+                303,
+                124,
+                352,
+                157
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.35014498233795166,
+            "bbox": [
+                190,
+                170,
+                224,
+                213
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3256168067455292,
+            "bbox": [
+                303,
+                133,
+                340,
+                158
+            ],
+            "timestamp": 28.342152317880792,
+            "track_id": null
+        }
+    ],
+    "18": [
+        {
+            "class_name": "car",
+            "confidence": 0.8618377447128296,
+            "bbox": [
+                30,
+                216,
+                63,
+                290
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7820118069648743,
+            "bbox": [
+                149,
+                172,
+                224,
+                221
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7750777006149292,
+            "bbox": [
+                56,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7225024104118347,
+            "bbox": [
+                239,
+                146,
+                297,
+                183
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.539126455783844,
+            "bbox": [
+                292,
+                128,
+                339,
+                161
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3278462588787079,
+            "bbox": [
+                497,
+                162,
+                539,
+                208
+            ],
+            "timestamp": 30.009337748344368,
+            "track_id": null
+        }
+    ],
+    "19": [
+        {
+            "class_name": "car",
+            "confidence": 0.8639854788780212,
+            "bbox": [
+                30,
+                216,
+                63,
+                290
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.788453996181488,
+            "bbox": [
+                149,
+                171,
+                225,
+                221
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7734230160713196,
+            "bbox": [
+                56,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5703334212303162,
+            "bbox": [
+                226,
+                149,
+                288,
+                188
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3760510981082916,
+            "bbox": [
+                280,
+                132,
+                329,
+                167
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.34983113408088684,
+            "bbox": [
+                282,
+                131,
+                329,
+                167
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3361797332763672,
+            "bbox": [
+                497,
+                163,
+                539,
+                208
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3120129406452179,
+            "bbox": [
+                416,
+                110,
+                432,
+                124
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.2658481299877167,
+            "bbox": [
+                341,
+                111,
+                351,
+                136
+            ],
+            "timestamp": 31.676523178807944,
+            "track_id": null
+        }
+    ],
+    "20": [
+        {
+            "class_name": "car",
+            "confidence": 0.8583215475082397,
+            "bbox": [
+                30,
+                216,
+                63,
+                290
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7757750749588013,
+            "bbox": [
+                56,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7681279182434082,
+            "bbox": [
+                148,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5485464334487915,
+            "bbox": [
+                220,
+                152,
+                279,
+                192
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.49508053064346313,
+            "bbox": [
+                269,
+                132,
+                320,
+                170
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.48743540048599243,
+            "bbox": [
+                401,
+                99,
+                433,
+                133
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.32625913619995117,
+            "bbox": [
+                220,
+                158,
+                270,
+                192
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.30864226818084717,
+            "bbox": [
+                497,
+                159,
+                539,
+                208
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.26525208353996277,
+            "bbox": [
+                497,
+                149,
+                540,
+                208
+            ],
+            "timestamp": 33.34370860927152,
+            "track_id": null
+        }
+    ],
+    "21": [
+        {
+            "class_name": "car",
+            "confidence": 0.868689775466919,
+            "bbox": [
+                30,
+                216,
+                64,
+                289
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7968176603317261,
+            "bbox": [
+                55,
+                194,
+                155,
+                257
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7774990797042847,
+            "bbox": [
+                149,
+                173,
+                224,
+                221
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.68706876039505,
+            "bbox": [
+                212,
+                164,
+                260,
+                193
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.5383302569389343,
+            "bbox": [
+                383,
+                99,
+                424,
+                145
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.49836161732673645,
+            "bbox": [
+                239,
+                155,
+                275,
+                189
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4122925400733948,
+            "bbox": [
+                266,
+                137,
+                313,
+                174
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29121148586273193,
+            "bbox": [
+                240,
+                155,
+                276,
+                180
+            ],
+            "timestamp": 35.0108940397351,
+            "track_id": null
+        }
+    ],
+    "22": [
+        {
+            "class_name": "car",
+            "confidence": 0.8689346313476562,
+            "bbox": [
+                30,
+                217,
+                63,
+                290
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8492986559867859,
+            "bbox": [
+                149,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8255655765533447,
+            "bbox": [
+                55,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5486688613891602,
+            "bbox": [
+                255,
+                138,
+                310,
+                176
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.45957592129707336,
+            "bbox": [
+                353,
+                113,
+                406,
+                166
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.4512083828449249,
+            "bbox": [
+                353,
+                112,
+                407,
+                165
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.410511314868927,
+            "bbox": [
+                209,
+                149,
+                272,
+                194
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.32943806052207947,
+            "bbox": [
+                497,
+                146,
+                541,
+                209
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3079674243927002,
+            "bbox": [
+                289,
+                137,
+                310,
+                170
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.28715112805366516,
+            "bbox": [
+                254,
+                146,
+                298,
+                177
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.2850836515426636,
+            "bbox": [
+                497,
+                142,
+                542,
+                208
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.268364816904068,
+            "bbox": [
+                208,
+                154,
+                256,
+                196
+            ],
+            "timestamp": 36.678079470198675,
+            "track_id": null
+        }
+    ],
+    "23": [
+        {
+            "class_name": "car",
+            "confidence": 0.8676257133483887,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8379235863685608,
+            "bbox": [
+                149,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.781964898109436,
+            "bbox": [
+                55,
+                194,
+                156,
+                257
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.6831589937210083,
+            "bbox": [
+                308,
+                123,
+                377,
+                198
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5060452222824097,
+            "bbox": [
+                209,
+                154,
+                271,
+                196
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3534961938858032,
+            "bbox": [
+                250,
+                138,
+                306,
+                178
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.34103140234947205,
+            "bbox": [
+                210,
+                151,
+                272,
+                195
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.31383439898490906,
+            "bbox": [
+                497,
+                143,
+                540,
+                208
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29354530572891235,
+            "bbox": [
+                253,
+                139,
+                305,
+                178
+            ],
+            "timestamp": 38.34526490066225,
+            "track_id": null
+        }
+    ],
+    "24": [
+        {
+            "class_name": "car",
+            "confidence": 0.8717156052589417,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8340978622436523,
+            "bbox": [
+                55,
+                194,
+                156,
+                257
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7994368076324463,
+            "bbox": [
+                147,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.7589558362960815,
+            "bbox": [
+                222,
+                140,
+                334,
+                256
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.40469053387641907,
+            "bbox": [
+                497,
+                164,
+                539,
+                209
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3585021197795868,
+            "bbox": [
+                398,
+                87,
+                433,
+                103
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.2576623558998108,
+            "bbox": [
+                292,
+                111,
+                302,
+                137
+            ],
+            "timestamp": 40.01245033112583,
+            "track_id": null
+        }
+    ],
+    "25": [
+        {
+            "class_name": "truck",
+            "confidence": 0.8355709910392761,
+            "bbox": [
+                33,
+                174,
+                240,
+                364
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5353329181671143,
+            "bbox": [
+                31,
+                216,
+                60,
+                288
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5163653492927551,
+            "bbox": [
+                211,
+                154,
+                272,
+                196
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4835197925567627,
+            "bbox": [
+                372,
+                90,
+                403,
+                103
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.43752649426460266,
+            "bbox": [
+                255,
+                137,
+                308,
+                178
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.41163554787635803,
+            "bbox": [
+                212,
+                159,
+                259,
+                196
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.33282405138015747,
+            "bbox": [
+                254,
+                137,
+                308,
+                178
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "person",
+            "confidence": 0.3115992844104767,
+            "bbox": [
+                155,
+                245,
+                171,
+                283
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.25759077072143555,
+            "bbox": [
+                497,
+                159,
+                540,
+                208
+            ],
+            "timestamp": 41.6796357615894,
+            "track_id": null
+        }
+    ],
+    "26": [
+        {
+            "class_name": "car",
+            "confidence": 0.8603090047836304,
+            "bbox": [
+                31,
+                216,
+                63,
+                289
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8117725253105164,
+            "bbox": [
+                150,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7252510190010071,
+            "bbox": [
+                54,
+                193,
+                156,
+                257
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.486752450466156,
+            "bbox": [
+                210,
+                153,
+                272,
+                196
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4796787202358246,
+            "bbox": [
+                254,
+                136,
+                308,
+                178
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3725971579551697,
+            "bbox": [
+                255,
+                137,
+                308,
+                178
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.3143531084060669,
+            "bbox": [
+                497,
+                146,
+                540,
+                208
+            ],
+            "timestamp": 43.34682119205298,
+            "track_id": null
+        }
+    ],
+    "27": [
+        {
+            "class_name": "car",
+            "confidence": 0.8625088334083557,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.844901442527771,
+            "bbox": [
+                149,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7813000679016113,
+            "bbox": [
+                56,
+                192,
+                155,
+                257
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6610280871391296,
+            "bbox": [
+                211,
+                153,
+                272,
+                194
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5604491233825684,
+            "bbox": [
+                254,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3680393695831299,
+            "bbox": [
+                497,
+                163,
+                540,
+                208
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.33700379729270935,
+            "bbox": [
+                417,
+                90,
+                453,
+                105
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.26517897844314575,
+            "bbox": [
+                210,
+                161,
+                259,
+                195
+            ],
+            "timestamp": 45.014006622516554,
+            "track_id": null
+        }
+    ],
+    "28": [
+        {
+            "class_name": "car",
+            "confidence": 0.8622775077819824,
+            "bbox": [
+                30,
+                216,
+                63,
+                289
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8374223709106445,
+            "bbox": [
+                149,
+                173,
+                224,
+                221
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7851863503456116,
+            "bbox": [
+                55,
+                193,
+                156,
+                257
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6548360586166382,
+            "bbox": [
+                211,
+                153,
+                272,
+                194
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5346195697784424,
+            "bbox": [
+                255,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.36051949858665466,
+            "bbox": [
+                254,
+                137,
+                308,
+                178
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.30768775939941406,
+            "bbox": [
+                415,
+                89,
+                453,
+                105
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29228127002716064,
+            "bbox": [
+                497,
+                162,
+                541,
+                209
+            ],
+            "timestamp": 46.68119205298013,
+            "track_id": null
+        }
+    ],
+    "29": [
+        {
+            "class_name": "car",
+            "confidence": 0.8624865412712097,
+            "bbox": [
+                30,
+                216,
+                63,
+                289
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.843633770942688,
+            "bbox": [
+                149,
+                173,
+                224,
+                221
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8112848997116089,
+            "bbox": [
+                56,
+                194,
+                156,
+                257
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7030935883522034,
+            "bbox": [
+                211,
+                152,
+                272,
+                195
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.4250607192516327,
+            "bbox": [
+                255,
+                137,
+                308,
+                178
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.37877190113067627,
+            "bbox": [
+                254,
+                136,
+                308,
+                178
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.3140324354171753,
+            "bbox": [
+                421,
+                89,
+                451,
+                103
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.28591781854629517,
+            "bbox": [
+                497,
+                142,
+                541,
+                208
+            ],
+            "timestamp": 48.348377483443706,
+            "track_id": null
+        }
+    ],
+    "30": [
+        {
+            "class_name": "car",
+            "confidence": 0.8590019941329956,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8378304243087769,
+            "bbox": [
+                150,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7998596429824829,
+            "bbox": [
+                57,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6261972188949585,
+            "bbox": [
+                210,
+                152,
+                272,
+                196
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.48492130637168884,
+            "bbox": [
+                420,
+                89,
+                450,
+                103
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.47983866930007935,
+            "bbox": [
+                255,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.39203837513923645,
+            "bbox": [
+                255,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 50.01556291390728,
+            "track_id": null
+        }
+    ],
+    "31": [
+        {
+            "class_name": "car",
+            "confidence": 0.8590291142463684,
+            "bbox": [
+                30,
+                217,
+                63,
+                289
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8380326628684998,
+            "bbox": [
+                150,
+                173,
+                224,
+                222
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.7985621094703674,
+            "bbox": [
+                57,
+                193,
+                155,
+                257
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6261568069458008,
+            "bbox": [
+                210,
+                152,
+                272,
+                196
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.48511525988578796,
+            "bbox": [
+                420,
+                89,
+                450,
+                103
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.479059636592865,
+            "bbox": [
+                255,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.39397212862968445,
+            "bbox": [
+                255,
+                137,
+                307,
+                178
+            ],
+            "timestamp": 51.68274834437086,
+            "track_id": null
+        }
+    ],
+    "32": [
+        {
+            "class_name": "car",
+            "confidence": 0.8405458331108093,
+            "bbox": [
+                109,
+                181,
+                197,
+                237
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8162651062011719,
+            "bbox": [
+                316,
+                193,
+                396,
+                258
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5175072550773621,
+            "bbox": [
+                303,
+                132,
+                343,
+                163
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5075480341911316,
+            "bbox": [
+                199,
+                158,
+                266,
+                199
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.4901556372642517,
+            "bbox": [
+                366,
+                101,
+                403,
+                135
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.47635746002197266,
+            "bbox": [
+                254,
+                137,
+                307,
+                179
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4750599265098572,
+            "bbox": [
+                346,
+                124,
+                371,
+                150
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.37558573484420776,
+            "bbox": [
+                253,
+                136,
+                307,
+                179
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.33378902077674866,
+            "bbox": [
+                497,
+                156,
+                541,
+                209
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2684444189071655,
+            "bbox": [
+                432,
+                96,
+                450,
+                110
+            ],
+            "timestamp": 53.34993377483443,
+            "track_id": null
+        }
+    ],
+    "33": [
+        {
+            "class_name": "car",
+            "confidence": 0.837875485420227,
+            "bbox": [
+                109,
+                181,
+                197,
+                236
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.8373363614082336,
+            "bbox": [
+                316,
+                193,
+                396,
+                258
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.5694329142570496,
+            "bbox": [
+                254,
+                138,
+                307,
+                179
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5373698472976685,
+            "bbox": [
+                348,
+                124,
+                371,
+                149
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.48790934681892395,
+            "bbox": [
+                199,
+                159,
+                260,
+                198
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.4878993630409241,
+            "bbox": [
+                304,
+                132,
+                344,
+                163
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.476797491312027,
+            "bbox": [
+                366,
+                106,
+                404,
+                134
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.39875122904777527,
+            "bbox": [
+                497,
+                153,
+                542,
+                209
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.30800095200538635,
+            "bbox": [
+                432,
+                96,
+                450,
+                109
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.2952592670917511,
+            "bbox": [
+                364,
+                119,
+                390,
+                143
+            ],
+            "timestamp": 55.01711920529801,
+            "track_id": null
+        }
+    ],
+    "34": [
+        {
+            "class_name": "car",
+            "confidence": 0.809968113899231,
+            "bbox": [
+                31,
+                207,
+                139,
+                283
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.6149605512619019,
+            "bbox": [
+                263,
+                159,
+                305,
+                185
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.5630773305892944,
+            "bbox": [
+                137,
+                181,
+                219,
+                237
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.43417367339134216,
+            "bbox": [
+                282,
+                147,
+                320,
+                179
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.3861162066459656,
+            "bbox": [
+                288,
+                128,
+                339,
+                170
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "truck",
+            "confidence": 0.373733788728714,
+            "bbox": [
+                202,
+                159,
+                254,
+                203
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "bus",
+            "confidence": 0.313175231218338,
+            "bbox": [
+                497,
+                149,
+                541,
+                208
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.31122586131095886,
+            "bbox": [
+                349,
+                127,
+                371,
+                149
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.29219508171081543,
+            "bbox": [
+                361,
+                121,
+                387,
+                144
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        },
+        {
+            "class_name": "car",
+            "confidence": 0.25020143389701843,
+            "bbox": [
+                351,
+                131,
+                371,
+                150
+            ],
+            "timestamp": 56.684304635761585,
+            "track_id": null
+        }
+    ],
+    "35": []
+}
