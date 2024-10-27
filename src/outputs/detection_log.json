@@ -10,7 +10,8 @@
                 285
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "1"
         },
         {
             "class_name": "car",
@@ -22,7 +23,8 @@
                 236
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "2"
         },
         {
             "class_name": "car",
@@ -34,7 +36,8 @@
                 216
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "3"
         },
         {
             "class_name": "car",
@@ -46,7 +49,8 @@
                 206
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "4"
         },
         {
             "class_name": "car",
@@ -58,7 +62,8 @@
                 210
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "5"
         },
         {
             "class_name": "car",
@@ -70,7 +75,8 @@
                 232
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "6"
         },
         {
             "class_name": "car",
@@ -82,7 +88,8 @@
                 239
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "7"
         },
         {
             "class_name": "car",
@@ -94,7 +101,8 @@
                 202
             ],
             "timestamp": 0.0,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "8"
         }
     ],
     "1": [
@@ -108,7 +116,8 @@
                 285
             ],
             "timestamp": 1.667185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "1"
         },
         {
             "class_name": "car",
@@ -120,7 +129,8 @@
                 216
             ],
             "timestamp": 1.667185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "2"
         },
         {
             "class_name": "car",
@@ -132,7 +142,8 @@
                 236
             ],
             "timestamp": 1.667185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "3"
         },
         {
             "class_name": "car",
@@ -144,7 +155,8 @@
                 206
             ],
             "timestamp": 1.667185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "4"
         },
         {
             "class_name": "car",
@@ -156,7 +168,8 @@
                 211
             ],
             "timestamp": 1.667185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "5"
         }
     ],
     "2": [
@@ -170,7 +183,8 @@
                 299
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "9"
         },
         {
             "class_name": "car",
@@ -182,7 +196,8 @@
                 222
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "10"
         },
         {
             "class_name": "car",
@@ -194,7 +209,8 @@
                 146
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -206,7 +222,8 @@
                 168
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "12"
         },
         {
             "class_name": "car",
@@ -218,7 +235,8 @@
                 111
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "person",
@@ -230,7 +248,8 @@
                 164
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "14"
         },
         {
             "class_name": "car",
@@ -242,7 +261,8 @@
                 123
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "15"
         },
         {
             "class_name": "car",
@@ -254,7 +274,8 @@
                 132
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "16"
         },
         {
             "class_name": "car",
@@ -266,7 +287,8 @@
                 101
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "17"
         },
         {
             "class_name": "truck",
@@ -278,7 +300,8 @@
                 207
             ],
             "timestamp": 3.334370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "18"
         }
     ],
     "3": [
@@ -292,7 +315,8 @@
                 181
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "9"
         },
         {
             "class_name": "car",
@@ -304,7 +328,8 @@
                 257
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "person",
@@ -316,7 +341,8 @@
                 162
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "12"
         },
         {
             "class_name": "car",
@@ -328,7 +354,8 @@
                 154
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -340,7 +367,8 @@
                 137
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "19"
         },
         {
             "class_name": "car",
@@ -352,7 +380,8 @@
                 115
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "20"
         },
         {
             "class_name": "car",
@@ -364,7 +393,8 @@
                 127
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "21"
         },
         {
             "class_name": "car",
@@ -376,7 +406,8 @@
                 105
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "22"
         },
         {
             "class_name": "truck",
@@ -388,7 +419,8 @@
                 208
             ],
             "timestamp": 5.001556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "23"
         }
     ],
     "4": [
@@ -402,7 +434,8 @@
                 300
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -414,7 +447,8 @@
                 198
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -426,7 +460,8 @@
                 143
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "24"
         },
         {
             "class_name": "person",
@@ -438,7 +473,8 @@
                 150
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "25"
         },
         {
             "class_name": "car",
@@ -450,7 +486,8 @@
                 131
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "26"
         },
         {
             "class_name": "car",
@@ -462,7 +499,8 @@
                 163
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "27"
         },
         {
             "class_name": "car",
@@ -474,7 +512,8 @@
                 111
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "28"
         },
         {
             "class_name": "car",
@@ -486,7 +525,8 @@
                 119
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "29"
         },
         {
             "class_name": "car",
@@ -498,7 +538,8 @@
                 143
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "30"
         },
         {
             "class_name": "truck",
@@ -510,7 +551,8 @@
                 207
             ],
             "timestamp": 6.668741721854304,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "31"
         }
     ],
     "5": [
@@ -524,7 +566,8 @@
                 158
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -536,7 +579,8 @@
                 221
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -548,7 +592,8 @@
                 173
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "32"
         },
         {
             "class_name": "car",
@@ -560,7 +605,8 @@
                 150
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "33"
         },
         {
             "class_name": "car",
@@ -572,7 +618,8 @@
                 122
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "34"
         },
         {
             "class_name": "car",
@@ -584,7 +631,8 @@
                 136
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "35"
         },
         {
             "class_name": "car",
@@ -596,7 +644,8 @@
                 115
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "36"
         },
         {
             "class_name": "car",
@@ -608,7 +657,8 @@
                 150
             ],
             "timestamp": 8.33592715231788,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "37"
         }
     ],
     "6": [
@@ -622,7 +672,8 @@
                 259
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -634,7 +685,8 @@
                 142
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -646,7 +698,8 @@
                 128
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "35"
         },
         {
             "class_name": "car",
@@ -658,7 +711,8 @@
                 189
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "39"
         },
         {
             "class_name": "car",
@@ -670,7 +724,8 @@
                 158
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "40"
         },
         {
             "class_name": "car",
@@ -682,7 +737,8 @@
                 208
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "41"
         },
         {
             "class_name": "car",
@@ -694,7 +750,8 @@
                 120
             ],
             "timestamp": 10.003112582781457,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "42"
         }
     ],
     "7": [
@@ -708,7 +765,8 @@
                 215
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -720,7 +778,8 @@
                 149
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -732,7 +791,8 @@
                 102
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "39"
         },
         {
             "class_name": "car",
@@ -744,7 +804,8 @@
                 169
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "44"
         },
         {
             "class_name": "car",
@@ -756,7 +817,8 @@
                 134
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "45"
         },
         {
             "class_name": "person",
@@ -768,7 +830,8 @@
                 156
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "46"
         },
         {
             "class_name": "car",
@@ -780,7 +843,8 @@
                 124
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "47"
         },
         {
             "class_name": "truck",
@@ -792,7 +856,8 @@
                 216
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "48"
         },
         {
             "class_name": "car",
@@ -804,7 +869,8 @@
                 149
             ],
             "timestamp": 11.670298013245032,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "49"
         }
     ],
     "8": [
@@ -818,7 +884,8 @@
                 255
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -830,7 +897,8 @@
                 141
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -842,7 +910,8 @@
                 158
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "48"
         },
         {
             "class_name": "person",
@@ -854,7 +923,8 @@
                 144
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "51"
         },
         {
             "class_name": "car",
@@ -866,7 +936,8 @@
                 128
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "52"
         },
         {
             "class_name": "truck",
@@ -878,7 +949,8 @@
                 187
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "53"
         },
         {
             "class_name": "car",
@@ -890,7 +962,8 @@
                 187
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "54"
         },
         {
             "class_name": "car",
@@ -902,7 +975,8 @@
                 110
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "55"
         },
         {
             "class_name": "car",
@@ -914,7 +988,8 @@
                 209
             ],
             "timestamp": 13.337483443708608,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         }
     ],
     "9": [
@@ -928,7 +1003,8 @@
                 292
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -940,7 +1016,8 @@
                 115
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -952,7 +1029,8 @@
                 146
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -964,7 +1042,8 @@
                 168
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "59"
         },
         {
             "class_name": "car",
@@ -976,7 +1055,8 @@
                 208
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "60"
         },
         {
             "class_name": "car",
@@ -988,7 +1068,8 @@
                 210
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "61"
         },
         {
             "class_name": "truck",
@@ -1000,7 +1081,8 @@
                 210
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "62"
         },
         {
             "class_name": "car",
@@ -1012,7 +1094,8 @@
                 169
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "63"
         },
         {
             "class_name": "truck",
@@ -1024,7 +1107,8 @@
                 168
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "64"
         },
         {
             "class_name": "car",
@@ -1036,7 +1120,8 @@
                 134
             ],
             "timestamp": 15.004668874172184,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "65"
         }
     ],
     "10": [
@@ -1050,7 +1135,8 @@
                 184
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1062,7 +1148,8 @@
                 156
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "person",
@@ -1074,7 +1161,8 @@
                 146
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "truck",
@@ -1086,7 +1174,8 @@
                 242
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1098,7 +1187,8 @@
                 209
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "68"
         },
         {
             "class_name": "car",
@@ -1110,7 +1200,8 @@
                 121
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "69"
         },
         {
             "class_name": "car",
@@ -1122,7 +1213,8 @@
                 138
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1134,7 +1226,8 @@
                 242
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "71"
         },
         {
             "class_name": "car",
@@ -1146,7 +1239,8 @@
                 120
             ],
             "timestamp": 16.67185430463576,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "72"
         }
     ],
     "11": [
@@ -1160,7 +1254,8 @@
                 143
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "truck",
@@ -1172,7 +1267,8 @@
                 203
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1184,7 +1280,8 @@
                 167
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "truck",
@@ -1196,7 +1293,8 @@
                 278
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1208,7 +1306,8 @@
                 277
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1220,7 +1319,8 @@
                 126
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -1232,7 +1332,8 @@
                 167
             ],
             "timestamp": 18.339039735099337,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "76"
         }
     ],
     "12": [
@@ -1246,7 +1347,8 @@
                 286
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1258,7 +1360,8 @@
                 182
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1270,7 +1373,8 @@
                 147
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "truck",
@@ -1282,7 +1386,8 @@
                 130
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -1294,7 +1399,8 @@
                 226
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1306,7 +1412,8 @@
                 130
             ],
             "timestamp": 20.006225165562913,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         }
     ],
     "13": [
@@ -1320,7 +1427,8 @@
                 289
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "truck",
@@ -1332,7 +1440,8 @@
                 247
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "person",
@@ -1344,7 +1453,8 @@
                 144
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1356,7 +1466,8 @@
                 197
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1368,7 +1479,8 @@
                 153
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -1380,7 +1492,8 @@
                 135
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -1392,7 +1505,8 @@
                 134
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "83"
         },
         {
             "class_name": "car",
@@ -1404,7 +1518,8 @@
                 151
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "84"
         },
         {
             "class_name": "bus",
@@ -1416,7 +1531,8 @@
                 208
             ],
             "timestamp": 21.67341059602649,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "85"
         }
     ],
     "14": [
@@ -1430,7 +1546,8 @@
                 289
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1442,7 +1559,8 @@
                 210
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1454,7 +1572,8 @@
                 257
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1466,7 +1585,8 @@
                 140
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1478,7 +1598,8 @@
                 158
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1490,7 +1611,8 @@
                 157
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -1502,7 +1624,8 @@
                 141
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -1514,7 +1637,8 @@
                 159
             ],
             "timestamp": 23.340596026490065,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "15": [
@@ -1528,7 +1652,8 @@
                 291
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1540,7 +1665,8 @@
                 219
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1552,7 +1678,8 @@
                 258
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1564,7 +1691,8 @@
                 166
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1576,7 +1704,8 @@
                 145
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1588,7 +1717,8 @@
                 165
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -1600,7 +1730,8 @@
                 145
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -1612,7 +1743,8 @@
                 163
             ],
             "timestamp": 25.00778145695364,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "16": [
@@ -1626,7 +1758,8 @@
                 289
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1638,7 +1771,8 @@
                 221
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1650,7 +1784,8 @@
                 258
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1662,7 +1797,8 @@
                 171
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1674,7 +1810,8 @@
                 172
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1686,7 +1823,8 @@
                 151
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -1698,7 +1836,8 @@
                 151
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "bus",
@@ -1710,7 +1849,8 @@
                 208
             ],
             "timestamp": 26.674966887417217,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "17": [
@@ -1724,7 +1864,8 @@
                 289
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1736,7 +1877,8 @@
                 258
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1748,7 +1890,8 @@
                 222
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1760,7 +1903,8 @@
                 177
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1772,7 +1916,8 @@
                 158
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -1784,7 +1929,8 @@
                 157
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -1796,7 +1942,8 @@
                 213
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -1808,7 +1955,8 @@
                 158
             ],
             "timestamp": 28.342152317880792,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "18": [
@@ -1822,7 +1970,8 @@
                 290
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1834,7 +1983,8 @@
                 221
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1846,7 +1996,8 @@
                 257
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1858,7 +2009,8 @@
                 183
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1870,7 +2022,8 @@
                 161
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -1882,7 +2035,8 @@
                 208
             ],
             "timestamp": 30.009337748344368,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         }
     ],
     "19": [
@@ -1896,7 +2050,8 @@
                 290
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -1908,7 +2063,8 @@
                 221
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -1920,7 +2076,8 @@
                 257
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -1932,7 +2089,8 @@
                 188
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -1944,7 +2102,8 @@
                 167
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -1956,7 +2115,8 @@
                 167
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -1968,7 +2128,8 @@
                 208
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -1980,7 +2141,8 @@
                 124
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "person",
@@ -1992,7 +2154,8 @@
                 136
             ],
             "timestamp": 31.676523178807944,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "93"
         }
     ],
     "20": [
@@ -2006,7 +2169,8 @@
                 290
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2018,7 +2182,8 @@
                 257
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2030,7 +2195,8 @@
                 222
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2042,7 +2208,8 @@
                 192
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -2054,7 +2221,8 @@
                 170
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -2066,7 +2234,8 @@
                 133
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -2078,7 +2247,8 @@
                 192
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -2090,7 +2260,8 @@
                 208
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "truck",
@@ -2102,7 +2273,8 @@
                 208
             ],
             "timestamp": 33.34370860927152,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "96"
         }
     ],
     "21": [
@@ -2116,7 +2288,8 @@
                 289
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2128,7 +2301,8 @@
                 257
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2140,7 +2314,8 @@
                 221
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2152,7 +2327,8 @@
                 193
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -2164,7 +2340,8 @@
                 145
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -2176,7 +2353,8 @@
                 189
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -2188,7 +2366,8 @@
                 174
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -2200,7 +2379,8 @@
                 180
             ],
             "timestamp": 35.0108940397351,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "22": [
@@ -2214,7 +2394,8 @@
                 290
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2226,7 +2407,8 @@
                 222
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2238,7 +2420,8 @@
                 257
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2250,7 +2433,8 @@
                 176
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -2262,7 +2446,8 @@
                 166
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "bus",
@@ -2274,7 +2459,8 @@
                 165
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -2286,7 +2472,8 @@
                 194
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -2298,7 +2485,8 @@
                 209
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -2310,7 +2498,8 @@
                 170
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         },
         {
             "class_name": "car",
@@ -2322,7 +2511,8 @@
                 177
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "99"
         },
         {
             "class_name": "truck",
@@ -2334,7 +2524,8 @@
                 208
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "100"
         },
         {
             "class_name": "car",
@@ -2346,7 +2537,8 @@
                 196
             ],
             "timestamp": 36.678079470198675,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "101"
         }
     ],
     "23": [
@@ -2360,7 +2552,8 @@
                 289
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2372,7 +2565,8 @@
                 222
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2384,7 +2578,8 @@
                 257
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "bus",
@@ -2396,7 +2591,8 @@
                 198
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -2408,7 +2604,8 @@
                 196
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -2420,7 +2617,8 @@
                 178
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -2432,7 +2630,8 @@
                 195
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "bus",
@@ -2444,7 +2643,8 @@
                 208
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -2456,7 +2656,8 @@
                 178
             ],
             "timestamp": 38.34526490066225,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         }
     ],
     "24": [
@@ -2470,7 +2671,8 @@
                 289
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2482,7 +2684,8 @@
                 257
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2494,7 +2697,8 @@
                 222
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "truck",
@@ -2506,7 +2710,8 @@
                 256
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -2518,7 +2723,8 @@
                 209
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -2530,7 +2736,8 @@
                 103
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "person",
@@ -2542,7 +2749,8 @@
                 137
             ],
             "timestamp": 40.01245033112583,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         }
     ],
     "25": [
@@ -2556,7 +2764,8 @@
                 364
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2568,7 +2777,8 @@
                 288
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2580,7 +2790,8 @@
                 196
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2592,7 +2803,8 @@
                 103
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -2604,7 +2816,8 @@
                 178
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -2616,7 +2829,8 @@
                 196
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -2628,7 +2842,8 @@
                 178
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "person",
@@ -2640,7 +2855,8 @@
                 283
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -2652,7 +2868,8 @@
                 208
             ],
             "timestamp": 41.6796357615894,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         }
     ],
     "26": [
@@ -2666,7 +2883,8 @@
                 289
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2678,7 +2896,8 @@
                 222
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2690,7 +2909,8 @@
                 257
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2702,7 +2922,8 @@
                 196
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -2714,7 +2935,8 @@
                 178
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -2726,7 +2948,8 @@
                 178
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "bus",
@@ -2738,7 +2961,8 @@
                 208
             ],
             "timestamp": 43.34682119205298,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         }
     ],
     "27": [
@@ -2752,7 +2976,8 @@
                 289
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2764,7 +2989,8 @@
                 222
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2776,7 +3002,8 @@
                 257
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2788,7 +3015,8 @@
                 194
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -2800,7 +3028,8 @@
                 178
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -2812,7 +3041,8 @@
                 208
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -2824,7 +3054,8 @@
                 105
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -2836,7 +3067,8 @@
                 195
             ],
             "timestamp": 45.014006622516554,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "28": [
@@ -2850,7 +3082,8 @@
                 289
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2862,7 +3095,8 @@
                 221
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2874,7 +3108,8 @@
                 257
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2886,7 +3121,8 @@
                 194
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -2898,7 +3134,8 @@
                 178
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -2910,7 +3147,8 @@
                 178
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -2922,7 +3160,8 @@
                 105
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -2934,7 +3173,8 @@
                 209
             ],
             "timestamp": 46.68119205298013,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "29": [
@@ -2948,7 +3188,8 @@
                 289
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -2960,7 +3201,8 @@
                 221
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -2972,7 +3214,8 @@
                 257
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -2984,7 +3227,8 @@
                 195
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -2996,7 +3240,8 @@
                 178
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -3008,7 +3253,8 @@
                 178
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -3020,7 +3266,8 @@
                 103
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "bus",
@@ -3032,7 +3279,8 @@
                 208
             ],
             "timestamp": 48.348377483443706,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         }
     ],
     "30": [
@@ -3046,7 +3294,8 @@
                 289
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -3058,7 +3307,8 @@
                 222
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -3070,7 +3320,8 @@
                 257
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -3082,7 +3333,8 @@
                 196
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -3094,7 +3346,8 @@
                 103
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -3106,7 +3359,8 @@
                 178
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -3118,7 +3372,8 @@
                 178
             ],
             "timestamp": 50.01556291390728,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         }
     ],
     "31": [
@@ -3132,7 +3387,8 @@
                 289
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -3144,7 +3400,8 @@
                 222
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -3156,7 +3413,8 @@
                 257
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -3168,7 +3426,8 @@
                 196
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -3180,7 +3439,8 @@
                 103
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -3192,7 +3452,8 @@
                 178
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -3204,7 +3465,8 @@
                 178
             ],
             "timestamp": 51.68274834437086,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         }
     ],
     "32": [
@@ -3218,7 +3480,8 @@
                 237
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -3230,7 +3493,8 @@
                 258
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -3242,7 +3506,8 @@
                 163
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -3254,7 +3519,8 @@
                 199
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -3266,7 +3532,8 @@
                 135
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -3278,7 +3545,8 @@
                 179
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "car",
@@ -3290,7 +3558,8 @@
                 150
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -3302,7 +3571,8 @@
                 179
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -3314,7 +3584,8 @@
                 209
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         },
         {
             "class_name": "car",
@@ -3326,7 +3597,8 @@
                 110
             ],
             "timestamp": 53.34993377483443,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "111"
         }
     ],
     "33": [
@@ -3340,7 +3612,8 @@
                 236
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -3352,7 +3625,8 @@
                 258
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "truck",
@@ -3364,7 +3638,8 @@
                 179
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -3376,7 +3651,8 @@
                 149
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "car",
@@ -3388,7 +3664,8 @@
                 198
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "car",
@@ -3400,7 +3677,8 @@
                 163
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "truck",
@@ -3412,7 +3690,8 @@
                 134
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -3424,7 +3703,8 @@
                 209
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -3436,7 +3716,8 @@
                 109
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         },
         {
             "class_name": "car",
@@ -3448,7 +3729,8 @@
                 143
             ],
             "timestamp": 55.01711920529801,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "111"
         }
     ],
     "34": [
@@ -3462,7 +3744,8 @@
                 283
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "11"
         },
         {
             "class_name": "car",
@@ -3474,7 +3757,8 @@
                 185
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "13"
         },
         {
             "class_name": "car",
@@ -3486,7 +3770,8 @@
                 237
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "56"
         },
         {
             "class_name": "car",
@@ -3498,7 +3783,8 @@
                 179
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "66"
         },
         {
             "class_name": "truck",
@@ -3510,7 +3796,8 @@
                 170
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "70"
         },
         {
             "class_name": "truck",
@@ -3522,7 +3809,8 @@
                 203
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "75"
         },
         {
             "class_name": "bus",
@@ -3534,7 +3822,8 @@
                 208
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "86"
         },
         {
             "class_name": "car",
@@ -3546,7 +3835,8 @@
                 149
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "87"
         },
         {
             "class_name": "car",
@@ -3558,7 +3848,8 @@
                 144
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "97"
         },
         {
             "class_name": "car",
@@ -3570,7 +3861,8 @@
                 150
             ],
             "timestamp": 56.684304635761585,
-            "track_id": null
+            "dominant_color": null,
+            "track_id": "111"
         }
     ],
     "35": []
