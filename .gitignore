@@ -3,3 +3,4 @@ runs/
 /src/outputs/found_frames/
 src/prototypes/outputs/
 src/prototypes/yolo11n.pt
+src/outputs/annotated_frames/
