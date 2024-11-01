@@ -1,6 +1,7 @@
 runs/
 /src/outputs/extracted_frames/
 /src/outputs/found_frames/
-src/prototypes/outputs/
-src/prototypes/yolo11n.pt
 src/outputs/annotated_frames/
+src/prototypes
+src/yolov8n.pt
+src/project/*/__pycache__/
