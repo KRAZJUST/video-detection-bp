@@ -14,6 +14,17 @@ from ultralytics import YOLO
 import supervision as sv
 from deep_sort_realtime.deepsort_tracker import DeepSort
 
+
+class Detection:
+    """ Data class to store detection information. """
+    def __init__(self, class_name: str, confidence: float, bbox: tuple, timestamp: float, track_id: int = None, dominant_color: str = None):
+        self.class_name = class_name
+        self.confidence = confidence
+        self.bbox = bbox
+        self.timestamp = timestamp
+        self.track_id = track_id
+        self.dominant_color = dominant_color
+
 class ColorFilter:
     def __init__(self):
         """
@@ -89,7 +100,23 @@ class YOLODetector:
 
     def detect_objects(self, frame: np.ndarray, timestamp: float) -> List[Dict[str, Any]]:
         results = self.model.predict(frame, verbose=False)
-        return results[0]
+        detections = []
+        for result in results:
+            for box in result.boxes:
+                class_idx = int(box.cls[0])
+                class_name = self.class_names.get(class_idx, "Unknown")
+                # Detect only people and vehicles
+                if class_name in ['person', 'car', 'truck', 'bus']:
+                    confidence = float(box.conf[0])
+                    xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
+                    detections.append(Detection(
+                        class_name=class_name,
+                        confidence=confidence,
+                        bbox=(xmin, ymin, xmax, ymax),
+                        timestamp=timestamp
+                    ))
+
+        return result[0], detections
 
 
 class ByteTrackTracker:
@@ -165,17 +192,97 @@ class ByteTrackTracker:
 
         return parsed_detections
 
+
+class DeepSortDetector:
+    def __init__(self, output_dir, max_age=30, nn_budget: int = 100, use_gpu: bool = True):
+        """
+        Initialize the DeepSortDetector.
+        
+        Parameters:
+            model: YOLO detection model.
+            max_age (int): Maximum number of missed frames before a track is deleted.
+            n_init (int): Number of consecutive detections before a track is confirmed.
+        """
+        self.device = 'cuda' if torch.cuda.is_available() and use_gpu else 'cpu'
+        self.tracker = DeepSort(
+            max_age=max_age,                                            # Frames to retain lost track
+            n_init=3,                                                   # Number of frames before confirming a track
+            nms_max_overlap=1.0,                                        # Maximum allowed overlap for NMS
+            max_cosine_distance=0.3,                                    # Cosine distance for feature matching
+            nn_budget=nn_budget,                                        # Maximum size of the appearance descriptor collection
+            embedder='mobilenet',                                       # TODO: maybe change later to osnet_x1_0 but for now leave mobilenet for speed
+            half=True if 'cuda' in self.device else False,              # Use half precision for GPU
+            embedder_gpu=self.device                                    # Device to run the embedder
+        )
+        self.color_filter = ColorFilter()
+        self.output_dir = output_dir
+        self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
+
+    def track(self, detections, frame: np.ndarray, frame_number: int) -> List[Dict[str, Any]]:
+        """
+        Detect objects in the frame and track them with DeepSORT.
+        
+        Parameters:
+            frame (np.ndarray): The current video frame.
+            timestamp (float): The timestamp of the frame.
+        
+        Returns:
+            List[Dict[str, Any]]: Tracked detections with added track IDs.
+        """
+        # Format detections for DeepSORT
+        raw_detections = [
+            [(det.bbox[0], det.bbox[1], det.bbox[2] - det.bbox[0], det.bbox[3] - det.bbox[1]), det.confidence]
+        for det in detections]
+        
+        # Update tracker
+        tracks = self.tracker.update_tracks(raw_detections=raw_detections, frame=frame)
+        
+        # Assign track IDs back to detections
+        tracked_detections = []
+        for det, track in zip(detections, tracks):
+            det.track_id = track.track_id
+            det.dominant_color = self.color_filter.detect_dominant_color(frame, det.bbox)
+            tracked_detections.append(det)
+
+        self.save_annotated_frame(frame=frame, tracked_detections=tracked_detections, frame_number=frame_number)
+        return tracked_detections
+
+    def save_annotated_frame(self, frame: np.ndarray, frame_number: int, tracked_detections: List[Dict[str, Any]]):
+        """
+        Annotates the frame with tracked detections and saves it to the specified path.
+        
+        Parameters:
+            frame (np.ndarray): The current video frame to annotate.
+            tracked_detections (List[Dict[str, Any]]): List of tracked detections with 'track_id', 'bbox', 'confidence', etc.
+            output_path (str): Path to save the annotated frame.
+        """
+        for det in tracked_detections:
+            # Draw bounding box
+            xmin, ymin, xmax, ymax = det.bbox
+            color = (255, 0, 0)
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
+            
+            # Display track ID, confidence, and class name
+            label = f"ID: {det.track_id}, Class: {det.class_name}"
+            cv2.putText(frame, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+        # Save the annotated frame
+        annotated_frame_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:04d}.jpg")
+        cv2.imwrite(annotated_frame_path, frame)
+
 class VideoProcessor:
-    def __init__(self, video_path: str, output_dir: str, interval: int = 30):
+    def __init__(self, video_path: str, output_dir: str, interval: int = 30, tracker_arg: str = 'bytetrack'):
         self.video_path = video_path
         self.output_dir = output_dir
         self.frames_output_dir = os.path.join(self.output_dir, "extracted_frames")
         os.makedirs(self.frames_output_dir, exist_ok=True)
         self.detector = YOLODetector()
         self.tracker = ByteTrackTracker(self.output_dir)
+        self.deepsort_tracker = DeepSortDetector(self.output_dir)
         self.log_entries = {}
         self.video_info = self.get_video_info()
         self.interval = interval
+        self.tracker_arg = tracker_arg
 
     def get_video_info(self) -> Dict[str, Any]:
         """ Function to extract video information using FFmpeg. """
@@ -249,11 +356,14 @@ class VideoProcessor:
             timestamp = frame_number * (30 / self.video_info['fps'])
             
             # Initial YOLO detection
-            results = self.detector.detect_objects(frame, timestamp)
-            # Refine detection with tracking
-            tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
-
-            self.log_entries[frame_number] = tracked_detections
+            results, detections = self.detector.detect_objects(frame, timestamp)
+            # Refine detection with tracking, choose the tracker based on the argument
+            if(self.tracker_arg == 'bytetrack'):
+                tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
+                self.log_entries[frame_number] = tracked_detections
+            elif(self.tracker_arg == 'deepsort'):
+                tracked_detections = self.deepsort_tracker.track(detections, frame, frame_number=frame_number)
+                self.log_entries[frame_number] = [vars(det) for det in tracked_detections]
 
         self.save_log()
 
@@ -272,6 +382,7 @@ def main():
     parser.add_argument('--output', type=str, help='Directory to save output frames and logs')
     parser.add_argument('--query', type=str, help='Search query in the format "color object", e.g., "red car"')
     parser.add_argument('--interval', type=int, default=30, help='Time interval in which to extract frames (default: every 30th frame)')
+    parser.add_argument('--tracker', type=str, default='bytetrack', help='Which tracker to use - deepsort or bytetrack')
 
     args = parser.parse_args()
     argument_parsing_time = time.time()
@@ -280,7 +391,8 @@ def main():
     processor = VideoProcessor(
         video_path=args.input,
         output_dir=args.output,
-        interval=args.interval
+        interval=args.interval,
+        tracker_arg=args.tracker
     )
     processor.process_video()
 
