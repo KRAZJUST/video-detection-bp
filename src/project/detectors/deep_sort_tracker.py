@@ -78,7 +78,7 @@ class DeepSortDetector:
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
             
             # Display track ID, confidence, and class name
-            label = f"ID: {det.track_id}, Class: {det.class_name}"
+            label = f"ID: {det.track_id}, {det.class_name}"
             cv2.putText(frame, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
         # Save the annotated frame
