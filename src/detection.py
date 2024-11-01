@@ -116,7 +116,7 @@ class YOLODetector:
                         timestamp=timestamp
                     ))
 
-        return result[0], detections
+        return results[0], detections
 
 
 class ByteTrackTracker:
@@ -194,7 +194,7 @@ class ByteTrackTracker:
 
 
 class DeepSortDetector:
-    def __init__(self, output_dir, max_age=30, nn_budget: int = 100, use_gpu: bool = True):
+    def __init__(self, output_dir, max_age=30, use_gpu: bool = True):
         """
         Initialize the DeepSortDetector.
         
@@ -208,8 +208,9 @@ class DeepSortDetector:
             max_age=max_age,                                            # Frames to retain lost track
             n_init=3,                                                   # Number of frames before confirming a track
             nms_max_overlap=1.0,                                        # Maximum allowed overlap for NMS
-            max_cosine_distance=0.3,                                    # Cosine distance for feature matching
-            nn_budget=nn_budget,                                        # Maximum size of the appearance descriptor collection
+            max_cosine_distance=0.2,                                    # Cosine distance for feature matching
+            max_iou_distance=0.7,
+            nn_budget=100,                                              # Maximum size of the appearance descriptor collection
             embedder='mobilenet',                                       # TODO: maybe change later to osnet_x1_0 but for now leave mobilenet for speed
             half=True if 'cuda' in self.device else False,              # Use half precision for GPU
             embedder_gpu=self.device                                    # Device to run the embedder
@@ -326,7 +327,7 @@ class VideoProcessor:
 
         ffmpeg_command = [
             'ffmpeg', '-fflags', '+genpts', '-i', self.video_path,
-            '-vf', f"scale=640:-1, select='not(mod(n\\,{self.interval}))'",
+            '-vf', f"scale=720:-1, select='not(mod(n\\,{self.interval}))'",
             '-fps_mode', 'vfr',
             # Sets pixel format to yuvj420p for better accuracy in object detection
             '-pix_fmt', 'yuvj420p',
