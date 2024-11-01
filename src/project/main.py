@@ -1,4 +1,5 @@
 from processors.video_processor import VideoProcessor
+from parsers.detection_parser import DetectionParser
 import argparse
 import time
 
@@ -24,6 +25,15 @@ def main():
         tracker_arg=args.tracker
     )
     processor.process_video()
+
+    # Parse the log entries based on the query
+    if args.query:
+        log_parser = DetectionParser(
+            log_entries=processor.initial_yolo_results_log,
+            query=args.query,
+            output_dir=args.output
+        )
+        log_parser.parse_log_entries()
 
     print(f"Total time taken: {time.time() - start_time:.2f} seconds (Argument Parsing: {argument_parsing_time - start_time:.2f} seconds)")
 
