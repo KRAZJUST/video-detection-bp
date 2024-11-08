@@ -63,6 +63,7 @@ class VideoProcessor:
 
     def extract_frames(self):
         """ Function to extract frames from a video using FFmpeg. """
+        print(self.video_info)
 
         ffmpeg_command = [
             'ffmpeg', '-fflags', '+genpts', '-i', self.video_path,
@@ -72,6 +73,7 @@ class VideoProcessor:
             '-q:v', '2',
             # Sets pixel format to yuvj420p for better accuracy in object detection
             '-pix_fmt', 'yuvj420p',
+            '-to', str(self.video_info['duration']),
             '-start_number', '0',
             # Output frame path
             f'{self.frames_output_dir}/frame_%04d.jpg'
@@ -94,8 +96,8 @@ class VideoProcessor:
         for frame_number, frame_file in enumerate(frame_files):
             print(f"Processing frame {frame_file}")
             frame = cv2.imread(frame_file)
-            # Adjust timestamp for every 30th frame
-            timestamp = frame_number * (30 / self.video_info['fps'])
+            # Adjust timestamp for every nth frame
+            timestamp = frame_number * (self.interval / self.video_info['fps'])
             
             # Initial YOLO detections + their log
             results, detections = self.detector.detect_objects(frame, timestamp)
