@@ -6,3 +6,4 @@ src/old_prototypes
 src/yolov8n.pt
 src/project/*/__pycache__/
 src/project/outputs/*.json
+/src/outputs/

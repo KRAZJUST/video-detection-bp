@@ -66,8 +66,10 @@ class VideoProcessor:
 
         ffmpeg_command = [
             'ffmpeg', '-fflags', '+genpts', '-i', self.video_path,
-            '-vf', f"scale=640:-1, select='not(mod(n\\,{self.interval}))'",
+            '-vf', f"scale=640:-2, select='not(mod(n\\,{self.interval}))', format=yuvj420p",
             '-fps_mode', 'vfr',
+            # Set higher quality for better object detection
+            '-q:v', '2',
             # Sets pixel format to yuvj420p for better accuracy in object detection
             '-pix_fmt', 'yuvj420p',
             '-start_number', '0',
