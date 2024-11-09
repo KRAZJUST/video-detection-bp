@@ -60,10 +60,38 @@ class VideoProcessor:
             }
         
         return None
+    
+
+    def calculate_expected_frames(self) -> int:
+        """Calculate the expected number of frames to be extracted."""
+
+        total_frames = self.video_info['nb_frames']
+        return total_frames // self.interval
+    
+
+    def frames_already_extracted(self) -> bool:
+        """Check if the required number of frames has already been extracted."""
+
+        # Count the number of frame files in the output directory
+        existing_frames_count = len([
+            f for f in os.listdir(self.frames_output_dir) 
+            if f.startswith("frame_") and f.endswith(".jpg")
+        ])
+        
+        # Calculate the expected number of frames
+        expected_frames_count = self.calculate_expected_frames()
+        
+        # Return True if the expected frames are already extracted, False otherwise
+        return existing_frames_count >= expected_frames_count
 
     def extract_frames(self):
         """ Function to extract frames from a video using FFmpeg. """
         print(self.video_info)
+
+        # Check if frames already extracted
+        if self.frames_already_extracted():
+            print("Frames are already extracted. Skipping extraction.")
+            return
 
         ffmpeg_command = [
             'ffmpeg', '-fflags', '+genpts', '-i', self.video_path,
