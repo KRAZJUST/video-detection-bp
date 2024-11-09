@@ -15,9 +15,10 @@ class DetectionParser:
 
     def parse_complex_query(self, query):
         """
-        Parse multiple color-object pairs with support for AND/OR conditions.
-        Example input: 'red car and blue truck or yellow bus'
-        Output: [{'logic': 'AND', 'conditions': [('red', 'car'), ('blue', 'truck')]}, {'logic': 'OR', 'conditions': [('yellow', 'bus')]}]
+        Parse multiple object queries with optional color and support for AND/OR conditions.
+        Example:
+            Input: 'car and bus or person'
+            Output: [{'logic': 'AND', 'conditions': [('car', None), ('bus', None)]}, {'logic': 'OR', 'conditions': [('person', None)]}]
         """
         # Split by 'or' first, then within each group split by 'and'
         or_groups = [group.strip() for group in query.lower().split('or')]
@@ -31,8 +32,12 @@ class DetectionParser:
                 if len(parts) == 2:
                     color, obj = parts
                     conditions.append((color, obj))
+                elif len(parts) == 1:
+                    # Only object is specified, no color requirement
+                    obj = parts[0]
+                    conditions.append((None, obj))
                 else:
-                    raise ValueError("Query must be in the format 'color object', for example 'red car'")
+                    raise ValueError("Query must be in the format 'color object' or 'object', e.g., 'car' or 'red car'")
             parsed_queries.append({'logic': 'AND', 'conditions': conditions})
 
         print(parsed_queries)
@@ -43,29 +48,27 @@ class DetectionParser:
         Parse log entries and filter based on the query.
         """
         for frame_num, detections in self.log_entries.items():
-            for entry in detections:
-                # Check if the entry matches the query
-                if self.check_query(entry):
-                    if frame_num not in self.found_log_entries:
-                        self.found_log_entries[frame_num] = []
-                    self.found_log_entries[frame_num].append(entry)
+            # Check if the frame's detections match the query
+            if self.check_query(detections):
+                self.found_log_entries[frame_num] = detections
 
-                    # Get the frame file path
-                    frame_file_name = f'frame_{frame_num:04d}.jpg'
-                    frame_file_path = os.path.join(self.output_dir, 'extracted_frames', frame_file_name)
+                # Get the frame file path
+                frame_file_name = f'frame_{frame_num:04d}.jpg'
+                frame_file_path = os.path.join(self.output_dir, 'extracted_frames', frame_file_name)
 
-                    # Copy the image to the found folder if it exists
-                    if os.path.exists(frame_file_path):
-                        shutil.copy(frame_file_path, self.found_dir)
-                    else:
-                        print(f"Warning: Frame file {frame_file_name} does not exist in {self.frames_output_dir}")
+                # Copy the image to the found folder if it exists
+                if os.path.exists(frame_file_path):
+                    shutil.copy(frame_file_path, self.found_dir)
+                else:
+                    print(f"Warning: Frame file {frame_file_name} does not exist in {self.frames_output_dir}")
 
         # Save found log entries to a new JSON file
         self.save_found_log()
+
     
-    def check_query(self, entry):
+    def check_query(self, detections):
         """
-        Check if the log entry matches any of the complex queries.
+        Check if the frame's detections satisfy any of the complex queries.
         A query can contain multiple conditions connected by 'AND' or 'OR'.
         """
         vehicle_query = ['car', 'truck', 'bus', 'motorcycle']
@@ -73,29 +76,36 @@ class DetectionParser:
         # Go through each 'OR' group
         for query_group in self.queries:
             if query_group['logic'] == 'AND':
-                # All conditions in this group must be satisfied
-                if all(self.matches_condition(entry, condition, vehicle_query) for condition in query_group['conditions']):
+                # For 'AND', check if each condition is satisfied by at least one detection in the frame
+                if all(
+                    any(self.matches_condition(detection, condition, vehicle_query) for detection in detections)
+                    for condition in query_group['conditions']
+                ):
                     return True
             elif query_group['logic'] == 'OR':
-                # At least one condition in this group must be satisfied
-                if any(self.matches_condition(entry, condition, vehicle_query) for condition in query_group['conditions']):
+                # For 'OR', check if at least one condition is satisfied by any detection in the frame
+                if any(
+                    any(self.matches_condition(detection, condition, vehicle_query) for detection in detections)
+                    for condition in query_group['conditions']
+                ):
                     return True
-                
+
         return False
+
     
 
     def matches_condition(self, entry, condition, vehicle_query):
         """Check if a single condition (color-object pair) matches the log entry."""
         query_color, query_object = condition
-        
+
         # Object matching logic
         if query_object == 'vehicle':
             object_matches = entry['class_name'].lower() in vehicle_query
         else:
             object_matches = entry['class_name'].lower() == query_object
         
-        # Color matching logic
-        color_matches = entry['dominant_color'].lower() == query_color
+        # Color matching logic: skip if color is None
+        color_matches = True if query_color is None else entry['dominant_color'].lower() == query_color
         
         confidence = entry['confidence']
 
