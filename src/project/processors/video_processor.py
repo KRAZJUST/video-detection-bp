@@ -82,7 +82,7 @@ class VideoProcessor:
         expected_frames_count = self.calculate_expected_frames()
         
         # Return True if the expected frames are already extracted, False otherwise
-        return existing_frames_count >= expected_frames_count
+        return existing_frames_count + 3 >= expected_frames_count and existing_frames_count - 3 <= expected_frames_count
 
     def extract_frames(self):
         """ Function to extract frames from a video using FFmpeg. """

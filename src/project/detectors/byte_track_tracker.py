@@ -11,7 +11,7 @@ from .color_filter import ColorFilter
 class ByteTrackTracker:
     def __init__(self, output_dir: str):
         # Initialize ByteTrack from supervision
-        self.tracker = sv.ByteTrack(lost_track_buffer=30, minimum_matching_threshold=0.8, minimum_consecutive_frames=1, track_activation_threshold=0.2)
+        self.tracker = sv.ByteTrack(track_activation_threshold=0.2)
         # Initialize the color filter
         self.color_filter = ColorFilter()
         self.box_annotator = sv.BoxAnnotator()
