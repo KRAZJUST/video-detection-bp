@@ -91,16 +91,28 @@ class ByteTrackTracker:
         """
 
         # Normalize angle to be within 0-360 degrees
-        angle = angle % 360
+        angle = (angle + 360) % 360
+        print(f'angle: {angle}')
 
-        directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-        segment_angle = 360 / 8
+        # Map angle to 8-point compass directions
+        if 337.5 <= angle or angle < 22.5:
+            return "E"
+        elif 22.5 <= angle < 67.5:
+            return "NE"
+        elif 67.5 <= angle < 112.5:
+            return "N"
+        elif 112.5 <= angle < 157.5:
+            return "NW"
+        elif 157.5 <= angle < 202.5:
+            return "W"
+        elif 202.5 <= angle < 247.5:
+            return "SW"
+        elif 247.5 <= angle < 292.5:
+            return "S"
+        elif 292.5 <= angle < 337.5:
+            return "SE"
 
-        # Find the closest direction based on the angle
-        index = int((angle + segment_angle / 2) // segment_angle) % 8
-        return directions[index]
     
-
     def calculate_direction(self, start_point: Tuple[float, float], end_point: Tuple[float, float]) -> str:
         """
         Calculate direction based on movement vector between points.
@@ -114,7 +126,9 @@ class ByteTrackTracker:
         """
 
         dx = end_point[0] - start_point[0]
-        dy = end_point[1] - start_point[1]
+        # Invert dy to match the coordinate system
+        dy = start_point[1] - end_point[1]
+
         angle = degrees(atan2(dy, dx))
 
         # Map angle to compass direction
