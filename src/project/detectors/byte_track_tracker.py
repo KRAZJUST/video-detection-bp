@@ -92,7 +92,6 @@ class ByteTrackTracker:
 
         # Normalize angle to be within 0-360 degrees
         angle = (angle + 360) % 360
-        print(f'angle: {angle}')
 
         # Map angle to 8-point compass directions
         if 337.5 <= angle or angle < 22.5:
