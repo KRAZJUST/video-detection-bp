@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+from PIL import Image, ImageTk
 import os
 import threading
 from processors.video_processor import VideoProcessor
@@ -24,7 +25,7 @@ class VideoProcessingApp:
 
         self.root = tk.Tk()
         self.root.title("Video Processing Application")
-        self.root.geometry("1200x800")
+        self.root.geometry("1200x860")
         self.root.configure(bg=self.bg_color)
 
 
@@ -39,12 +40,12 @@ class VideoProcessingApp:
         video_frame.grid(row=0, column=0, sticky='ew', padx=10, pady=10)
 
         tk.Label(video_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.video_path_entry = tk.Entry(video_frame, width=40, bg="#3C3C3C", fg=self.fg_color)
+        self.video_path_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
         self.video_path_entry.grid(row=1, column=0)
         tk.Button(video_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=1)
 
         tk.Label(video_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
-        self.output_dir_entry = tk.Entry(video_frame, width=40, bg="#3C3C3C", fg=self.fg_color)
+        self.output_dir_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
         self.output_dir_entry.grid(row=3, column=0)
         tk.Button(video_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=1)
 
@@ -82,16 +83,28 @@ class VideoProcessingApp:
         results_frame = tk.Frame(self.root, bg=self.bg_color)
         results_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Main Frame Display Section (left-center, 2x2 grid for frames)
-        frames_grid_frame = tk.Frame(results_frame, bg=self.bg_color)
-        frames_grid_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        # Main Frame Display Section (left-center, scrollable 2xN grid for frames)
+        self.canvas_frame = tk.Frame(results_frame, bg=self.bg_color)
+        self.canvas_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # 2x2 Grid to display frames
-        self.frames = []
-        for i in range(4):
-            frame = tk.Label(frames_grid_frame, bg="#3C3C3C", width=200, height=100, text=f"Frame {i+1}", fg=self.fg_color)
-            frame.grid(row=i // 2, column=i % 2, padx=5, pady=5)
-            self.frames.append(frame)
+        # Create the canvas and vertical scrollbar
+        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color, height=500, width=1000)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        
+        self.scrollbar = ttk.Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        # Make the canvas scrollable
+        self.canvas.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Create a frame inside the canvas to hold the 2xN grid
+        self.frame_in_canvas = tk.Frame(self.canvas, bg=self.bg_color)
+        self.canvas.create_window((0, 0), window=self.frame_in_canvas, anchor="nw")
+
+        # Set row and column weights for resizing
+        self.canvas_frame.grid_rowconfigure(0, weight=1)
+        self.canvas_frame.grid_columnconfigure(0, weight=1)
 
          # Add a Button to show the log in a new window
         tk.Button(results_frame, text="Show Log", command=self.show_log, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=2, column=0, pady=10)
@@ -100,9 +113,8 @@ class VideoProcessingApp:
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
-        results_frame.grid_rowconfigure(0, weight=1)
-        results_frame.grid_columnconfigure(0, weight=2)
-        results_frame.grid_columnconfigure(1, weight=1)
+        self.canvas_frame.grid_rowconfigure(0, weight=1)
+        self.canvas_frame.grid_columnconfigure(0, weight=1)
 
 
     def select_video(self):
@@ -179,14 +191,62 @@ class VideoProcessingApp:
             )
             log_parser.parse_log_entries()
             print(log_parser.found_log_entries)
-            self.display_results_in_treeview(log_parser.found_log_entries)
-            self.display_detection_log(log_parser.found_log_entries)
+            # After query, load and display frames in grid
+            self.display_frames_in_grid(log_parser.found_log_entries)
         except Exception as e:
             print(f"Error running query: {e}")
 
         # Re-enable buttons and hide loading indicator after processing
         self.query_button.config(state=tk.NORMAL)
         self.loading_label.grid_forget()
+
+    def display_frames_in_grid(self, results):
+        """Load frames from found_frames_dir and display in a 2x2 scrollable grid."""
+        # Get the list of images from the found frames directory
+        image_files = sorted(os.listdir(self.found_frames_dir))  # Get all frame images
+
+        # Clear the canvas before adding new images
+        for widget in self.frame_in_canvas.winfo_children():
+            widget.destroy()
+
+        # Set up the grid on the canvas
+        row = 0
+        col = 0
+
+        # Number of images to show per row and column (2x2 grid)
+        images_per_row = 2
+        images_per_column = 2
+        total_images = len(image_files)
+        
+        # Calculate the number of rows needed based on the number of images
+        rows_needed = (total_images + images_per_row - 1) // images_per_row  # Ceiling division
+
+        # Set the canvas height to only show 2 rows at a time
+        self.canvas.config(height=500)
+
+        # Add all images in a 2xN grid, fitting in the scrollable area
+        for image_file in image_files:
+            image_path = os.path.join(self.found_frames_dir, image_file)
+            image = Image.open(image_path)
+            image = image.resize((480, 320))  # Resize the image to fit in the grid
+            photo = ImageTk.PhotoImage(image)
+
+            # Create a Label for each image
+            label = tk.Label(self.frame_in_canvas, image=photo, bg="#3C3C3C")
+            label.image = photo  # Keep a reference to avoid garbage collection
+
+            # Position the image in the 2x2 grid
+            label.grid(row=row, column=col, padx=5, pady=5)
+
+            # Update grid position for the next image
+            col += 1
+            if col == images_per_row:  # Move to the next row after 2 columns
+                col = 0
+                row += 1
+
+        # Update the scroll region to make the canvas scrollable
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
 
     def show_log(self):
         """Open the secondary results section in a new window."""
