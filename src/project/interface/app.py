@@ -14,6 +14,7 @@ class VideoProcessingApp:
         self.tracker = "bytetrack"
         self.query = ""
         self.log_results = []
+        self.found_frames_dir = ""
 
         # GUI colors
         self.bg_color = "#2E2E2E"  # Dark gray background
@@ -23,7 +24,7 @@ class VideoProcessingApp:
 
         self.root = tk.Tk()
         self.root.title("Video Processing Application")
-        self.root.geometry("1400x800")
+        self.root.geometry("1200x800")
         self.root.configure(bg=self.bg_color)
 
 
@@ -66,38 +67,34 @@ class VideoProcessingApp:
         self.tracker_combobox.set("bytetrack")
         self.tracker_combobox.grid(row=5, column=0)
 
-        tk.Button(settings_frame, text="Start Processing", command=self.start_processing, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=6, column=0)
-        tk.Button(settings_frame, text="Run Query", command=self.run_query, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=6, column=1)
+        self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.process_button.grid(row=6, column=0)
+
+        self.query_button = tk.Button(settings_frame, text="Run Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.query_button.grid(row=6, column=1)
+
+        # Add a loading indicator
+        self.loading_label = tk.Label(self.root, text="Processing...", bg=self.bg_color, fg=self.fg_color)
+        self.loading_label.grid(row=1, column=0, padx=10, pady=10)
+        self.loading_label.grid_forget()  # Hide initially
 
         # Main Results Section (Left Center)
         results_frame = tk.Frame(self.root, bg=self.bg_color)
         results_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Main Frame Display Section (left-center)
-        main_results_frame = tk.Frame(results_frame, bg=self.bg_color)
-        main_results_frame.grid(row=0, column=0, sticky="nsew")
+        # Main Frame Display Section (left-center, 2x2 grid for frames)
+        frames_grid_frame = tk.Frame(results_frame, bg=self.bg_color)
+        frames_grid_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Secondary Results Section for Detection Log (Right side)
-        secondary_results_frame = tk.Frame(results_frame, bg=self.bg_color)
-        secondary_results_frame.grid(row=0, column=1, padx=10, sticky="nsew")
+        # 2x2 Grid to display frames
+        self.frames = []
+        for i in range(4):
+            frame = tk.Label(frames_grid_frame, bg="#3C3C3C", width=200, height=100, text=f"Frame {i+1}", fg=self.fg_color)
+            frame.grid(row=i // 2, column=i % 2, padx=5, pady=5)
+            self.frames.append(frame)
 
-        # Create the Treeview for Frame Results
-        self.results_tree = ttk.Treeview(main_results_frame, columns=("Frame", "Class Name", "Confidence", "Bounding Box", "Dominant Color"), show="headings")
-        self.results_tree.heading("Frame", text="Frame")
-        self.results_tree.heading("Class Name", text="Class Name")
-        self.results_tree.heading("Confidence", text="Confidence")
-        self.results_tree.heading("Bounding Box", text="Bounding Box")
-        self.results_tree.heading("Dominant Color", text="Dominant Color")
-        self.results_tree.grid(row=0, column=0, sticky="nsew")
-
-        # Add a vertical scrollbar to the main results section
-        scrollbar = ttk.Scrollbar(main_results_frame, orient="vertical", command=self.results_tree.yview)
-        self.results_tree.configure(yscrollcommand=scrollbar.set)
-        scrollbar.grid(row=0, column=1, sticky="ns")
-
-        # Secondary Text Widget for Detection Log
-        self.detection_log_text = tk.Text(secondary_results_frame, width=40, height=20, bg="#3C3C3C", fg=self.fg_color)
-        self.detection_log_text.grid(row=0, column=0)
+         # Add a Button to show the log in a new window
+        tk.Button(results_frame, text="Show Log", command=self.show_log, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=2, column=0, pady=10)
 
         # Set row and column weights for resizing
         self.root.grid_rowconfigure(1, weight=1)
@@ -121,16 +118,19 @@ class VideoProcessingApp:
         dir_path = filedialog.askdirectory(title="Select Output Directory")
         if dir_path:
             self.output_dir = dir_path
+            self.found_frames_dir = os.path.join(self.output_dir, "found_frames")
             self.output_dir_entry.delete(0, tk.END)
             self.output_dir_entry.insert(0, dir_path)
 
-    def start_processing(self):
-        """Start processing video in a separate thread."""
-        if not self.video_path:
-            return  # No video selected, do nothing
+    def start_video_processing(self):
+        """Disable process button and show loading during video processing."""
+        # Disable the buttons during processing
+        self.process_button.config(state=tk.DISABLED)
+        self.loading_label.grid(row=1, column=0, padx=10, pady=10)  # Show loading indicator
 
-        thread = threading.Thread(target=self.process_video)
-        thread.start()
+        # Run video processing in a separate thread to avoid freezing the GUI
+        video_thread = threading.Thread(target=self.process_video)
+        video_thread.start()
 
     def process_video(self):
         """Process the video with VideoProcessor."""
@@ -146,6 +146,25 @@ class VideoProcessingApp:
         except Exception as e:
             print(f"Error processing video: {e}")
 
+        # Re-enable buttons and hide loading indicator after processing
+        self.process_button.config(state=tk.NORMAL)
+        self.loading_label.grid_forget()
+
+    def start_query(self):
+        """Disable the buttons and show loading during query processing."""
+        if not self.log_results:
+            # No results to query
+            return 
+        
+        # Disable search query button
+        self.query_button.config(state=tk.DISABLED)
+        self.loading_label.config(text="Parsing Query...")
+        self.loading_label.grid(row=1, column=0, padx=10, pady=10)
+
+        # Run query parsing in a separate thread to avoid freezing the GUI
+        query_thread = threading.Thread(target=self.run_query)
+        query_thread.start()
+
     def run_query(self):
         """Run query on parsed results."""
         if not self.log_results:
@@ -158,11 +177,56 @@ class VideoProcessingApp:
                 query=self.query,
                 output_dir=self.output_dir
             )
-            parsed_results = log_parser.parse_log_entries()
-            self.display_results_in_treeview(parsed_results)
-            #self.display_detection_log(parsed_results)
+            log_parser.parse_log_entries()
+            print(log_parser.found_log_entries)
+            self.display_results_in_treeview(log_parser.found_log_entries)
+            self.display_detection_log(log_parser.found_log_entries)
         except Exception as e:
             print(f"Error running query: {e}")
+
+        # Re-enable buttons and hide loading indicator after processing
+        self.query_button.config(state=tk.NORMAL)
+        self.loading_label.grid_forget()
+
+    def show_log(self):
+        """Open the secondary results section in a new window."""
+        # Create a new window for the log
+        log_window = tk.Toplevel(self.root)
+        log_window.title("Detection Log")
+        log_window.configure(bg=self.bg_color)
+
+        # Create a frame to hold the log components
+        secondary_results_frame = tk.Frame(log_window, bg=self.bg_color)
+        secondary_results_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Create the Treeview for Frame Results in the new window
+        self.results_tree = ttk.Treeview(secondary_results_frame, columns=("Frame", "Class Name", "Confidence", "Bounding Box", "Dominant Color"), show="headings")
+
+        # Style the Treeview
+        style = ttk.Style()
+        style.configure("Treeview",
+                        background="#2E2E2E",  
+                        foreground="#FFFFFF",  
+                        fieldbackground="#2E2E2E")
+        style.configure("Treeview.Heading",
+                        background="#444444",
+                        foreground="#FFFFFF")
+        
+        self.results_tree.heading("Frame", text="Frame")
+        self.results_tree.heading("Class Name", text="Class Name")
+        self.results_tree.heading("Confidence", text="Confidence")
+        self.results_tree.heading("Bounding Box", text="Bounding Box")
+        self.results_tree.heading("Dominant Color", text="Dominant Color")
+        self.results_tree.grid(row=0, column=0, sticky="nsew")
+
+        # Add a vertical scrollbar to the log window
+        scrollbar = ttk.Scrollbar(secondary_results_frame, orient="vertical", command=self.results_tree.yview)
+        self.results_tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # Set row and column weights for resizing the new window
+        log_window.grid_rowconfigure(0, weight=1)
+        log_window.grid_columnconfigure(0, weight=1)
 
     def display_results_in_treeview(self, results):
         """Display results in Treeview widget."""
@@ -172,6 +236,7 @@ class VideoProcessingApp:
     def display_detection_log(self, results):
         """Display detection log in the text widget."""
         self.detection_log_text.delete(1.0, tk.END)
+        print(results)
         for result in results:
             self.detection_log_text.insert(tk.END, f"Frame: {result['frame']}, {result['class_name']} - Confidence: {result['confidence']}\n")
 
