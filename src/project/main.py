@@ -16,7 +16,7 @@ def main():
 
     args = parser.parse_args()
     argument_parsing_time = time.time()
-
+        
     # Run detection on the video
     processor = VideoProcessor(
         video_path=args.input,
