@@ -16,6 +16,7 @@ class VideoProcessingApp:
         self.query = ""
         self.log_results = []
         self.found_frames_dir = ""
+        self.found_log_entries = {}
 
         # GUI colors
         self.bg_color = "#2E2E2E"  # Dark gray background
@@ -25,7 +26,7 @@ class VideoProcessingApp:
 
         self.root = tk.Tk()
         self.root.title("Video Processing Application")
-        self.root.geometry("1200x860")
+        self.root.geometry("1200x870")
         self.root.configure(bg=self.bg_color)
 
 
@@ -42,12 +43,12 @@ class VideoProcessingApp:
         tk.Label(video_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
         self.video_path_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
         self.video_path_entry.grid(row=1, column=0)
-        tk.Button(video_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=1)
+        tk.Button(video_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=1, padx=10)
 
         tk.Label(video_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
         self.output_dir_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
         self.output_dir_entry.grid(row=3, column=0)
-        tk.Button(video_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=1)
+        tk.Button(video_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=1, padx=10)
 
         # Query and Settings Section
         settings_frame = tk.LabelFrame(top_frame, text="Query and Settings", padx=10, pady=10, bg=self.bg_color, fg=self.fg_color)
@@ -69,7 +70,7 @@ class VideoProcessingApp:
         self.tracker_combobox.grid(row=5, column=0)
 
         self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
-        self.process_button.grid(row=6, column=0)
+        self.process_button.grid(row=6, column=0, pady=10)
 
         self.query_button = tk.Button(settings_frame, text="Run Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
         self.query_button.grid(row=6, column=1)
@@ -77,11 +78,12 @@ class VideoProcessingApp:
         # Add a loading indicator
         self.loading_label = tk.Label(self.root, text="Processing...", bg=self.bg_color, fg=self.fg_color)
         self.loading_label.grid(row=1, column=0, padx=10, pady=10)
-        self.loading_label.grid_forget()  # Hide initially
+        # Hide the loading indicator initially
+        self.loading_label.grid_forget()
 
         # Main Results Section (Left Center)
         results_frame = tk.Frame(self.root, bg=self.bg_color)
-        results_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        results_frame.grid(row=1, column=0, padx=10, pady=3, sticky="nsew")
 
         # Main Frame Display Section (left-center, scrollable 2xN grid for frames)
         self.canvas_frame = tk.Frame(results_frame, bg=self.bg_color)
@@ -106,8 +108,9 @@ class VideoProcessingApp:
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid_columnconfigure(0, weight=1)
 
-         # Add a Button to show the log in a new window
-        tk.Button(results_frame, text="Show Log", command=self.show_log, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=2, column=0, pady=10)
+        # Add a Button to show the log in a new window
+        self.show_log_button = tk.Button(results_frame, text="Show Log", command=self.show_log, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.show_log_button.grid(row=2, column=0, pady=10)
 
         # Set row and column weights for resizing
         self.root.grid_rowconfigure(1, weight=1)
@@ -181,6 +184,9 @@ class VideoProcessingApp:
         """Run query on parsed results."""
         if not self.log_results:
             return  # No results to query
+        
+         # Disable the "Show Log" button while processing query
+        self.show_log_button.config(state=tk.DISABLED)
 
         self.query = self.query_entry.get()
         try:
@@ -190,9 +196,13 @@ class VideoProcessingApp:
                 output_dir=self.output_dir
             )
             log_parser.parse_log_entries()
-            print(log_parser.found_log_entries)
+
             # After query, load and display frames in grid
             self.display_frames_in_grid(log_parser.found_log_entries)
+            
+            # Save the found log entries for showing in the log window
+            self.found_log_entries = log_parser.found_log_entries
+
         except Exception as e:
             print(f"Error running query: {e}")
 
@@ -200,10 +210,13 @@ class VideoProcessingApp:
         self.query_button.config(state=tk.NORMAL)
         self.loading_label.grid_forget()
 
+        # Re-enable the "Show Log" button after query is complete
+        self.show_log_button.config(state=tk.NORMAL)
+
     def display_frames_in_grid(self, results):
         """Load frames from found_frames_dir and display in a 2x2 scrollable grid."""
         # Get the list of images from the found frames directory
-        image_files = sorted(os.listdir(self.found_frames_dir))  # Get all frame images
+        image_files = sorted(os.listdir(self.found_frames_dir))
 
         # Clear the canvas before adding new images
         for widget in self.frame_in_canvas.winfo_children():
@@ -219,7 +232,7 @@ class VideoProcessingApp:
         total_images = len(image_files)
         
         # Calculate the number of rows needed based on the number of images
-        rows_needed = (total_images + images_per_row - 1) // images_per_row  # Ceiling division
+        rows_needed = (total_images + images_per_row - 1) // images_per_row
 
         # Set the canvas height to only show 2 rows at a time
         self.canvas.config(height=500)
@@ -228,19 +241,22 @@ class VideoProcessingApp:
         for image_file in image_files:
             image_path = os.path.join(self.found_frames_dir, image_file)
             image = Image.open(image_path)
-            image = image.resize((480, 320))  # Resize the image to fit in the grid
+            # Resize the image to fit in the grid
+            image = image.resize((480, 320))
             photo = ImageTk.PhotoImage(image)
 
             # Create a Label for each image
             label = tk.Label(self.frame_in_canvas, image=photo, bg="#3C3C3C")
-            label.image = photo  # Keep a reference to avoid garbage collection
+            # Keep a reference to avoid garbage collection
+            label.image = photo
 
             # Position the image in the 2x2 grid
             label.grid(row=row, column=col, padx=5, pady=5)
 
             # Update grid position for the next image
             col += 1
-            if col == images_per_row:  # Move to the next row after 2 columns
+            # Move to the next row after 2 columns
+            if col == images_per_row:
                 col = 0
                 row += 1
 
@@ -250,10 +266,16 @@ class VideoProcessingApp:
 
     def show_log(self):
         """Open the secondary results section in a new window."""
+        if not hasattr(self, 'found_log_entries') or not self.found_log_entries:
+            print("No log entries to display.")
+            # If no entries were found, don't open the log window
+            return
+
         # Create a new window for the log
         log_window = tk.Toplevel(self.root)
         log_window.title("Detection Log")
         log_window.configure(bg=self.bg_color)
+        log_window.geometry("1100x400")
 
         # Create a frame to hold the log components
         secondary_results_frame = tk.Frame(log_window, bg=self.bg_color)
@@ -284,21 +306,21 @@ class VideoProcessingApp:
         self.results_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky="ns")
 
+        # Insert data into the Treeview from the found log entries
+        for frame, entries in self.found_log_entries.items():
+            for entry in entries:
+                self.results_tree.insert("", "end", values=(
+                    frame,
+                    entry["class_name"],
+                    entry["confidence"],
+                    str(entry["bbox"]),
+                    entry["dominant_color"]
+                ))
+
         # Set row and column weights for resizing the new window
         log_window.grid_rowconfigure(0, weight=1)
         log_window.grid_columnconfigure(0, weight=1)
 
-    def display_results_in_treeview(self, results):
-        """Display results in Treeview widget."""
-        for result in results:
-            self.results_tree.insert("", "end", values=(result['frame'], result['class_name'], result['confidence'], result['bounding_box'], result['dominant_color']))
-
-    def display_detection_log(self, results):
-        """Display detection log in the text widget."""
-        self.detection_log_text.delete(1.0, tk.END)
-        print(results)
-        for result in results:
-            self.detection_log_text.insert(tk.END, f"Frame: {result['frame']}, {result['class_name']} - Confidence: {result['confidence']}\n")
 
     def run(self):
         """Start the Tkinter mainloop."""
