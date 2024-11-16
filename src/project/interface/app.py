@@ -26,62 +26,94 @@ class VideoProcessingApp:
 
         self.root = tk.Tk()
         self.root.title("Video Processing Application")
-        self.root.geometry("1200x870")
+        self.root.geometry("1400x900")
         self.root.configure(bg=self.bg_color)
 
+        # Container for dynamically added comboboxes
+        self.combobox_rows = []
 
     def setup_gui(self):
         """Sets up the main GUI layout."""
-        # Top Frame for Video Selection and Query
-        top_frame = tk.Frame(self.root, padx=10, pady=10, bg=self.bg_color)
-        top_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        # Create a top-level frame to hold the three sections
+        top_frame = tk.Frame(self.root, bg=self.bg_color)
+        top_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        # Video Selection Section
-        video_frame = tk.LabelFrame(top_frame, text="Video Selection", padx=10, pady=10, bg=self.bg_color, fg=self.fg_color)
-        video_frame.grid(row=0, column=0, sticky='ew', padx=10, pady=10)
+        # Configure columns for the three sections
+        top_frame.grid_columnconfigure(0, weight=1)
+        top_frame.grid_columnconfigure(1, weight=1)
+        top_frame.grid_columnconfigure(2, weight=1)
 
-        tk.Label(video_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.video_path_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
-        self.video_path_entry.grid(row=1, column=0)
-        tk.Button(video_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=1, padx=10)
+        # === Input and Output Section ===
+        io_frame = tk.LabelFrame(top_frame, text="Input & Output", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        io_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        tk.Label(video_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
-        self.output_dir_entry = tk.Entry(video_frame, width=60, bg="#3C3C3C", fg=self.fg_color)
-        self.output_dir_entry.grid(row=3, column=0)
-        tk.Button(video_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=1, padx=10)
+        # Video Path
+        tk.Label(io_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
+        self.video_path_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        self.video_path_entry.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
+        tk.Button(io_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=2, padx=5)
 
-        # Query and Settings Section
-        settings_frame = tk.LabelFrame(top_frame, text="Query and Settings", padx=10, pady=10, bg=self.bg_color, fg=self.fg_color)
-        settings_frame.grid(row=0, column=1, padx=10, pady=10)
+        # Output Directory
+        tk.Label(io_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
+        self.output_dir_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        self.output_dir_entry.grid(row=3, column=0, columnspan=2, sticky="ew", pady=5)
+        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=2, padx=5)
 
-        tk.Label(settings_frame, text="Search Query:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.query_entry = tk.Entry(settings_frame, width=40, bg="#3C3C3C", fg=self.fg_color)
-        self.query_entry.grid(row=1, column=0)
+        # === Query Section ===
+        query_frame = tk.LabelFrame(top_frame, text="Query Builder", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        query_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-        tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
-        self.interval_entry = tk.Entry(settings_frame, width=40, bg="#3C3C3C", fg=self.fg_color)
-        self.interval_entry.insert(0, "30")  # Default value
-        self.interval_entry.grid(row=3, column=0)
+        # Add Filter Button (top-left)
+        self.add_combobox_button = tk.Button(query_frame, text="Add Filter", command=self.add_combobox_row, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.add_combobox_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
 
-        tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=4, column=0, sticky="w")
-        self.tracker_combobox = ttk.Combobox(settings_frame, values=["bytetrack", "deepsort"], state="readonly", 
-                                              background="#3C3C3C", foreground=self.bg_color)
+        # Scrollable area for dynamic query rows
+        self.query_canvas = tk.Canvas(query_frame, bg=self.bg_color, highlightthickness=0, height=100)
+        self.query_scrollbar = ttk.Scrollbar(query_frame, orient="vertical", command=self.query_canvas.yview)
+        self.scrollable_frame = tk.Frame(self.query_canvas, bg=self.bg_color)
+
+        # Configure Canvas
+        self.query_canvas.configure(yscrollcommand=self.query_scrollbar.set)
+        # Vertical scrollbar
+        self.query_scrollbar.grid(row=1, column=1, sticky="ns")
+        # Canvas takes most of the space
+        self.query_canvas.grid(row=1, column=0, sticky="nsew")
+
+        # Place a frame inside the canvas for dynamic rows
+        self.scrollable_frame_id = self.query_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # Update the scroll region whenever the frame's size changes
+        self.scrollable_frame.bind("<Configure>", lambda e: self.query_canvas.configure(scrollregion=self.query_canvas.bbox("all")))
+
+        # Search Query Button (bottom-right)
+        self.query_button = tk.Button(query_frame, text="Search Query", command=self.run_query, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
+
+        # Configure Grid Weights for Query Section
+        query_frame.grid_rowconfigure(1, weight=1)  # Canvas expands with the frame
+        query_frame.grid_columnconfigure(0, weight=1)  # Query section uses full width
+
+        # === Tracker and Interval Section ===
+        settings_frame = tk.LabelFrame(top_frame, text="Settings", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        settings_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+
+        # Frame Interval
+        tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
+        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
+        self.interval_entry.insert(0, "30")
+        self.interval_entry.grid(row=1, column=0, sticky="ew", pady=5)
+
+        # Tracker Selection
+        tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
+        self.tracker_combobox = ttk.Combobox(settings_frame, values=["bytetrack", "deepsort"], state="readonly")
         self.tracker_combobox.set("bytetrack")
-        self.tracker_combobox.grid(row=5, column=0)
+        self.tracker_combobox.grid(row=3, column=0, sticky="ew", pady=5)
 
+        # Process Button
         self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
-        self.process_button.grid(row=6, column=0, pady=10)
+        self.process_button.grid(row=4, column=0, pady=10, sticky="ew")
 
-        self.query_button = tk.Button(settings_frame, text="Run Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
-        self.query_button.grid(row=6, column=1)
-
-        # Add a loading indicator
-        self.loading_label = tk.Label(self.root, text="Processing...", bg=self.bg_color, fg=self.fg_color)
-        self.loading_label.grid(row=1, column=0, padx=10, pady=10)
-        # Hide the loading indicator initially
-        self.loading_label.grid_forget()
-
-        # Main Results Section (Left Center)
+        # === Results section ===
         results_frame = tk.Frame(self.root, bg=self.bg_color)
         results_frame.grid(row=1, column=0, padx=10, pady=3, sticky="nsew")
 
@@ -90,9 +122,9 @@ class VideoProcessingApp:
         self.canvas_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Create the canvas and vertical scrollbar
-        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color, height=500, width=1000)
+        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color, height=600, width=1250)
         self.canvas.grid(row=0, column=0, sticky="nsew")
-        
+
         self.scrollbar = ttk.Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.scrollbar.grid(row=0, column=1, sticky="ns")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
@@ -110,7 +142,7 @@ class VideoProcessingApp:
 
         # Add a Button to show the log in a new window
         self.show_log_button = tk.Button(results_frame, text="Show Log", command=self.show_log, bg=self.button_bg_color, fg=self.button_fg_color)
-        self.show_log_button.grid(row=2, column=0, pady=10)
+        self.show_log_button.grid(row=0, column=2, pady=10, sticky="e")
 
         # Set row and column weights for resizing
         self.root.grid_rowconfigure(1, weight=1)
@@ -119,6 +151,43 @@ class VideoProcessingApp:
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid_columnconfigure(0, weight=1)
 
+
+    def add_combobox_row(self):
+        """Adds a new row of comboboxes for color-object filtering inside the scrollable frame."""
+        # Create a new frame for the row
+        row_frame = tk.Frame(self.scrollable_frame, bg=self.bg_color)
+        row_frame.pack(fill="x", pady=2)
+
+        # Color Combobox
+        color_combobox = ttk.Combobox(row_frame, values=["-", "red", "blue", "green", "yellow", "white", "orange", "purple"], state="readonly", width=15)
+        color_combobox.set("Select Color")
+        color_combobox.grid(row=0, column=0, padx=5)
+
+        # Object Combobox
+        object_combobox = ttk.Combobox(row_frame, values=["person", "vehicle", "car", "truck", "bus"], state="readonly", width=15)
+        object_combobox.set("Select Object")
+        object_combobox.grid(row=0, column=1, padx=5)
+
+        # Logical Connector (AND/OR)
+        connector_combobox = ttk.Combobox(row_frame, values=["-", "AND", "OR"], state="readonly", width=5)
+        connector_combobox.set("-")
+        connector_combobox.grid(row=0, column=2, padx=5)
+
+        # Delete Button
+        delete_button = tk.Button(row_frame, text="X", command=lambda: self.remove_combobox_row(row_frame), 
+                                bg=self.button_bg_color, fg=self.button_fg_color, width=2, height=0)
+        delete_button.grid(row=0, column=3, padx=3)
+
+        # Add to list for tracking
+        self.combobox_rows.append((object_combobox, color_combobox, connector_combobox, delete_button))
+
+    def remove_combobox_row(self, row_frame):
+        """Removes a specific row of comboboxes."""
+        for row in self.combobox_rows:
+            if row[3] == row_frame:
+                self.combobox_rows.remove(row)
+                break
+        row_frame.destroy()
 
     def select_video(self):
         """Open file dialog to select video."""
@@ -141,7 +210,6 @@ class VideoProcessingApp:
         """Disable process button and show loading during video processing."""
         # Disable the buttons during processing
         self.process_button.config(state=tk.DISABLED)
-        self.loading_label.grid(row=1, column=0, padx=10, pady=10)  # Show loading indicator
 
         # Run video processing in a separate thread to avoid freezing the GUI
         video_thread = threading.Thread(target=self.process_video)
@@ -163,18 +231,15 @@ class VideoProcessingApp:
 
         # Re-enable buttons and hide loading indicator after processing
         self.process_button.config(state=tk.NORMAL)
-        self.loading_label.grid_forget()
 
     def start_query(self):
-        """Disable the buttons and show loading during query processing."""
+        """Start the query process when the button is clicked and disable the button."""
         if not self.log_results:
             # No results to query
             return 
         
         # Disable search query button
         self.query_button.config(state=tk.DISABLED)
-        self.loading_label.config(text="Parsing Query...")
-        self.loading_label.grid(row=1, column=0, padx=10, pady=10)
 
         # Run query parsing in a separate thread to avoid freezing the GUI
         query_thread = threading.Thread(target=self.run_query)
@@ -185,10 +250,10 @@ class VideoProcessingApp:
         if not self.log_results:
             return  # No results to query
         
-         # Disable the "Show Log" button while processing query
+        # Disable the "Show Log" button while processing query
         self.show_log_button.config(state=tk.DISABLED)
 
-        self.query = self.query_entry.get()
+        self.generate_query()
         try:
             log_parser = DetectionParser(
                 log_entries=self.log_results,
@@ -208,10 +273,38 @@ class VideoProcessingApp:
 
         # Re-enable buttons and hide loading indicator after processing
         self.query_button.config(state=tk.NORMAL)
-        self.loading_label.grid_forget()
 
         # Re-enable the "Show Log" button after query is complete
         self.show_log_button.config(state=tk.NORMAL)
+
+    def generate_query(self):
+        """Generates the query string from the combobox rows."""
+        query_parts = []
+        for object_combobox, color_combobox, connector_combobox, _ in self.combobox_rows:
+            # Validate the combobox widget is still valid
+            try:
+                object_value = object_combobox.get()
+                color_value = color_combobox.get()
+                connector_value = connector_combobox.get()
+            except tk.TclError as e:
+                # Skip invalid rows
+                print(f"Skipped invalid combobox: {e}")
+                continue
+
+            if object_value != "Select Object":
+                if color_value != "Select Color" or color_value != "-":
+                    query_parts.append(f"{color_value} {object_value}")
+                elif color_value == "-" or color_value == "Select Color":
+                    query_parts.append(object_value)
+                if connector_value and connector_value != "-":
+                    query_parts.append(connector_value)
+
+        if query_parts:
+            # Remove the last connector if it's at the end
+            if query_parts[-1] in ["AND", "OR", "-"]:
+                query_parts.pop()
+
+        self.query =  "".join(query_parts)
 
     def display_frames_in_grid(self, results):
         """Load frames from found_frames_dir and display in a 2x2 scrollable grid."""
@@ -235,14 +328,14 @@ class VideoProcessingApp:
         rows_needed = (total_images + images_per_row - 1) // images_per_row
 
         # Set the canvas height to only show 2 rows at a time
-        self.canvas.config(height=500)
+        self.canvas.config(height=600)
 
         # Add all images in a 2xN grid, fitting in the scrollable area
         for image_file in image_files:
             image_path = os.path.join(self.found_frames_dir, image_file)
             image = Image.open(image_path)
             # Resize the image to fit in the grid
-            image = image.resize((480, 320))
+            image = image.resize((610, 450))
             photo = ImageTk.PhotoImage(image)
 
             # Create a Label for each image
@@ -259,6 +352,9 @@ class VideoProcessingApp:
             if col == images_per_row:
                 col = 0
                 row += 1
+
+        # Force the canvas to update the scroll region
+        self.frame_in_canvas.update_idletasks()
 
         # Update the scroll region to make the canvas scrollable
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))

@@ -42,7 +42,6 @@ class DetectionParser:
                     raise ValueError("Query must be in the format 'color object' or 'object', e.g., 'car' or 'red car'")
             parsed_queries.append({'logic': 'AND', 'conditions': conditions})
 
-        print(parsed_queries)
         return parsed_queries
     
     def parse_log_entries(self):
