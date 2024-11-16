@@ -1,12 +1,13 @@
 import os
 import json
 import shutil
-
+import cv2
 
 class DetectionParser:
     def __init__(self, log_entries, query, output_dir):
         self.log_entries = log_entries
         self.queries = self.parse_complex_query(query)
+        self.query_colors = []
         self.found_log_entries = {}
         self.output_dir = output_dir
         # Create a directory to save the found frames
@@ -58,7 +59,7 @@ class DetectionParser:
 
                 # Copy the image to the found folder if it exists
                 if os.path.exists(frame_file_path):
-                    shutil.copy(frame_file_path, self.found_dir)
+                    self.annotate_image(frame_file_path, detections, frame_num)
                 else:
                     print(f"Warning: Frame file {frame_file_name} does not exist in {self.frames_output_dir}")
 
@@ -97,6 +98,7 @@ class DetectionParser:
     def matches_condition(self, entry, condition, vehicle_query):
         """Check if a single condition (color-object pair) matches the log entry."""
         query_color, query_object = condition
+        self.query_colors.append(query_color)
 
         # Object matching logic
         if query_object == 'vehicle':
@@ -118,3 +120,34 @@ class DetectionParser:
         with open(found_log_path, 'w') as found_log_file:
             json.dump(self.found_log_entries, found_log_file, indent=4)
         print(f"Found log saved to '{found_log_path}'.")
+
+
+    def annotate_image(self, frame_file_path, detections, frame_num):
+        """Annotate the image with bounding boxes and labels."""
+        # Read the image
+        image = cv2.imread(frame_file_path)
+
+        if image is None:
+            print(f"Failed to read image: {frame_file_path}")
+            return
+
+        for detection in detections:
+            bbox = detection['bbox']
+            class_name = detection['class_name']
+            confidence = detection['confidence']
+            dominant_color = detection['dominant_color']
+
+            if dominant_color is not None and dominant_color.lower() in self.query_colors:
+                # Draw the bounding box
+                xmin, ymin, xmax, ymax = bbox
+                color = (255, 255, 0)
+                cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
+
+                # Draw the label text
+                label = f"{class_name} ({confidence:.2f})"
+                cv2.putText(image, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            
+        # Save the annotated image
+        output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")
+        cv2.imwrite(output_path, image)
+        print(f"Annotated image saved to '{output_path}'")

@@ -125,7 +125,7 @@ class ByteTrackTracker:
         """
 
         dx = end_point[0] - start_point[0]
-        # Invert dy to match the coordinate system
+        # Invert dy to consider top-left as origin
         dy = start_point[1] - end_point[1]
 
         angle = degrees(atan2(dy, dx))
