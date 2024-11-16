@@ -8,6 +8,7 @@ class DetectionParser:
         self.log_entries = log_entries
         self.queries = self.parse_complex_query(query)
         self.query_colors = []
+        self.query_objects = []
         self.found_log_entries = {}
         self.output_dir = output_dir
         # Create a directory to save the found frames
@@ -98,7 +99,13 @@ class DetectionParser:
     def matches_condition(self, entry, condition, vehicle_query):
         """Check if a single condition (color-object pair) matches the log entry."""
         query_color, query_object = condition
-        self.query_colors.append(query_color)
+
+        if query_color not in self.query_colors:
+            self.query_colors.append(query_color)
+        if query_object not in self.query_objects:
+            self.query_objects.append(query_object)
+            if query_object == 'vehicle':
+                self.query_objects.extend(vehicle_query)
 
         # Object matching logic
         if query_object == 'vehicle':
@@ -137,7 +144,9 @@ class DetectionParser:
             confidence = detection['confidence']
             dominant_color = detection['dominant_color']
 
-            if dominant_color is not None and dominant_color.lower() in self.query_colors:
+            print(class_name, dominant_color)
+            print(self.query_colors, self.query_objects)
+            if dominant_color.lower() in self.query_colors and class_name in self.query_objects:
                 # Draw the bounding box
                 xmin, ymin, xmax, ymax = bbox
                 color = (255, 255, 0)
@@ -150,4 +159,3 @@ class DetectionParser:
         # Save the annotated image
         output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")
         cv2.imwrite(output_path, image)
-        print(f"Annotated image saved to '{output_path}'")
