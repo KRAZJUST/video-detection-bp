@@ -97,17 +97,20 @@ class VideoProcessingApp:
         settings_frame = tk.LabelFrame(top_frame, text="Settings", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
         settings_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
-        # Frame Interval
-        tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
-        self.interval_entry.insert(0, "30")
-        self.interval_entry.grid(row=1, column=0, sticky="ew", pady=5)
-
         # Tracker Selection
-        tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
-        self.tracker_combobox = ttk.Combobox(settings_frame, values=["bytetrack", "deepsort"], state="readonly")
-        self.tracker_combobox.set("bytetrack")
-        self.tracker_combobox.grid(row=3, column=0, sticky="ew", pady=5)
+        tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
+        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort"], state="readonly")
+        self.tracker_combobox.set("-")
+        self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
+
+        # Frame Interval
+        tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
+        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
+        if self.tracker_combobox.get() == "-":
+            self.interval_entry.insert(0, "30")
+        else: 
+            self.interval_entry.insert(0, "10")
+        self.interval_entry.grid(row=3, column=0, sticky="ew", pady=5)
 
         # Process Button
         self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
@@ -290,12 +293,13 @@ class VideoProcessingApp:
                 # Skip invalid rows
                 print(f"Skipped invalid combobox: {e}")
                 continue
-
+            
+            print(f"Object: {object_value}, Color: {color_value}, Connector: {connector_value}")
             if object_value != "Select Object":
-                if color_value != "Select Color" or color_value != "-":
+                if color_value != "Select Color" and color_value != "-":
                     query_parts.append(f"{color_value} {object_value}")
                 elif color_value == "-" or color_value == "Select Color":
-                    query_parts.append(object_value)
+                    query_parts.append(f"{object_value}")
                 if connector_value and connector_value != "-":
                     query_parts.append(connector_value)
 
@@ -306,14 +310,19 @@ class VideoProcessingApp:
 
         self.query =  "".join(query_parts)
 
-    def display_frames_in_grid(self, results):
-        """Load frames from found_frames_dir and display in a 2x2 scrollable grid."""
-        # Get the list of images from the found frames directory
-        image_files = sorted(os.listdir(self.found_frames_dir))
-
-        # Clear the canvas before adding new images
+    def clear_canvas(self):
+        """Remove all widgets from the canvas."""
         for widget in self.frame_in_canvas.winfo_children():
             widget.destroy()
+
+
+    def display_frames_in_grid(self, results):
+        """Load frames from found_frames_dir and display in a 2x2 scrollable grid."""
+        # Clear the canvas before adding new images
+        self.clear_canvas()
+
+        # Get the list of images from the found frames directory
+        image_files = sorted(os.listdir(self.found_frames_dir))
 
         # Set up the grid on the canvas
         row = 0
