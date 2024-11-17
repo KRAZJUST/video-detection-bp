@@ -131,13 +131,14 @@ class VideoProcessor:
             results, detections = self.detector.detect_objects(frame, timestamp)
             self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
 
-            # Refine detection with tracking, choose the tracker based on the argument
-            if(self.tracker_arg == 'bytetrack'):
-                tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
-                self.log_entries[frame_number] = tracked_detections
-            elif(self.tracker_arg == 'deepsort'):
-                tracked_detections = self.deepsort_tracker.track(detections, frame, frame_number=frame_number)
-                self.log_entries[frame_number] = [vars(det) for det in tracked_detections]
+            # Refine detection with tracking, choose the tracker based on the argument if not selected skip tracking (initial index)
+            if self.tracker_arg != '-':
+                if(self.tracker_arg == 'bytetrack'):
+                    tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
+                    self.log_entries[frame_number] = tracked_detections
+                elif(self.tracker_arg == 'deepsort'):
+                    tracked_detections = self.deepsort_tracker.track(detections, frame, frame_number=frame_number)
+                    self.log_entries[frame_number] = [vars(det) for det in tracked_detections]
 
         self.save_log(self.initial_yolo_results_log, name='initial_yolo_results_log')
         self.save_log(self.log_entries)
