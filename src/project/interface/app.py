@@ -51,13 +51,14 @@ class VideoProcessingApp:
         tk.Label(io_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
         self.video_path_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
         self.video_path_entry.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=1, column=2, padx=5)
+        tk.Button(io_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=2, column=0, pady=2, sticky="w")
 
         # Output Directory
-        tk.Label(io_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
+        tk.Label(io_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=3, column=0, sticky="w")
         self.output_dir_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
-        self.output_dir_entry.grid(row=3, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=3, column=2, padx=5)
+        self.output_dir_entry.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
+        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=5, column=0, pady=2, 
+                                                                                                                                            sticky="w")
 
         # === Query Section ===
         query_frame = tk.LabelFrame(top_frame, text="Query Builder", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
