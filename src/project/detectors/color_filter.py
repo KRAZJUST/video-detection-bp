@@ -59,7 +59,6 @@ class ColorFilter:
          # Apply threshold and filter out colors with low presence
         threshold = 0.001
         filtered_colors = {color: presence for color, presence in color_presence.items() if presence >= threshold}
-        print(f'color_presence: {color_presence}, filtered_colors: {filtered_colors}')
 
         if not filtered_colors:
             return 'none'

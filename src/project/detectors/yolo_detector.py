@@ -6,6 +6,7 @@ from .color_filter import ColorFilter
 from .detection import Detection
 import torch
 import numpy as np
+from constants.constants import OBJECTS
 
 class YOLODetector:
     """ Class to perform object detection using YOLOv11. """
@@ -18,6 +19,7 @@ class YOLODetector:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model.to(self.device)
         self.class_names = self.model.names
+        self.OBJECTS = OBJECTS
 
     def detect_objects(self, frame: np.ndarray, timestamp: float) -> List[Dict[str, Any]]:
         results = self.model.predict(frame, verbose=False)
@@ -27,11 +29,12 @@ class YOLODetector:
                 class_idx = int(box.cls[0])
                 class_name = self.class_names.get(class_idx, "Unknown")
                 # Detect only people and vehicles
-                if class_name in ['person', 'car', 'truck', 'bus']:
+                if class_name in OBJECTS:
                     confidence = float(box.conf[0])
                     xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())
                     detections.append(Detection(
                         class_name=class_name,
+                        class_id=class_idx,
                         confidence=confidence,
                         bbox=(xmin, ymin, xmax, ymax),
                         timestamp=timestamp,

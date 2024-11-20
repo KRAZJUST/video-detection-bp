@@ -6,9 +6,11 @@ import os
 import threading
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
+from database.database import Database
 
 class VideoProcessingApp:
-    def __init__(self):
+    def __init__(self, database_path: str):
+        self.database_path = database_path
         self.video_path = ""
         self.output_dir = os.getcwd()
         self.interval = 30
@@ -231,6 +233,7 @@ class VideoProcessingApp:
         try:
             processor = VideoProcessor(
                 video_path=self.video_path,
+                database_path=self.database_path,
                 output_dir=self.output_dir,
                 interval=int(self.interval_entry.get()),
                 tracker_arg=self.tracker_combobox.get()
@@ -275,9 +278,10 @@ class VideoProcessingApp:
             log_parser = DetectionParser(
                 log_entries=self.log_results,
                 query=self.query,
-                output_dir=self.output_dir
+                output_dir=self.output_dir,
+                database_path=self.database_path
             )
-            log_parser.parse_log_entries()
+            log_parser.parse_detections()
 
             # After query, load and display frames in grid
             self.display_frames_in_grid(log_parser.found_log_entries)
