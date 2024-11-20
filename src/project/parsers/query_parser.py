@@ -9,17 +9,13 @@ class QueryParser:
         self.siglip_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
         self.parsed_queries = self.parse_with_siglip(query)
 
-        self.COLORS = COLORS
-        self.OBJECTS = OBJECTS
-        self.DIRECTIONS = DIRECTIONS
-
     def parse_with_siglip(self, query):
         """
         Hugging Face's SigLIP model to parse the query into structured components.
 
         url: https://huggingface.co/docs/transformers/en/model_doc/siglip
         """
-        possible_labels = self.OBJECTS + self.COLORS + list(self.DIRECTIONS.values())
+        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values())
 
 
         # Get predictions from SigLIP
@@ -42,11 +38,11 @@ class QueryParser:
         
         for label, score in zip(result['labels'], result['scores']):
             if score >= threshold: 
-                if label in self.DIRECTIONS.values():
+                if label in DIRECTIONS.values():
                     conditions.append({'direction': label})
-                elif label in self.COLORS:
+                elif label in COLORS:
                     conditions.append({'color': label})
-                elif label in self.OBJECTS:
+                elif label in OBJECTS:
                     conditions.append({'object': label})
         
         return conditions

@@ -29,6 +29,15 @@ class DetectionParser:
         Annotate and save frames without duplicating saves for multiple detections.
         """
 
+        parsed_elements = self.query_parser.parsed_queries
+        for element in parsed_elements:
+            if element['type'] == 'color':
+                self.filter_colors.append(element['value'])
+            elif element['type'] == 'object':
+                self.filter_objects.append(element['value'])
+            elif element['type'] == 'object' and element['value'] == 'vehicle':
+                self.filter_objects.extend(['car', 'truck', 'bus'])
+
         # Reset found log entries and directories
         if os.path.exists(self.found_dir):
             shutil.rmtree(self.found_dir)

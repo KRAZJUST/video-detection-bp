@@ -45,7 +45,6 @@ class ColorFilter:
         width = xmax - xmin
         height = ymax - ymin
         aspect_ratio = width / height
-        print(f'width: {width}, height: {height}, aspect_ratio: {aspect_ratio}')
 
         if aspect_ratio <= 0.8 and aspect_ratio >= 1.2:
             mask = self._create_circular_mask(width, height)

@@ -8,9 +8,7 @@ if __name__ == '__main__':
     
     # Create an instance to reset the database
     db = Database(db_path)
-    # Reset the database
     db.reset_database()
-    # Close the database
     db.close()
 
     # Create an instance of the VideoProcessingApp and pass the database path

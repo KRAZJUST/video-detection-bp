@@ -23,6 +23,7 @@ class Database:
 
     def create_tables(self):
         """Create the necessary tables in the database."""
+
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS frames (
                 frame_number INTEGER PRIMARY KEY NOT NULL,
@@ -122,6 +123,7 @@ class Database:
     def reset_database(self):
         """ Function to clear previous detections from the database. """
         self.cursor.execute("DELETE FROM detections")
+        self.cursor.execute("DELETE FROM frames")
         self.connection.commit()
         print("Database reset complete.")
 
@@ -157,3 +159,10 @@ class Database:
     def close(self):
         """Close the database connection."""
         self.connection.close()
+
+    def drop_tables(self):
+        """Drop the tables in the database."""
+        self.cursor.execute("DROP TABLE IF EXISTS frames")
+        self.cursor.execute("DROP TABLE IF EXISTS detections")
+        self.connection.commit()
+        print("Tables dropped successfully.")

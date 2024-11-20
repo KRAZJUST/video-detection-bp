@@ -136,7 +136,6 @@ class VideoProcessor:
             
             # Initial YOLO detections + their log
             results, detections = self.detector.detect_objects(frame, timestamp)
-            print(f"Detected {len(detections)} objects in frame {frame_number}.")
             self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
             self.add_detections_in_db(detections, frame_number)
 
