@@ -134,7 +134,7 @@ class ByteTrackTracker:
         return self.angle_to_direction(angle)
 
 
-    def parse_tracked_detections(self, tracked_detections, frame_number: int) -> List[Dict[str, Any]]:
+    def parse_tracked_detections(self, tracked_detections, frame, frame_number: int) -> List[Dict[str, Any]]:
         """
         Parse tracked detections from ByteTrack into a list of dictionaries.
 
@@ -165,6 +165,8 @@ class ByteTrackTracker:
                 end_frame, end_point = self.track_history[track_id][-1]
                 direction = self.calculate_direction(start_point, end_point)
 
+            # Convert bbox to integer format
+            bbox = [int(coord) for coord in bbox]
             # Append detection info to the list
             detection_info = {
                 'track_id': track_id,
@@ -172,7 +174,8 @@ class ByteTrackTracker:
                 'confidence': float(tracked_detections.confidence[i]),
                 'class_id': int(tracked_detections.class_id[i]),
                 'class_name': class_name,
-                'direction': direction
+                'direction': direction,
+                'dominant_color': self.color_filter.detect_dominant_color(frame, bbox)
             }
             detections.append(detection_info)
         return detections
@@ -196,7 +199,7 @@ class ByteTrackTracker:
         # Update ByteTrack with detections
         tracked_detections = self.tracker.update_with_detections(sv_detections)
         
-        parsed_detections = self.parse_tracked_detections(tracked_detections, frame_number)
+        parsed_detections = self.parse_tracked_detections(tracked_detections, frame, frame_number)
 
         # Annotate the frame with bounding boxes and labels for better visualization TODO: remove later for performance
         annotated_frame = self.annotate_frame(frame, tracked_detections)

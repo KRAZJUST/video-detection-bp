@@ -109,6 +109,7 @@ class VideoProcessingApp:
         tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
         self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
         self.interval_entry.insert(0, "30")
+        self.interval_entry.grid(row=3, column=0, sticky="ew", pady=5)
 
         # Process Button
         self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
@@ -235,7 +236,13 @@ class VideoProcessingApp:
                 tracker_arg=self.tracker_combobox.get()
             )
             processor.process_video()
-            self.log_results = processor.initial_yolo_results_log
+            
+            # Get the correct log results if the tracker was selected or not
+            if self.tracker_combobox.get() == "-":
+                self.log_results = processor.initial_yolo_results_log
+            else:
+                self.log_results = processor.log_entries
+
         except Exception as e:
             print(f"Error processing video: {e}")
 
