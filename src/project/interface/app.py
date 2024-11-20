@@ -103,15 +103,12 @@ class VideoProcessingApp:
         self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort"], state="readonly")
         self.tracker_combobox.set("-")
         self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
+        self.tracker_combobox.bind("<<ComboboxSelected>>", self.update_interval_entry)
 
         # Frame Interval
         tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
         self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
-        if self.tracker_combobox.get() == "-":
-            self.interval_entry.insert(0, "30")
-        else: 
-            self.interval_entry.insert(0, "10")
-        self.interval_entry.grid(row=3, column=0, sticky="ew", pady=5)
+        self.interval_entry.insert(0, "30")
 
         # Process Button
         self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
@@ -155,6 +152,15 @@ class VideoProcessingApp:
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid_columnconfigure(0, weight=1)
 
+    def update_interval_entry(self, event):
+        """Update the interval entry based on the selected tracker."""
+        selected_tracker = self.tracker_combobox.get()
+        if selected_tracker == "-":
+            self.interval_entry.delete(0, tk.END)
+            self.interval_entry.insert(0, "30")
+        else:
+            self.interval_entry.delete(0, tk.END)
+            self.interval_entry.insert(0, "10")
 
     def add_combobox_row(self):
         """Adds a new row of comboboxes for color-object filtering inside the scrollable frame."""
@@ -163,12 +169,12 @@ class VideoProcessingApp:
         row_frame.pack(fill="x", pady=2)
 
         # Color Combobox
-        color_combobox = ttk.Combobox(row_frame, values=["-", "red", "blue", "green", "yellow", "white", "orange", "purple"], state="readonly", width=15)
+        color_combobox = ttk.Combobox(row_frame, values=["-", "red", "blue", "green", "yellow", "white", "orange", "purple"], state="readonly", width=10)
         color_combobox.set("Select Color")
         color_combobox.grid(row=0, column=0, padx=5)
 
         # Object Combobox
-        object_combobox = ttk.Combobox(row_frame, values=["person", "vehicle", "car", "truck", "bus"], state="readonly", width=15)
+        object_combobox = ttk.Combobox(row_frame, values=["person", "vehicle", "car", "truck", "bus"], state="readonly", width=12)
         object_combobox.set("Select Object")
         object_combobox.grid(row=0, column=1, padx=5)
 

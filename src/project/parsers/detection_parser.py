@@ -70,9 +70,6 @@ class DetectionParser:
         class_name = detection['class_name'].lower()
         dominant_color = detection['dominant_color'].lower()
 
-        print(f"Checking detection: {class_name} ({dominant_color})")
-        print(f"Filter objects: {self.filter_objects}")
-        print(f"Filter colors: {self.filter_colors}")
         return class_name in self.filter_objects and dominant_color in self.filter_colors
 
 
@@ -80,8 +77,6 @@ class DetectionParser:
         """
         Annotate the image with bounding boxes and labels for detections that meet query conditions.
         """
-
-        print("Annotating image:", frame_file_path)
         # Read the image
         image = cv2.imread(frame_file_path)
         if image is None:
@@ -92,7 +87,6 @@ class DetectionParser:
         matching_detections = [
             detection for detection in detections if self.matches_condition(detection)
         ]
-        print(f'Matching detections: {len(matching_detections)}')
 
         # Annotate only the detections that matched
         for detection in matching_detections:
