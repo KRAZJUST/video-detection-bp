@@ -25,6 +25,12 @@ class DetectionParser:
         Parse log entries and filter based on the query.
         """
 
+        # Get the parsed colors and objects from the query
+        self.filter_colors = self.query_matcher.parsed_colors
+        print(f"Filter colors: {self.filter_colors}")
+        self.filter_objects = self.query_matcher.parsed_objects
+        print(f"Filter objects: {self.filter_objects}")
+
         # Reset found log entries and directories
         if os.path.exists(self.found_dir):
             shutil.rmtree(self.found_dir)
@@ -37,12 +43,6 @@ class DetectionParser:
                 self.found_log_entries[frame_num] = detections
                 self.save_frame(frame_num, detections)
         self.save_found_log()
-
-        # Get the parsed colors and objects from the query
-        self.filter_colors = self.query_matcher.parsed_colors
-        print(f"Filter colors: {self.filter_colors}")
-        self.filter_objects = self.query_matcher.parsed_objects
-        print(f"Filter objects: {self.filter_objects}")
 
     def save_frame(self, frame_num, detections):
         """
@@ -70,6 +70,9 @@ class DetectionParser:
         class_name = detection['class_name'].lower()
         dominant_color = detection['dominant_color'].lower()
 
+        print(f"Checking detection: {class_name} ({dominant_color})")
+        print(f"Filter objects: {self.filter_objects}")
+        print(f"Filter colors: {self.filter_colors}")
         return class_name in self.filter_objects and dominant_color in self.filter_colors
 
 
@@ -78,6 +81,7 @@ class DetectionParser:
         Annotate the image with bounding boxes and labels for detections that meet query conditions.
         """
 
+        print("Annotating image:", frame_file_path)
         # Read the image
         image = cv2.imread(frame_file_path)
         if image is None:
@@ -88,6 +92,7 @@ class DetectionParser:
         matching_detections = [
             detection for detection in detections if self.matches_condition(detection)
         ]
+        print(f'Matching detections: {len(matching_detections)}')
 
         # Annotate only the detections that matched
         for detection in matching_detections:
@@ -97,7 +102,7 @@ class DetectionParser:
             dominant_color = detection.get('dominant_color', 'unknown')
 
             xmin, ymin, xmax, ymax = bbox
-            color = (0, 255, 0)  # Green bounding box for matched detections
+            color = (255, 69, 0)
             cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
 
             # Draw the label text
