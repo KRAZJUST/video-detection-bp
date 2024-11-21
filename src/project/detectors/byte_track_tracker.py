@@ -92,25 +92,24 @@ class ByteTrackTracker:
 
         # Normalize angle to be within 0-360 degrees
         angle = (angle + 360) % 360
-        print(f'angle: {angle}')
 
         # Map angle to 8-point compass directions
         if 337.5 <= angle or angle < 22.5:
-            return "E"
+            return "east"
         elif 22.5 <= angle < 67.5:
-            return "NE"
+            return "north-east"
         elif 67.5 <= angle < 112.5:
-            return "N"
+            return "north"
         elif 112.5 <= angle < 157.5:
-            return "NW"
+            return "north-west"
         elif 157.5 <= angle < 202.5:
-            return "W"
+            return "west"
         elif 202.5 <= angle < 247.5:
-            return "SW"
+            return "south-west"
         elif 247.5 <= angle < 292.5:
-            return "S"
+            return "south"
         elif 292.5 <= angle < 337.5:
-            return "SE"
+            return "south-east"
 
     
     def calculate_direction(self, start_point: Tuple[float, float], end_point: Tuple[float, float]) -> str:
@@ -126,7 +125,7 @@ class ByteTrackTracker:
         """
 
         dx = end_point[0] - start_point[0]
-        # Invert dy to match the coordinate system
+        # Invert dy to consider top-left as origin
         dy = start_point[1] - end_point[1]
 
         angle = degrees(atan2(dy, dx))
@@ -135,7 +134,7 @@ class ByteTrackTracker:
         return self.angle_to_direction(angle)
 
 
-    def parse_tracked_detections(self, tracked_detections, frame_number: int) -> List[Dict[str, Any]]:
+    def parse_tracked_detections(self, tracked_detections, frame, frame_number: int) -> List[Dict[str, Any]]:
         """
         Parse tracked detections from ByteTrack into a list of dictionaries.
 
@@ -166,6 +165,8 @@ class ByteTrackTracker:
                 end_frame, end_point = self.track_history[track_id][-1]
                 direction = self.calculate_direction(start_point, end_point)
 
+            # Convert bbox to integer format
+            bbox = [int(coord) for coord in bbox]
             # Append detection info to the list
             detection_info = {
                 'track_id': track_id,
@@ -173,7 +174,8 @@ class ByteTrackTracker:
                 'confidence': float(tracked_detections.confidence[i]),
                 'class_id': int(tracked_detections.class_id[i]),
                 'class_name': class_name,
-                'direction': direction
+                'direction': direction,
+                'dominant_color': self.color_filter.detect_dominant_color(frame, bbox)
             }
             detections.append(detection_info)
         return detections
@@ -197,7 +199,7 @@ class ByteTrackTracker:
         # Update ByteTrack with detections
         tracked_detections = self.tracker.update_with_detections(sv_detections)
         
-        parsed_detections = self.parse_tracked_detections(tracked_detections, frame_number)
+        parsed_detections = self.parse_tracked_detections(tracked_detections, frame, frame_number)
 
         # Annotate the frame with bounding boxes and labels for better visualization TODO: remove later for performance
         annotated_frame = self.annotate_frame(frame, tracked_detections)

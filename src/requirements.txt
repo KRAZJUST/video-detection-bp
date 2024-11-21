@@ -8,3 +8,4 @@ torchvision
 deep_sort_realtime
 torchreid
 supervision
+dearpygui
