@@ -66,34 +66,17 @@ class VideoProcessingApp:
         query_frame = tk.LabelFrame(top_frame, text="Query Builder", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
         query_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-        # Add Filter Button (top-left)
-        self.add_combobox_button = tk.Button(query_frame, text="Add Filter", command=self.add_combobox_row, bg=self.button_bg_color, fg=self.button_fg_color)
-        self.add_combobox_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
-
-        # Scrollable area for dynamic query rows
-        self.query_canvas = tk.Canvas(query_frame, bg=self.bg_color, highlightthickness=0, height=100)
-        self.query_scrollbar = ttk.Scrollbar(query_frame, orient="vertical", command=self.query_canvas.yview)
-        self.scrollable_frame = tk.Frame(self.query_canvas, bg=self.bg_color)
-
-        # Configure Canvas
-        self.query_canvas.configure(yscrollcommand=self.query_scrollbar.set)
-        # Vertical scrollbar
-        self.query_scrollbar.grid(row=1, column=1, sticky="ns")
-        # Canvas takes most of the space
-        self.query_canvas.grid(row=1, column=0, sticky="nsew")
-
-        # Place a frame inside the canvas for dynamic rows
-        self.scrollable_frame_id = self.query_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        # Update the scroll region whenever the frame's size changes
-        self.scrollable_frame.bind("<Configure>", lambda e: self.query_canvas.configure(scrollregion=self.query_canvas.bbox("all")))
+        # Add text input for query
+        tk.Label(query_frame, text="Query:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
+        self.query_entry = tk.Entry(query_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        self.query_entry.grid(row=1, column=0, sticky="ew", pady=5)
 
         # Search Query Button (bottom-right)
         self.query_button = tk.Button(query_frame, text="Search Query", command=self.run_query, bg=self.button_bg_color, fg=self.button_fg_color)
         self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
 
         # Configure Grid Weights for Query Section
-        query_frame.grid_rowconfigure(1, weight=1)  # Canvas expands with the frame
+        query_frame.grid_rowconfigure(1, weight=1) 
         query_frame.grid_columnconfigure(0, weight=1)  # Query section uses full width
 
         # === Tracker and Interval Section ===
@@ -165,43 +148,6 @@ class VideoProcessingApp:
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, "10")
 
-    def add_combobox_row(self):
-        """Adds a new row of comboboxes for color-object filtering inside the scrollable frame."""
-        # Create a new frame for the row
-        row_frame = tk.Frame(self.scrollable_frame, bg=self.bg_color)
-        row_frame.pack(fill="x", pady=2)
-
-        # Color Combobox
-        color_combobox = ttk.Combobox(row_frame, values=["-", "red", "blue", "green", "yellow", "white", "orange", "purple"], state="readonly", width=10)
-        color_combobox.set("Select Color")
-        color_combobox.grid(row=0, column=0, padx=5)
-
-        # Object Combobox
-        object_combobox = ttk.Combobox(row_frame, values=["person", "vehicle", "car", "truck", "bus"], state="readonly", width=12)
-        object_combobox.set("Select Object")
-        object_combobox.grid(row=0, column=1, padx=5)
-
-        # Logical Connector (AND/OR)
-        connector_combobox = ttk.Combobox(row_frame, values=["-", "and", "or"], state="readonly", width=5)
-        connector_combobox.set("-")
-        connector_combobox.grid(row=0, column=2, padx=5)
-
-        # Delete Button
-        delete_button = tk.Button(row_frame, text="X", command=lambda: self.remove_combobox_row(row_frame), 
-                                bg=self.button_bg_color, fg=self.button_fg_color, width=2, height=0)
-        delete_button.grid(row=0, column=3, padx=3)
-
-        # Add to list for tracking
-        self.combobox_rows.append((object_combobox, color_combobox, connector_combobox, delete_button))
-
-    def remove_combobox_row(self, row_frame):
-        """Removes a specific row of comboboxes."""
-        for row in self.combobox_rows:
-            if row[3] == row_frame:
-                self.combobox_rows.remove(row)
-                break
-        row_frame.destroy()
-
     def select_video(self):
         """Open file dialog to select video."""
         file_path = filedialog.askopenfilename(title="Select Video File", filetypes=(("MP4 files", "*.mp4"), ("All files", "*.*")))
@@ -272,8 +218,8 @@ class VideoProcessingApp:
         
         # Disable the "Show Log" button while processing query
         self.show_log_button.config(state=tk.DISABLED)
+        self.query = self.query_entry.get()
 
-        self.generate_query()
         try:
             log_parser = DetectionParser(
                 log_entries=self.log_results,
@@ -297,36 +243,6 @@ class VideoProcessingApp:
 
         # Re-enable the "Show Log" button after query is complete
         self.show_log_button.config(state=tk.NORMAL)
-
-    def generate_query(self):
-        """Generates the query string from the combobox rows."""
-        query_parts = []
-        for object_combobox, color_combobox, connector_combobox, _ in self.combobox_rows:
-            # Validate the combobox widget is still valid
-            try:
-                object_value = object_combobox.get()
-                color_value = color_combobox.get()
-                connector_value = connector_combobox.get()
-            except tk.TclError as e:
-                # Skip invalid rows
-                print(f"Skipped invalid combobox: {e}")
-                continue
-            
-            print(f"Object: {object_value}, Color: {color_value}, Connector: {connector_value}")
-            if object_value != "Select Object":
-                if color_value != "Select Color" and color_value != "-":
-                    query_parts.append(f"{color_value} {object_value}")
-                elif color_value == "-" or color_value == "Select Color":
-                    query_parts.append(f"{object_value}")
-                if connector_value and connector_value != "-":
-                    query_parts.append(connector_value)
-
-        if query_parts:
-            # Remove the last connector if it's at the end
-            if query_parts[-1] in ["and", "or", "-"]:
-                query_parts.pop()
-
-        self.query =  " ".join(query_parts)
 
     def clear_canvas(self):
         """Remove all widgets from the canvas."""
