@@ -137,13 +137,15 @@ class VideoProcessor:
             # Initial YOLO detections + their log
             results, detections = self.detector.detect_objects(frame, timestamp)
             self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
-            self.add_detections_in_db(detections, frame_number)
 
-            # Refine detection with tracking, choose the tracker based on the argument if not selected skip tracking (initial index)
-            if self.tracker_arg != '-':
+            # If tracker is not set, add detections to the database, else update the tracker first
+            if self.tracker_arg == '-':
+                self.add_detections_in_db(detections, tracker=self.tracker_arg, frame_number=frame_number)
+            else:
                 if(self.tracker_arg == 'bytetrack'):
                     tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
                     self.log_entries[frame_number] = tracked_detections
+                    self.add_detections_in_db(tracked_detections, tracker=self.tracker_arg, frame_number=frame_number)
                 elif(self.tracker_arg == 'deepsort'):
                     tracked_detections = self.deepsort_tracker.track(detections, frame, frame_number=frame_number)
                     self.log_entries[frame_number] = [vars(det) for det in tracked_detections]
@@ -152,7 +154,7 @@ class VideoProcessor:
         self.save_log(self.log_entries)
         print(f"Processing complete. Total time taken: {time.time() - start_time:.2f} seconds.")
 
-    def add_detections_in_db(self, detections, frame_number: int):
+    def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""
         # List to hold all detections for the current frame
         bulk_detections = []
@@ -172,8 +174,12 @@ class VideoProcessor:
             # Append to the bulk list
             bulk_detections.append(detection_data)
 
-        # Insert all detections for this frame in bulk
-        self.db.bulk_insert_detections(bulk_detections)
+        # Insert all detections for this frame in bulk to the database
+        # Choose the table based on the tracker argument
+        if tracker == '-':
+            self.db.bulk_insert_detections(bulk_detections)
+        elif tracker == 'bytetrack':
+            self.db.bulk_insert_refined_detections(bulk_detections)
 
     def save_log(self, log, name: str = 'detection_log'):
         log_file_path = os.path.join(self.output_dir, f"{name}.json")

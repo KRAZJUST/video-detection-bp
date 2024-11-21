@@ -48,7 +48,7 @@ class QueryParser:
                 elif label in OBJECTS:
                     conditions.append({'object': label})
                 elif label in ['and', 'or']:
-                    if score > logic_score:
+                    if score > logic_score and score > 0.2:
                         logic_operator = label
                         logic_score = score
 

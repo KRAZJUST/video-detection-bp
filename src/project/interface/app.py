@@ -225,7 +225,8 @@ class VideoProcessingApp:
                 log_entries=self.log_results,
                 query=self.query,
                 output_dir=self.output_dir,
-                database_path=self.database_path
+                database_path=self.database_path,
+                tracker=self.tracker_combobox.get()
             )
             log_parser.parse_detections()
 

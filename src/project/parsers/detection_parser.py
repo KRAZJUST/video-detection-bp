@@ -7,10 +7,11 @@ from .query_parser import QueryParser
 from database.database import Database
 
 class DetectionParser:
-    def __init__(self, log_entries, query, output_dir, database_path: str):
+    def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str):
         self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)
+        self.tracker = tracker
         self.connection = None
         self.query_parser = QueryParser(query)
         self.found_log_entries = {}
@@ -64,9 +65,12 @@ class DetectionParser:
 
         print(f"Filtering by objects: {self.filter_objects}")
         print(f"Filtering by colors: {self.filter_colors}")
-        # Fetch detections from the database
-        frames = self.db.get_frames_with_detections(self.filter_objects, self.filter_colors, self.filter_directions)
-        print(f"Found {len(frames)} frames with matching detections.")
+
+        # Fetch either initial detections or refined detections based on the tracker
+        if self.tracker == '-':
+            frames = self.db.get_frames_with_detections('detections', self.filter_objects, self.filter_colors, self.filter_directions)
+        elif self.tracker == 'bytetrack':
+            frames = self.db.get_frames_with_detections('refined_detections', self.filter_objects, self.filter_colors, self.filter_directions)
 
         if self.filter_logic and self.filter_logic[0] == 'and':
             print(f"Filtering by logic: {self.filter_logic}")

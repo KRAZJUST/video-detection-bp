@@ -47,10 +47,36 @@ class Database:
                 FOREIGN KEY (frame_number) REFERENCES frames (frame_number)
             );
         """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS refined_detections (
+                detection_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                frame_number INTEGER,
+                track_id INTEGER,
+                class_name TEXT,
+                confidence REAL,
+                xmin INTEGER,
+                ymin INTEGER,
+                xmax INTEGER,
+                ymax INTEGER,
+                dominant_color TEXT,
+                direction TEXT,
+                FOREIGN KEY (frame_number) REFERENCES frames (frame_number)
+            );
+        """)
+
         self.connection.commit()
 
     def insert_frame(self, frame_number: int, timestamp: float) -> int:
-        """Insert frame metadata and return the frame ID."""
+        """
+        If the frame does not exist, insert it into the database.
+        If it already exists, return the existing frame ID.
+        """
+        existing_frame = self.get_frame_number(frame_number)
+        if existing_frame:
+            print(f"Frame {frame_number} already exists in the database.")
+            return existing_frame[0]
+
         self.cursor.execute("""
             INSERT INTO frames (frame_number, timestamp)
             VALUES (?, ?)
@@ -88,6 +114,25 @@ class Database:
 
         self.connection.commit()
 
+    def bulk_insert_refined_detections(self, detections: List[dict]):
+        """
+        Bulk insert refined detections from tracker.
+        Args:
+            detections: List of dictionaries with detection data.
+        """
+        data = [
+            (det['frame_number'], det['track_id'], det['class_name'], det['confidence'],
+            det['bbox'][0], det['bbox'][1], det['bbox'][2], det['bbox'][3],
+            det['dominant_color'], det['direction'])
+            for det in detections
+        ]
+        self.cursor.executemany("""
+            INSERT INTO refined_detections (frame_number, track_id, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, direction)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, data)
+        self.connection.commit()
+
+
     def update_detection(self, detection_id: int, track_id: int, direction: str):
         """Update the track ID and direction for a specific detection."""
         self.cursor.execute("""
@@ -102,13 +147,16 @@ class Database:
         """, (detection_id,))
         return self.cursor.fetchone()
 
-    def get_frame_number(self, frame_number: int) -> int:
-        """Retrieve the frame ID for a specific frame number."""
+    def get_frame_number(self, frame_number: int):
+        """
+        Check if a frame number exists in the database.
+        Returns the frame ID and number if it exists, or None otherwise.
+        """
         self.cursor.execute("""
             SELECT frame_number FROM frames WHERE frame_number = ?
         """, (frame_number,))
-        result = self.cursor.fetchone()
-        return result[0] if result else None
+        return self.cursor.fetchone()
+
 
     def get_detections_by_frame(self, frame_number: int) -> List[Tuple[Any]]:
         """Retrieve detections for a specific frame."""
@@ -120,6 +168,15 @@ class Database:
         """, (frame_number,))
         return self.cursor.fetchall()
 
+    def get_refined_detections_by_frame(self, frame_number: int) -> List[Tuple[Any]]:
+        """Retrieve refined (tracked) detections for a specific frame."""
+        self.cursor.execute("""
+            SELECT class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, track_id, direction
+            FROM refined_detections
+            WHERE frame_number = ?
+        """, (frame_number,))
+        return self.cursor.fetchall()
+
     def reset_database(self):
         """ Function to clear previous detections from the database. """
         self.cursor.execute("DELETE FROM detections")
@@ -127,7 +184,7 @@ class Database:
         self.connection.commit()
         print("Database reset complete.")
 
-    def get_frames_with_detections(self, filter_objects, filter_colors=None, filter_directions=None):
+    def get_frames_with_detections(self, table_name: str, filter_objects, filter_colors=None, filter_directions=None):
         """
         Fetch unique frames with matching detections from the database.
         Allows conditional filtering based on object type, color, direction, and logic.
@@ -156,7 +213,7 @@ class Database:
 
         query = f"""
         SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence
-        FROM detections
+        FROM {table_name}
         WHERE {where_clause}
         """
 
@@ -191,5 +248,6 @@ class Database:
         """Drop the tables in the database."""
         self.cursor.execute("DROP TABLE IF EXISTS frames")
         self.cursor.execute("DROP TABLE IF EXISTS detections")
+        self.cursor.execute("DROP TABLE IF EXISTS refined_detections")
         self.connection.commit()
         print("Tables dropped successfully.")
