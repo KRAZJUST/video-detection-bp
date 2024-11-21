@@ -34,7 +34,10 @@ class QueryParser:
         conditions = []
         
         # Filter out labels with low confidence
-        threshold = 0.2
+        threshold = 0.04
+        # Placeholder for the logic operator
+        logic_operator = None
+        logic_score = 0.0
         
         for label, score in zip(result['labels'], result['scores']):
             if score >= threshold: 
@@ -44,6 +47,14 @@ class QueryParser:
                     conditions.append({'color': label})
                 elif label in OBJECTS:
                     conditions.append({'object': label})
+                elif label in ['and', 'or']:
+                    if score > logic_score:
+                        logic_operator = label
+                        logic_score = score
+
+        # Append only the logic operator with highest probability score and if it exists
+        if logic_operator:
+            conditions.append({'logic': logic_operator})
         
         return conditions
 

@@ -127,27 +127,45 @@ class Database:
         self.connection.commit()
         print("Database reset complete.")
 
-    def get_frames_with_detections(self, filter_objects, filter_colors):
-        """Fetch unique frames with matching detections from the database."""
-        # Dynamically build the placeholders for the `IN` clauses
-        object_placeholders = ', '.join(['?'] * len(filter_objects))
-        color_placeholders = ', '.join(['?'] * len(filter_colors))
-        
+    def get_frames_with_detections(self, filter_objects, filter_colors=None, filter_directions=None):
+        """
+        Fetch unique frames with matching detections from the database.
+        Allows conditional filtering based on object type, color, direction, and logic.
+        """
+        where_clauses = []
+        params = []
+
+        # Add conditions based on the filters
+        if filter_objects:
+            object_placeholders = ', '.join(['?'] * len(filter_objects))
+            where_clauses.append(f"class_name IN ({object_placeholders})")
+            params.extend(filter_objects)
+
+        if filter_colors:
+            color_placeholders = ', '.join(['?'] * len(filter_colors))
+            where_clauses.append(f"dominant_color IN ({color_placeholders})")
+            params.extend(filter_colors)
+
+        if filter_directions:
+            direction_placeholders = ', '.join(['?'] * len(filter_directions))
+            where_clauses.append(f"direction IN ({direction_placeholders})")
+            params.extend(filter_directions)
+
+        # Join the clauses
+        where_clause = f" AND ".join(where_clauses) if where_clauses else "1=1"
+
         query = f"""
         SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence
         FROM detections
-        WHERE class_name IN ({object_placeholders}) AND dominant_color IN ({color_placeholders})
+        WHERE {where_clause}
         """
-        
-        print(f'In get_frames_with_detections: {filter_objects}, {filter_colors}')
-        print(f'Constructed Query: {query}')
-        
-        # Combine the filter values into one tuple for the query
-        params = tuple(filter_objects) + tuple(filter_colors)
-        
+
+        print(f"Constructed Query: {query}")
+        print(f"Query Parameters: {params}")
+
+        # Execute the query
         self.cursor.execute(query, params)
         rows = self.cursor.fetchall()
-        print(f'In get_frames_with_detections: {rows}')
 
         # Group detections by frame_number
         frames = {}

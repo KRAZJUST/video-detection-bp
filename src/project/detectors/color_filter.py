@@ -22,7 +22,6 @@ class ColorFilter:
             'purple': [((140, 50, 50), (160, 255, 255))],
             'brown': [((10, 50, 50), (20, 200, 200))],
             'black': [((0, 0, 0), (180, 255, 30))],
-            'gray': [((0, 0, 40), (180, 30, 200))],
         }
 
     def detect_dominant_color(self, image: np.ndarray, bbox: Tuple) -> str:

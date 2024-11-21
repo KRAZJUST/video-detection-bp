@@ -8,5 +8,5 @@ DIRECTIONS = {
         'SE': 'south-east',
         'SW': 'south-west'
     }
-COLORS = ['red', 'blue', 'green', 'yellow', 'white', 'orange', 'purple', 'brown', 'black', 'gray']
-OBJECTS = ['person', 'car', 'truck', 'bus', 'vehicle']
+COLORS = ['red', 'blue', 'green', 'yellow', 'white', 'orange', 'purple', 'brown', 'black']
+OBJECTS = ['person', 'car', 'truck', 'bus']

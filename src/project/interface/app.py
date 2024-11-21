@@ -182,7 +182,7 @@ class VideoProcessingApp:
         object_combobox.grid(row=0, column=1, padx=5)
 
         # Logical Connector (AND/OR)
-        connector_combobox = ttk.Combobox(row_frame, values=["-", "AND", "OR"], state="readonly", width=5)
+        connector_combobox = ttk.Combobox(row_frame, values=["-", "and", "or"], state="readonly", width=5)
         connector_combobox.set("-")
         connector_combobox.grid(row=0, column=2, padx=5)
 
@@ -323,10 +323,10 @@ class VideoProcessingApp:
 
         if query_parts:
             # Remove the last connector if it's at the end
-            if query_parts[-1] in ["AND", "OR", "-"]:
+            if query_parts[-1] in ["and", "or", "-"]:
                 query_parts.pop()
 
-        self.query =  "".join(query_parts)
+        self.query =  " ".join(query_parts)
 
     def clear_canvas(self):
         """Remove all widgets from the canvas."""
