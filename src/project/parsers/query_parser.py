@@ -1,41 +1,62 @@
 """ This module contains the QueryParser class that parses the user query into structured format. """
+from transformers import pipeline
+from constants.constants import COLORS, OBJECTS, DIRECTIONS
 
 class QueryParser:
-    DIRECTIONS = ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
     
     def __init__(self, query):
         self.raw_query = query
-        self.parsed_queries = self.parse_complex_query(query)
+        self.siglip_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        self.parsed_queries = self.parse_with_siglip(query)
 
-    def parse_complex_query(self, query):
+    def parse_with_siglip(self, query):
         """
-        Parse queries with color, object, and direction into structured formats.
+        Hugging Face's SigLIP model to parse the query into structured components.
+
+        url: https://huggingface.co/docs/transformers/en/model_doc/siglip
         """
-        or_groups = [group.strip() for group in query.lower().split('or')]
-        parsed_queries = []
-        print(f"QUERY: {query}")
+        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or']
+
+
+        # Get predictions from SigLIP
+        result = self.siglip_model(query, possible_labels, return_tensors="pt")
+        print(result)
+
+        # Extract the result into the structured format
+        parsed_conditions = self.extract_conditions(result)
+        print(parsed_conditions)
+        return parsed_conditions
+
+    def extract_conditions(self, result):
+        """
+        Extract what to search for from SigLIP results.
+        """
+        conditions = []
         
-        for group in or_groups:
-            and_conditions = [condition.strip() for condition in group.split('and')]
-            conditions = []
-            for condition in and_conditions:
-                parts = condition.split(' ')
-                color, obj, direction = None, None, None
-                if len(parts) == 3:
-                    color, obj, direction = parts
-                elif len(parts) == 2:
-                    if parts[1] in self.DIRECTIONS:
-                        obj, direction = parts
-                    else:
-                        color, obj = parts
-                elif len(parts) == 1:
-                    obj = parts[0]
-                else:
-                    raise ValueError("Invalid query format.")
-                conditions.append({'color': color, 'object': obj, 'direction': direction})
-            parsed_queries.append({'logic': 'AND', 'conditions': conditions})
+        # Filter out labels with low confidence
+        threshold = 0.04
+        # Placeholder for the logic operator
+        logic_operator = None
+        logic_score = 0.0
         
-        return parsed_queries
+        for label, score in zip(result['labels'], result['scores']):
+            if score >= threshold: 
+                if label in DIRECTIONS.values():
+                    conditions.append({'direction': label})
+                elif label in COLORS:
+                    conditions.append({'color': label})
+                elif label in OBJECTS:
+                    conditions.append({'object': label})
+                elif label in ['and', 'or']:
+                    if score > logic_score and score > 0.2:
+                        logic_operator = label
+                        logic_score = score
+
+        # Append only the logic operator with highest probability score and if it exists
+        if logic_operator:
+            conditions.append({'logic': logic_operator})
+        
+        return conditions
 
     def get_parsed_queries(self):
         """Return the parsed query structure."""

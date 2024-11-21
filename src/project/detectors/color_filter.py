@@ -22,7 +22,6 @@ class ColorFilter:
             'purple': [((140, 50, 50), (160, 255, 255))],
             'brown': [((10, 50, 50), (20, 200, 200))],
             'black': [((0, 0, 0), (180, 255, 30))],
-            'gray': [((0, 0, 40), (180, 30, 200))],
         }
 
     def detect_dominant_color(self, image: np.ndarray, bbox: Tuple) -> str:
@@ -45,7 +44,6 @@ class ColorFilter:
         width = xmax - xmin
         height = ymax - ymin
         aspect_ratio = width / height
-        print(f'width: {width}, height: {height}, aspect_ratio: {aspect_ratio}')
 
         if aspect_ratio <= 0.8 and aspect_ratio >= 1.2:
             mask = self._create_circular_mask(width, height)
@@ -59,14 +57,12 @@ class ColorFilter:
          # Apply threshold and filter out colors with low presence
         threshold = 0.001
         filtered_colors = {color: presence for color, presence in color_presence.items() if presence >= threshold}
-        print(f'color_presence: {color_presence}, filtered_colors: {filtered_colors}')
 
         if not filtered_colors:
             return 'none'
 
         # Return the color with the highest presence
         dominant_color = max(filtered_colors, key=filtered_colors.get)
-        print(f'dominant_color: {dominant_color}')
         return dominant_color
 
     def _create_circular_mask(self, width: int, height: int) -> np.ndarray:

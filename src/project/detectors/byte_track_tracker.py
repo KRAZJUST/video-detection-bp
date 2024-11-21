@@ -95,21 +95,21 @@ class ByteTrackTracker:
 
         # Map angle to 8-point compass directions
         if 337.5 <= angle or angle < 22.5:
-            return "E"
+            return "east"
         elif 22.5 <= angle < 67.5:
-            return "NE"
+            return "north-east"
         elif 67.5 <= angle < 112.5:
-            return "N"
+            return "north"
         elif 112.5 <= angle < 157.5:
-            return "NW"
+            return "north-west"
         elif 157.5 <= angle < 202.5:
-            return "W"
+            return "west"
         elif 202.5 <= angle < 247.5:
-            return "SW"
+            return "south-west"
         elif 247.5 <= angle < 292.5:
-            return "S"
+            return "south"
         elif 292.5 <= angle < 337.5:
-            return "SE"
+            return "south-east"
 
     
     def calculate_direction(self, start_point: Tuple[float, float], end_point: Tuple[float, float]) -> str:
