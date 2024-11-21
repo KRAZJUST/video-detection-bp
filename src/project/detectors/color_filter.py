@@ -64,7 +64,6 @@ class ColorFilter:
 
         # Return the color with the highest presence
         dominant_color = max(filtered_colors, key=filtered_colors.get)
-        print(f'dominant_color: {dominant_color}')
         return dominant_color
 
     def _create_circular_mask(self, width: int, height: int) -> np.ndarray:

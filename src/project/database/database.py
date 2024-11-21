@@ -129,32 +129,41 @@ class Database:
 
     def get_frames_with_detections(self, filter_objects, filter_colors):
         """Fetch unique frames with matching detections from the database."""
-        query = """
+        # Dynamically build the placeholders for the `IN` clauses
+        object_placeholders = ', '.join(['?'] * len(filter_objects))
+        color_placeholders = ', '.join(['?'] * len(filter_colors))
+        
+        query = f"""
         SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence
         FROM detections
-        WHERE class_name IN (?) AND dominant_color IN (?)
+        WHERE class_name IN ({object_placeholders}) AND dominant_color IN ({color_placeholders})
         """
-        object_filter_str = ', '.join([f"'{obj}'" for obj in filter_objects])
-        color_filter_str = ', '.join([f"'{color}'" for color in filter_colors])
-
-        self.cursor.execute(query, (object_filter_str, color_filter_str))
+        
+        print(f'In get_frames_with_detections: {filter_objects}, {filter_colors}')
+        print(f'Constructed Query: {query}')
+        
+        # Combine the filter values into one tuple for the query
+        params = tuple(filter_objects) + tuple(filter_colors)
+        
+        self.cursor.execute(query, params)
         rows = self.cursor.fetchall()
+        print(f'In get_frames_with_detections: {rows}')
 
         # Group detections by frame_number
         frames = {}
         for row in rows:
             frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence = row
-            if frame_number not in frames:
-                frames[frame_number] = {'frame_number': frame_number, 'detections': []}
-            frames[frame_number]['detections'].append({
+            detection = {
                 'class_name': class_name,
                 'dominant_color': dominant_color,
                 'bbox': (xmin, ymin, xmax, ymax),
                 'confidence': confidence
-            })
+            }
+            if frame_number not in frames:
+                frames[frame_number] = {'frame_number': frame_number, 'detections': []}
+            frames[frame_number]['detections'].append(detection)
 
         return frames
-
 
     def close(self):
         """Close the database connection."""

@@ -158,7 +158,6 @@ class VideoProcessor:
         bulk_detections = []
 
         for detection in detections:
-            print(f'Inserting detection: {detection}')
             detection_data = {
                 'frame_number': frame_number,
                 'track_id': detection.get('track_id', None),

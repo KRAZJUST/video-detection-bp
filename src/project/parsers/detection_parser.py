@@ -31,12 +31,15 @@ class DetectionParser:
 
         parsed_elements = self.query_parser.parsed_queries
         for element in parsed_elements:
-            if element['type'] == 'color':
-                self.filter_colors.append(element['value'])
-            elif element['type'] == 'object':
-                self.filter_objects.append(element['value'])
-            elif element['type'] == 'object' and element['value'] == 'vehicle':
-                self.filter_objects.extend(['car', 'truck', 'bus'])
+            for label, value in element.items():
+                if label == 'color':
+                    self.filter_colors.append(value)
+                elif label == 'object':
+                    if value == 'vehicle':
+                        self.filter_objects.extend(['car', 'truck', 'bus'])
+                    else:
+                        self.filter_objects.append(value)
+                
 
         # Reset found log entries and directories
         if os.path.exists(self.found_dir):
@@ -44,17 +47,17 @@ class DetectionParser:
         os.makedirs(self.found_dir, exist_ok=True)
         self.found_log_entries = {}
 
+        print(f"Filtering by objects: {self.filter_objects}")
+        print(f"Filtering by colors: {self.filter_colors}")
         # Fetch detections from the database
         frames = self.db.get_frames_with_detections(self.filter_objects, self.filter_colors)
+        print(f"Found {len(frames)} frames with matching detections.")
 
         # Loop through each frame and its detections
-        for frame in frames:
-            frame_num = frame['frame_id']
-            detections = frame['detections']
-            self.found_log_entries[frame_num] = detections
-
-            # Annotate and save the frame with detections
-            self.save_frame(frame_num, detections)
+        for frame_number, frame_data in frames.items():
+            detections = frame_data['detections']
+            self.found_log_entries[frame_number] = detections
+            self.save_frame(frame_number, detections)
 
         self.save_found_log()
 

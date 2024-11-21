@@ -15,7 +15,7 @@ class QueryParser:
 
         url: https://huggingface.co/docs/transformers/en/model_doc/siglip
         """
-        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values())
+        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or']
 
 
         # Get predictions from SigLIP
