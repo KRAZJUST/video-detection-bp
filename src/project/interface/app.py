@@ -6,7 +6,6 @@ import os
 import threading
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
-from database.database import Database
 
 class VideoProcessingApp:
     def __init__(self, database_path: str):
@@ -144,6 +143,9 @@ class VideoProcessingApp:
         if selected_tracker == "-":
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, "30")
+        elif selected_tracker == "xclip":
+            self.interval_entry.delete(0, tk.END)
+            self.interval_entry.insert(0, "20")
         else:
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, "10")

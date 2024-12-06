@@ -4,7 +4,7 @@ import cv2
 import shutil
 import sqlite3
 from .query_parser import QueryParser
-from database.database import Database
+from database.sqlite_database import Database
 
 class DetectionParser:
     def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str):

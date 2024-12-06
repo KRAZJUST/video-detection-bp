@@ -1,7 +1,7 @@
 from interface.app import VideoProcessingApp
 import argparse
 import time
-from database.database import Database
+from database.sqlite_database import Database
 
 if __name__ == '__main__':
     db_path = "detections.db"

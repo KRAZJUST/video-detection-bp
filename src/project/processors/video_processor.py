@@ -8,8 +8,8 @@ import cv2
 import time
 from detectors.yolo_detector import YOLODetector
 from detectors.byte_track_tracker import ByteTrackTracker
-from detectors.deep_sort_tracker import DeepSortDetector
-from database.database import Database
+from database.sqlite_database import Database
+from xclip.xclip_model import XClipModel
 
 
 class VideoProcessor:
@@ -22,7 +22,7 @@ class VideoProcessor:
         self.db = Database(self.database_path)
         self.detector = YOLODetector()
         self.tracker = ByteTrackTracker(self.output_dir)
-        self.deepsort_tracker = DeepSortDetector(self.output_dir)
+        self.xclip = XClipModel()
         self.log_entries = {}
         self.initial_yolo_results_log = {}
         self.video_info = self.get_video_info()
@@ -171,14 +171,14 @@ class VideoProcessor:
         """
         X-CLIP processing method
         """
-        batch_size = 10
+        batch_size = 8
         frame_batches = self.create_frame_batches(frame_files, batch_size)
 
         for batch_number, frame_batch in enumerate(frame_batches):
             frames = self.load_frames_as_clip(frame_batch)
             # Generate embeddings for the frames using X-CLIP
-            #TODO
-
+            embeddings = self.xclip.extract_embeddings(frames)
+            print(f'Embeddings: {embeddings}')
             # Store the embeddings in the vector database
             #TODO
 
