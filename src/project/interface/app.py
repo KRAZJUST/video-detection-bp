@@ -85,7 +85,7 @@ class VideoProcessingApp:
 
         # Tracker Selection
         tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort"], state="readonly")
+        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "xclip"], state="readonly")
         self.tracker_combobox.set("-")
         self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
         self.tracker_combobox.bind("<<ComboboxSelected>>", self.update_interval_entry)
