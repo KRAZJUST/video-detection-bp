@@ -1,4 +1,5 @@
 import tkinter as tk
+import traceback
 from tkinter import filedialog
 from tkinter import ttk
 from PIL import Image, ImageTk
@@ -6,6 +7,7 @@ import os
 import threading
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
+from xclip.xclip_parser import XClipParser
 
 class VideoProcessingApp:
     def __init__(self, database_path: str):
@@ -18,6 +20,7 @@ class VideoProcessingApp:
         self.log_results = []
         self.found_frames_dir = ""
         self.found_log_entries = {}
+        self.temp_embeddings = None
 
         # GUI colors
         self.bg_color = "#2E2E2E"  # Dark gray background
@@ -71,7 +74,7 @@ class VideoProcessingApp:
         self.query_entry.grid(row=1, column=0, sticky="ew", pady=5)
 
         # Search Query Button (bottom-right)
-        self.query_button = tk.Button(query_frame, text="Search Query", command=self.run_query, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.query_button = tk.Button(query_frame, text="Search Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
         self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
 
         # Configure Grid Weights for Query Section
@@ -191,8 +194,10 @@ class VideoProcessingApp:
             # Get the correct log results if the tracker was selected or not
             if self.tracker_combobox.get() == "-":
                 self.log_results = processor.initial_yolo_results_log
-            else:
+            elif self.tracker_combobox.get() == "bytetrack":
                 self.log_results = processor.log_entries
+            elif self.tracker_combobox.get() == "xclip":
+                self.temp_embeddings = processor.temp_embeddings
 
         except Exception as e:
             print(f"Error processing video: {e}")
@@ -223,23 +228,35 @@ class VideoProcessingApp:
         self.query = self.query_entry.get()
 
         try:
-            log_parser = DetectionParser(
-                log_entries=self.log_results,
-                query=self.query,
-                output_dir=self.output_dir,
-                database_path=self.database_path,
-                tracker=self.tracker_combobox.get()
-            )
-            log_parser.parse_detections()
+            if self.tracker_combobox.get() == "-" or self.tracker_combobox.get() == "bytetrack":
+                log_parser = DetectionParser(
+                    log_entries=self.log_results,
+                    query=self.query,
+                    output_dir=self.output_dir,
+                    database_path=self.database_path,
+                    tracker=self.tracker_combobox.get()
+                )
+                log_parser.parse_detections()
 
-            # After query, load and display frames in grid
-            self.display_frames_in_grid(log_parser.found_log_entries)
+                # After query, load and display frames in grid
+                self.display_frames_in_grid(log_parser.found_log_entries)
+                
+                # Save the found log entries for showing in the log window
+                self.found_log_entries = log_parser.found_log_entries
             
-            # Save the found log entries for showing in the log window
-            self.found_log_entries = log_parser.found_log_entries
-
+            elif self.tracker_combobox.get() == "xclip":
+                print(type(self.temp_embeddings))
+                # XClip query processing
+                xclip_parser = XClipParser(
+                    temp_embeddings=self.temp_embeddings,
+                    query=self.query
+                )
+                distances, indices = xclip_parser.search_embeddings(top_k=5)
+                print(f"Top distance: {distances}")
+                print(f"Top indices: {indices}")
         except Exception as e:
             print(f"Error running query: {e}")
+            traceback.print_exc()
 
         # Re-enable buttons and hide loading indicator after processing
         self.query_button.config(state=tk.NORMAL)

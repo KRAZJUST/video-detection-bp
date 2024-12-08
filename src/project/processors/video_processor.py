@@ -1,5 +1,6 @@
 import os
 import json
+import torch
 import subprocess
 import glob
 from PIL import Image
@@ -29,6 +30,7 @@ class VideoProcessor:
         self.interval = interval
         self.tracker_arg = tracker_arg
         self.processing_level = 1 if self.tracker_arg == '-' or self.tracker_arg == 'bytetrack' else 2
+        self.temp_embeddings = []
 
     def get_video_info(self) -> Dict[str, Any]:
         """ Function to extract video information using FFmpeg. """
@@ -178,9 +180,18 @@ class VideoProcessor:
             frames = self.load_frames_as_clip(frame_batch)
             # Generate embeddings for the frames using X-CLIP
             embeddings = self.xclip.extract_embeddings(frames)
-            print(f'Embeddings: {embeddings}')
+            #print(f'Embeddings: {embeddings}')
             # Store the embeddings in the vector database
             #TODO
+            self.temp_embeddings.append(embeddings)
+
+        # Convert the list of embeddings to a single tensor
+        # Stack the embeddings along the first dimension
+        if self.temp_embeddings:
+            self.temp_embeddings = torch.stack(self.temp_embeddings)
+        else:
+            raise ValueError("No embeddings were generated")
+        print(f"Temp embeddings shape: {self.temp_embeddings.shape}")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""
