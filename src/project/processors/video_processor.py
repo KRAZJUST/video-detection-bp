@@ -175,9 +175,19 @@ class VideoProcessor:
         """
         batch_size = 8
         frame_batches = self.create_frame_batches(frame_files, batch_size)
+        # Reset temp_embeddings
+        self.temp_embeddings = []
 
         for batch_number, frame_batch in enumerate(frame_batches):
+            # Load frames for the batch
             frames = self.load_frames_as_clip(frame_batch)
+
+            # Pad the batch if the number of frames is less than the batch size
+            if len(frames) < batch_size:
+                # Repeat the last frame to fill the batch
+                padding_needed = batch_size - len(frames)
+                frames.extend([frames[-1]] * padding_needed)
+                
             # Generate embeddings for the frames using X-CLIP
             embeddings = self.xclip.extract_embeddings(frames)
             #print(f'Embeddings: {embeddings}')
@@ -188,7 +198,7 @@ class VideoProcessor:
         # Convert the list of embeddings to a single tensor
         # Stack the embeddings along the first dimension
         if self.temp_embeddings:
-            self.temp_embeddings = torch.stack(self.temp_embeddings)
+            self.temp_embeddings = torch.cat(self.temp_embeddings, dim=0)
         else:
             raise ValueError("No embeddings were generated")
         print(f"Temp embeddings shape: {self.temp_embeddings.shape}")
