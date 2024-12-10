@@ -1,11 +1,12 @@
 numpy
 opencv-python
 scipy
-tensorflow
+tensorflow==2.16.2
+tf-keras
 ultralytics
 torch
 torchvision
 deep_sort_realtime
 torchreid
 supervision
-dearpygui
+transformers
