@@ -11,12 +11,10 @@ class XClipModel:
         self.model.to(self.device)
 
     def extract_embeddings(self, frames):
-        # Preprocess input
+        # Preprocess input frames into tensors and move them to the device
         inputs = self.processor(videos=[frames], return_tensors="pt").to(self.device)
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-        # Extract image embeddings
+        # Extract video embeddings
         with torch.no_grad():
             outputs = self.model.get_video_features(**inputs)
-
         return outputs

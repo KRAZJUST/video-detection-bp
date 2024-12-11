@@ -52,7 +52,7 @@ class ByteTrackTracker:
         if len(tracked_detections.xyxy) == 0:
             return frame
 
-        # This method creates annotations on the frame, which includes bounding boxes and labels
+        # Create annotations on the frame, which includes bounding boxes and labels
         labels = [
             f"#{track_id} {class_name}"
             for track_id, class_name in zip(tracked_detections.tracker_id, tracked_detections.data['class_name'])

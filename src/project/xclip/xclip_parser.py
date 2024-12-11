@@ -29,7 +29,7 @@ class XClipParser:
             # Check if the query is a list of strings
             query_list = [self.query] if isinstance(self.query, str) else self.query
 
-            text_inputs = self.processor(text=self.query, return_tensors="pt", padding=True).to(self.device)
+            text_inputs = self.processor(text=query_list, return_tensors="pt", padding=True).to(self.device)
             print(f'Text inputs: {text_inputs}')
 
             # Extract text embeddings

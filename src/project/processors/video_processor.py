@@ -196,7 +196,6 @@ class VideoProcessor:
             self.temp_embeddings.append(embeddings)
 
         # Convert the list of embeddings to a single tensor
-        # Stack the embeddings along the first dimension
         if self.temp_embeddings:
             self.temp_embeddings = torch.cat(self.temp_embeddings, dim=0)
         else:
