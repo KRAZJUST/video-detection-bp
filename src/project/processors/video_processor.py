@@ -11,6 +11,7 @@ from detectors.yolo_detector import YOLODetector
 from detectors.byte_track_tracker import ByteTrackTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
+from database.vector_database import VectorDatabaseManager
 
 
 class VideoProcessor:
@@ -21,6 +22,10 @@ class VideoProcessor:
         os.makedirs(self.frames_output_dir, exist_ok=True)
         self.database_path = database_path
         self.db = Database(self.database_path)
+        self.vector_db = VectorDatabaseManager(
+            database_path="vector_database",
+            collection_name=f"embeddings_{os.path.basename(video_path)}"
+        )
         self.detector = YOLODetector()
         self.tracker = ByteTrackTracker(self.output_dir)
         self.xclip = XClipModel()
@@ -190,17 +195,21 @@ class VideoProcessor:
                 
             # Generate embeddings for the frames using X-CLIP
             embeddings = self.xclip.extract_embeddings(frames)
-            #print(f'Embeddings: {embeddings}')
-            # Store the embeddings in the vector database
-            #TODO
-            self.temp_embeddings.append(embeddings)
+            print(f"Batch {batch_number}: Extracted embeddings: {embeddings.shape}")
 
-        # Convert the list of embeddings to a single tensor
-        if self.temp_embeddings:
-            self.temp_embeddings = torch.cat(self.temp_embeddings, dim=0)
-        else:
-            raise ValueError("No embeddings were generated")
-        print(f"Temp embeddings shape: {self.temp_embeddings.shape}")
+            # Prepare metadata for each embedding
+            metadata = [
+                {
+                    "frame_path": frame_path,
+                    "batch_number": batch_number,
+                    "frame_number": frame_files.index(frame_path)
+                } for frame_path in frame_batch
+            ]
+
+            # Add embeddings to the vector database
+            self.vector_db.add_batch_embeddings(batch_embeddings=embeddings, batch_metadata=metadata, embedding_strategy='mean')
+
+        print("Embeddings stored in vector database successfully.")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""

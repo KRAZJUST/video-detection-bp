@@ -207,9 +207,6 @@ class VideoProcessingApp:
 
     def start_query(self):
         """Start the query process when the button is clicked and disable the button."""
-        if not self.log_results:
-            # No results to query
-            return 
         
         # Disable search query button
         self.query_button.config(state=tk.DISABLED)
@@ -220,8 +217,6 @@ class VideoProcessingApp:
 
     def run_query(self):
         """Run query on parsed results."""
-        if not self.log_results:
-            return  # No results to query
         
         # Disable the "Show Log" button while processing query
         self.show_log_button.config(state=tk.DISABLED)
@@ -245,15 +240,17 @@ class VideoProcessingApp:
                 self.found_log_entries = log_parser.found_log_entries
             
             elif self.tracker_combobox.get() == "xclip":
-                print(type(self.temp_embeddings))
+                print('Running XClip query...')
                 # XClip query processing
                 xclip_parser = XClipParser(
-                    temp_embeddings=self.temp_embeddings,
+                    video_path=self.video_path,
                     query=self.query
                 )
-                distances, indices = xclip_parser.search_embeddings(top_k=5)
-                print(f"Top distance: {distances}")
-                print(f"Top indices: {indices}")
+                print('Getting query embeddings...')
+                similarities, metadata = xclip_parser.search_embeddings(top_k=2)
+                print(f"Similarities: {similarities}")
+                print(f"Metadata: {metadata}")
+
         except Exception as e:
             print(f"Error running query: {e}")
             traceback.print_exc()
