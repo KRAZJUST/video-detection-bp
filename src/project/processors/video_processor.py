@@ -24,7 +24,8 @@ class VideoProcessor:
         self.db = Database(self.database_path)
         self.vector_db = VectorDatabaseManager(
             database_path="vector_database",
-            collection_name=f"embeddings_{os.path.basename(video_path)}"
+            collection_name=f"embeddings_{os.path.basename(video_path)}",
+            reset_database=True
         )
         self.detector = YOLODetector()
         self.tracker = ByteTrackTracker(self.output_dir)

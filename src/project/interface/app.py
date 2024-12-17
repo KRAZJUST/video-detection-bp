@@ -244,12 +244,14 @@ class VideoProcessingApp:
                 # XClip query processing
                 xclip_parser = XClipParser(
                     video_path=self.video_path,
-                    query=self.query
+                    query=self.query,
+                    output_dir=self.output_dir,
                 )
                 print('Getting query embeddings...')
-                similarities, metadata = xclip_parser.search_embeddings(top_k=2)
+                similarities, metadata = xclip_parser.search_embeddings(top_k=3)
                 print(f"Similarities: {similarities}")
                 print(f"Metadata: {metadata}")
+                self.display_frames_in_grid(xclip_parser.top_frames)
 
         except Exception as e:
             print(f"Error running query: {e}")

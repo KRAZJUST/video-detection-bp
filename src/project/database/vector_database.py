@@ -8,7 +8,8 @@ class VectorDatabaseManager:
     def __init__(self, 
                  database_path: str, 
                  collection_name: str = "video_embeddings",
-                 persist_directory: Optional[str] = None):
+                 persist_directory: Optional[str] = None,
+                 reset_database: bool = False):
         """
         Initialize ChromaDB vector database for storing video embeddings.
         
@@ -16,6 +17,7 @@ class VectorDatabaseManager:
             database_path (str): Path to the database directory
             collection_name (str, optional): Name of the collection to use. Defaults to "video_embeddings"
             persist_directory (str, optional): Directory to persist the database. If None, uses database_path
+            reset_database (bool, optional): Whether to reset the database. Defaults to False
         """
         # Ensure database directory exists
         os.makedirs(database_path, exist_ok=True)
@@ -26,6 +28,12 @@ class VectorDatabaseManager:
         # Initialize ChromaDB client
         self.chroma_client = chromadb.PersistentClient(path=self.persist_directory)
         
+        if reset_database:
+            try:
+                self.chroma_client.delete_collection(name=collection_name)
+            except Exception as e:
+                print(f"Collection {collection_name} not found.", e)
+
         # Create or get collection
         self.collection = self.chroma_client.get_or_create_collection(
             name=collection_name,
@@ -109,9 +117,11 @@ class VectorDatabaseManager:
         """
         # Ensure query embedding is in the right format
         if query_embedding.dim() > 2:
+            print(f'Squeezing Query embedding shape: {query_embedding.shape}')
             query_embedding = query_embedding.squeeze(0)
         
         if query_embedding.dim() == 1:
+            print(f'Unsqueezing Query embedding shape: {query_embedding.shape}')
             query_embedding = query_embedding.unsqueeze(0)
         
         # Convert query embedding to list

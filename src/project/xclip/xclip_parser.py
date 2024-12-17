@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 class XClipParser:
-    def __init__(self, video_path, query: str):
+    def __init__(self, video_path, query: str, output_dir: str):
         self.processor = XCLIPProcessor.from_pretrained("microsoft/xclip-base-patch32")
         self.model = XCLIPModel.from_pretrained("microsoft/xclip-base-patch32")
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -16,6 +16,8 @@ class XClipParser:
             database_path="vector_database",
             collection_name=f"embeddings_{os.path.basename(video_path)}"
         )
+        self.output_dir = output_dir
+        self.top_frames = []
 
     def get_query_embeddings(self):
         try:
@@ -57,15 +59,16 @@ class XClipParser:
                 query_embedding=query_embedding, 
                 n_results=top_k
             )
+            print(f'Query result: {query_result}')
             
             # Get the distances from the query result search in ChromaDB
             distances = query_result['distances'][0]
-            
             # Convert distances to similarities (lower distance means higher similarity)
-            similarities = 1 / (1 + np.array(distances))
-            
+            similarities = 1 / (1 + np.array(distances))       
             # Get metadata
             metadata = query_result['metadatas'][0]
+
+            self.top_frames = self.copy_top_k_frames(metadata)
 
             return similarities, metadata
         
@@ -74,3 +77,48 @@ class XClipParser:
             import traceback
             traceback.print_exc()
             raise
+
+    def copy_top_k_frames(self, metadata):
+        """
+        Copy top-k found frames to a found_frames directory
+        """
+
+        # Ensure found_frames directory exists
+        found_frames_dir = os.path.join(self.output_dir, 'found_frames')
+        
+        if not os.path.exists(found_frames_dir):
+            os.makedirs(found_frames_dir, exist_ok=True)
+        else:
+            # Clear existing frames
+            import shutil
+            shutil.rmtree(found_frames_dir)
+            os.makedirs(found_frames_dir, exist_ok=True)
+
+        # Track copied files to avoid duplicates
+        copied_files = set()
+
+        # Iterate through metadata to copy frames
+        for meta in metadata:
+            # Split frame paths string into individual frame paths
+            frame_paths = meta['frame_paths_str'].split(',')
+            
+            # Copy each frame in the batch
+            for frame_path in frame_paths:
+                # Extract just the filename
+                frame_filename = os.path.basename(frame_path)
+                
+                # Avoid copying duplicate frames
+                if frame_filename not in copied_files:
+                    # Construct destination path
+                    dest_path = os.path.join(found_frames_dir, frame_filename)
+                    
+                    # Copy the file
+                    try:
+                        import shutil
+                        shutil.copy2(frame_path, dest_path)
+                        copied_files.add(frame_filename)
+                        print(f"Copied {frame_filename} to {found_frames_dir}")
+                    except Exception as e:
+                        print(f"Error copying {frame_path}: {e}")
+
+        return found_frames_dir

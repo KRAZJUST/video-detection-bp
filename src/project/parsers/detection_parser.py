@@ -17,9 +17,14 @@ class DetectionParser:
         self.found_log_entries = {}
 
         self.output_dir = output_dir
-        # Create a directory to save the found frames
+        
+        # Create or clear the found frames directory
         self.found_dir = os.path.join(output_dir, 'found_frames')
-        os.makedirs(self.found_dir, exist_ok=True)
+        if not os.path.exists(self.found_dir):
+            os.makedirs(self.found_dir, exist_ok=True)
+        else:
+            shutil.rmtree(self.found_dir)
+            os.makedirs(self.found_dir, exist_ok=True)
 
         self.filter_colors = []
         self.filter_objects = []
