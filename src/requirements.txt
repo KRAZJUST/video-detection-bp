@@ -12,3 +12,4 @@ supervision
 transformers
 huggingface
 chromadb
+segment-anything

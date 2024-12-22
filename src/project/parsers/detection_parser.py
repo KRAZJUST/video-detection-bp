@@ -2,9 +2,11 @@ import os
 import json
 import cv2
 import shutil
-import sqlite3
 from .query_parser import QueryParser
 from database.sqlite_database import Database
+from constants.constants import COLOR_MAP
+from .yolo_segmenter import YOLOSegmenter
+
 
 class DetectionParser:
     def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str):
@@ -14,6 +16,7 @@ class DetectionParser:
         self.tracker = tracker
         self.connection = None
         self.query_parser = QueryParser(query)
+        self.segmenter = YOLOSegmenter()
         self.found_log_entries = {}
 
         self.output_dir = output_dir
@@ -177,24 +180,9 @@ class DetectionParser:
             print(f"Failed to read image: {frame_file_path}")
             return
 
-        # Annotate the detections
-        for detection in detections:
-            bbox = detection['bbox']
-            class_name = detection['class_name']
-            confidence = detection['confidence']
-            dominant_color = detection.get('dominant_color', 'unknown')
+        # Visualize detections with both boxes and segmentation masks
+        annotated_image = self.segmenter.annotate_image(image, detections)
 
-            xmin, ymin, xmax, ymax = bbox
-            color = (255, 69, 0)
-            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
-
-            # Draw the label text
-            label = f"{class_name} ({dominant_color}, {confidence:.2f})"
-            cv2.putText(image, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-        # Save the annotated image if it hasn't been saved already
+        # Save the annotated image
         output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")
-        if not os.path.exists(output_path):
-            cv2.imwrite(output_path, image)
-            print(f"Annotated frame saved to '{output_path}'.")
-
+        cv2.imwrite(output_path, annotated_image)
