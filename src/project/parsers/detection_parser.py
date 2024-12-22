@@ -9,11 +9,12 @@ from .yolo_segmenter import YOLOSegmenter
 
 
 class DetectionParser:
-    def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str):
+    def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True):
         self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.tracker = tracker
+        self.use_segmentation = use_segmentation
         self.connection = None
         self.query_parser = QueryParser(query)
         self.segmenter = YOLOSegmenter()
@@ -180,8 +181,29 @@ class DetectionParser:
             print(f"Failed to read image: {frame_file_path}")
             return
 
-        # Visualize detections with both boxes and segmentation masks
-        annotated_image = self.segmenter.annotate_image(image, detections)
+        # Visualize detections with segmentation masks if the flag is set or with bounding boxes otherwise
+        if self.use_segmentation:
+            annotated_image = self.segmenter.annotate_image(image, detections)
+        elif not self.use_segmentation:
+            # Create a copy for drawing
+            annotated_image = image.copy()
+
+            for detection in detections:
+                # Get bounding box coordinates and class
+                x1, y1, x2, y2 = detection['bbox']
+                class_name = detection.get('class_name', 'unknown')
+                dominant_color = detection.get('dominant_color', 'unknown')
+                color = COLOR_MAP.get(dominant_color, (0, 255, 0))
+
+                # Draw the bounding box
+                cv2.rectangle(annotated_image, (x1, y1), (x2, y2), color, 2)
+
+                # Add a label to the object
+                label = f"{class_name}: {dominant_color}"
+                cv2.putText(annotated_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        else:
+            print("Invalid segmentation flag value. Please use True or False.")
+            return
 
         # Save the annotated image
         output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")

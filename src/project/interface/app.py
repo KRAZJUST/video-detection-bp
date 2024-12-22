@@ -29,6 +29,7 @@ class VideoProcessingApp:
         self.button_fg_color = "#FFFFFF"  # White button text
 
         self.root = tk.Tk()
+        self.use_segmentation = tk.BooleanVar(value=True)
         self.root.title("Video Processing Application")
         self.root.geometry("1400x900")
         self.root.configure(bg=self.bg_color)
@@ -76,6 +77,19 @@ class VideoProcessingApp:
         # Search Query Button (bottom-right)
         self.query_button = tk.Button(query_frame, text="Search Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
         self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
+
+        # Conditional Segmentation Checkbox
+        self.segmentation_checkbox = tk.Checkbutton(
+            query_frame,
+            text="Use Segmentation",
+            variable=self.use_segmentation,
+            bg=self.bg_color,
+            fg=self.fg_color,
+            selectcolor=self.button_bg_color,
+            activebackground=self.bg_color,
+            activeforeground=self.fg_color
+        )
+        self.segmentation_checkbox.grid(row=2, column=0, sticky="se", pady=5, padx=5)
 
         # Configure Grid Weights for Query Section
         query_frame.grid_rowconfigure(1, weight=1) 
@@ -170,6 +184,14 @@ class VideoProcessingApp:
             self.output_dir_entry.delete(0, tk.END)
             self.output_dir_entry.insert(0, dir_path)
 
+    def update_checkbox_visibility(self, event=None):
+        """Show or hide the segmentation checkbox based on tracker selection."""
+        tracker = self.tracker_combobox.get()
+        if tracker in ["-", "bytetrack"]:
+            self.segmentation_checkbox.grid()
+        else:
+            self.segmentation_checkbox.grid_remove()
+
     def start_video_processing(self):
         """Disable process button and show loading during video processing."""
         # Disable the buttons during processing
@@ -229,7 +251,8 @@ class VideoProcessingApp:
                     query=self.query,
                     output_dir=self.output_dir,
                     database_path=self.database_path,
-                    tracker=self.tracker_combobox.get()
+                    tracker=self.tracker_combobox.get(),
+                    use_segmentation=self.use_segmentation.get()
                 )
                 log_parser.parse_detections()
 
