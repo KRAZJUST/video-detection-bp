@@ -8,8 +8,8 @@ from .base_tracker import BaseTracker
 
 
 class ByteTrackTracker(BaseTracker):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2):
-        super().__init__(output_dir, min_frames_for_averaging)
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 374):
+        super().__init__(output_dir, min_frames_for_averaging, frame_width, frame_height)
         self.tracker = sv.ByteTrack(track_activation_threshold=0.2)
         self.color_filter = ColorFilter()
 

@@ -31,7 +31,7 @@ class VideoProcessor:
         self.detector = YOLODetector()
         
         if tracker_arg == 'bytetrack':
-            self.tracker = ByteTrackTracker(output_dir)
+            self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=374)
         elif tracker_arg == 'deepsort':
             self.tracker = DeepSortTracker(output_dir)
         

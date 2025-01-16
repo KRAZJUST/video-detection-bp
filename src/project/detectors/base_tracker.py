@@ -9,11 +9,19 @@ from .color_filter import ColorFilter
 from constants.constants import COLOR_MAP
 
 class BaseTracker(ABC):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2):
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 374):
         self.output_dir = output_dir
         self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
         self.track_history = {}
+        # Store recent directions
+        self.direction_history = defaultdict(list)
+        # Store where tracks leave the frame
+        self.exit_points = {}
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+        
         self.initialize_output_folders()
+        
         # Track ID -> list of color dictionaries
         self.color_history = defaultdict(list)
         # Last frame where the track was seen
@@ -174,49 +182,159 @@ class BaseTracker(ABC):
         xmin, ymin, xmax, ymax = bbox
         return ((xmin + xmax) / 2, (ymin + ymax) / 2)
 
-    def angle_to_direction(self, angle: float) -> str:
-        """Convert angle to direction."""
+    def angle_to_direction(self, angle: float, confidence: float = 1.0) -> Tuple[str, float]:
+        """
+        Convert angle to direction with confidence score.
+        Higher confidence means we're more certain about the direction.
+        """
         angle = (angle + 360) % 360
         
-        if 337.5 <= angle or angle < 22.5:
-            return "east"
-        elif 22.5 <= angle < 67.5:
-            return "north-east"
-        elif 67.5 <= angle < 112.5:
-            return "north"
-        elif 112.5 <= angle < 157.5:
-            return "north-west"
-        elif 157.5 <= angle < 202.5:
-            return "west"
-        elif 202.5 <= angle < 247.5:
-            return "south-west"
-        elif 247.5 <= angle < 292.5:
-            return "south"
-        elif 292.5 <= angle < 337.5:
-            return "south-east"
+        # Define direction ranges with centers
+        directions = [
+            ("east", 0, 22.5, 337.5),
+            ("north-east", 45, 22.5, 67.5),
+            ("north", 90, 67.5, 112.5),
+            ("north-west", 135, 112.5, 157.5),
+            ("west", 180, 157.5, 202.5),
+            ("south-west", 225, 202.5, 247.5),
+            ("south", 270, 247.5, 292.5),
+            ("south-east", 315, 292.5, 337.5)
+        ]
+        
+        # Find the matching direction
+        for name, center, lower, upper in directions:
+            if (lower <= angle < upper) or \
+               (name == "east" and (angle >= 337.5 or angle < 22.5)):
+                # Calculate confidence based on how close to center
+                if name == "east" and angle >= 337.5:
+                    angle_diff = min(abs(angle - 360), abs(angle - center))
+                else:
+                    angle_diff = abs(angle - center)
+                
+                # Reduce confidence if near boundary
+                direction_confidence = 1.0 - (angle_diff / 22.5)  # 22.5 is max possible difference
+                return name, direction_confidence * confidence
+                
+        return "unknown", 0.0
 
-    def calculate_direction(self, start_point: Tuple[float, float], end_point: Tuple[float, float]) -> str:
-        """Calculate movement direction between points."""
+    def is_leaving_frame(self, centroid: Tuple[float, float], bbox: List[float]) -> bool:
+        """
+        Check if object is leaving the frame.
+        TODO: Implement more robust logic for edge cases and take into account the whole bounding box not just the centroid.
+        """
+        x, y = centroid
+        xmin, ymin, xmax, ymax = bbox
+        # margin to consider object leaving the frame (in pixels)
+        margin = 20
+        
+        return (x <= margin or x >= self.frame_width - margin or 
+                y <= margin or y >= self.frame_height - margin)
+
+    def get_exit_direction(self, centroid: Tuple[float, float]) -> Tuple[str, float]:
+        """Get direction based on where object exits frame."""
+        x, y = centroid
+        # 10% of frame dimension
+        margin = 0.1
+        
+        # Calculate margin distances in pixels
+        margin_x = self.frame_width * margin
+        margin_y = self.frame_height * margin
+        
+        # Check if within margin of edges
+        in_left_margin = x <= margin_x
+        in_right_margin = x >= self.frame_width - margin_x
+        in_top_margin = y <= margin_y
+        in_bottom_margin = y >= self.frame_height - margin_y
+        
+        # Calculate confidence based on how close to edge
+        # (closer to edge = higher confidence)
+        if in_left_margin:
+            confidence = 1.0 - (x / margin_x)
+            return "west", confidence
+        elif in_right_margin:
+            confidence = 1.0 - ((self.frame_width - x) / margin_x)
+            return "east", confidence
+        elif in_top_margin:
+            confidence = 1.0 - (y / margin_y)
+            return "north", confidence
+        elif in_bottom_margin:
+            confidence = 1.0 - ((self.frame_height - y) / margin_y)
+            return "south", confidence
+        
+        # If not in any margin zone
+        return "unknown", 0.0
+
+    def calculate_direction(self, start_point: Tuple[float, float], 
+                          end_point: Tuple[float, float]) -> Tuple[str, float]:
+        """Calculate movement direction between points with confidence."""
         dx = end_point[0] - start_point[0]
         dy = start_point[1] - end_point[1]
+        
+        # Calculate magnitude of movement
+        magnitude = (dx**2 + dy**2)**0.5
+        # minimum pixels to consider movement significant
+        min_movement = 5
+        
+        if magnitude < min_movement:
+            return "stationary", 0.0
+            
         angle = degrees(atan2(dy, dx))
-        return self.angle_to_direction(angle)
+        
+        # Higher confidence for larger movements - scale confidence with movement
+        confidence = min(1.0, magnitude / 50)
+        return self.angle_to_direction(angle, confidence)
 
     def update_track_history(self, track_id: int, bbox: List[float], frame_number: int) -> str:
-        """Update tracking history and calculate direction."""
+        """
+            Update tracking history and calculate direction 
+            based on recent movement and exit points.
+        """
         centroid = self.get_centroid(bbox)
         
         if track_id not in self.track_history:
             self.track_history[track_id] = []
+            
         self.track_history[track_id].append((frame_number, centroid))
         
-        direction = None
+        # Keep only last 30 frames of history
+        if len(self.track_history[track_id]) > 30:
+            self.track_history[track_id] = self.track_history[track_id][-30:]
+            
+        final_direction = None
         if len(self.track_history[track_id]) >= 2:
+            # Get immediate direction
             start_frame, start_point = self.track_history[track_id][-2]
             end_frame, end_point = self.track_history[track_id][-1]
-            direction = self.calculate_direction(start_point, end_point)
+            immediate_direction, confidence = self.calculate_direction(start_point, end_point)
             
-        return direction
+            # Check if object is leaving frame
+            if self.is_leaving_frame(end_point, bbox):
+                exit_direction, exit_conf = self.get_exit_direction(end_point)
+                self.exit_points[track_id] = (end_point, exit_direction)
+                
+                # Blend immediate direction with exit direction based on confidence
+                if confidence < exit_conf:
+                    final_direction = exit_direction
+                else:
+                    final_direction = immediate_direction
+            else:
+                # Use historical directions for smoothing
+                self.direction_history[track_id].append(immediate_direction)
+                if len(self.direction_history[track_id]) > 5:
+                    self.direction_history[track_id] = self.direction_history[track_id][-5:]
+                
+                # Get most common recent direction
+                if confidence < 0.5:  # Low confidence in immediate direction
+                    from collections import Counter
+                    direction_counts = Counter(self.direction_history[track_id])
+                    if direction_counts:
+                        final_direction = direction_counts.most_common(1)[0][0]
+                    else:
+                        final_direction = immediate_direction
+                else:
+                    final_direction = immediate_direction
+                    
+        return final_direction
 
     def annotate_frame(self, frame: np.ndarray, detections: List[Dict[str, Any]]) -> np.ndarray:
         """Annotate frame with bounding boxes and labels."""
