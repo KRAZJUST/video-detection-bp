@@ -15,7 +15,6 @@ class VideoProcessingApp:
         self.video_path = ""
         self.output_dir = os.getcwd()
         self.interval = 30
-        self.tracker = "bytetrack"
         self.query = ""
         self.log_results = []
         self.found_frames_dir = ""
@@ -101,7 +100,7 @@ class VideoProcessingApp:
 
         # Tracker Selection
         tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "xclip"], state="readonly")
+        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort","xclip"], state="readonly")
         self.tracker_combobox.set("-")
         self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
         self.tracker_combobox.bind("<<ComboboxSelected>>", self.update_interval_entry)
@@ -187,7 +186,7 @@ class VideoProcessingApp:
     def update_checkbox_visibility(self, event=None):
         """Show or hide the segmentation checkbox based on tracker selection."""
         tracker = self.tracker_combobox.get()
-        if tracker in ["-", "bytetrack"]:
+        if tracker in ["-", "bytetrack", "deepsort"]:
             self.segmentation_checkbox.grid()
         else:
             self.segmentation_checkbox.grid_remove()
@@ -216,7 +215,7 @@ class VideoProcessingApp:
             # Get the correct log results if the tracker was selected or not
             if self.tracker_combobox.get() == "-":
                 self.log_results = processor.initial_yolo_results_log
-            elif self.tracker_combobox.get() == "bytetrack":
+            elif self.tracker_combobox.get() == "bytetrack" or self.tracker_combobox.get() == "deepsort":
                 self.log_results = processor.log_entries
             elif self.tracker_combobox.get() == "xclip":
                 self.temp_embeddings = processor.temp_embeddings
@@ -245,7 +244,7 @@ class VideoProcessingApp:
         self.query = self.query_entry.get()
 
         try:
-            if self.tracker_combobox.get() == "-" or self.tracker_combobox.get() == "bytetrack":
+            if self.tracker_combobox.get() in ["-", "bytetrack", "deepsort"]:
                 log_parser = DetectionParser(
                     log_entries=self.log_results,
                     query=self.query,

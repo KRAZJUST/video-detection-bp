@@ -9,6 +9,7 @@ import cv2
 import time
 from detectors.yolo_detector import YOLODetector
 from detectors.byte_track_tracker import ByteTrackTracker
+from detectors.deep_sort_tracker import DeepSortTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
@@ -28,14 +29,19 @@ class VideoProcessor:
             reset_database=True
         )
         self.detector = YOLODetector()
-        self.tracker = ByteTrackTracker(self.output_dir)
+        
+        if tracker_arg == 'bytetrack':
+            self.tracker = ByteTrackTracker(output_dir)
+        elif tracker_arg == 'deepsort':
+            self.tracker = DeepSortTracker(output_dir)
+        
         self.xclip = XClipModel()
         self.log_entries = {}
         self.initial_yolo_results_log = {}
         self.video_info = self.get_video_info()
         self.interval = interval
         self.tracker_arg = tracker_arg
-        self.processing_level = 1 if self.tracker_arg == '-' or self.tracker_arg == 'bytetrack' else 2
+        self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack', 'deepsort'] else 2
         self.temp_embeddings = []
 
     def get_video_info(self) -> Dict[str, Any]:
@@ -146,7 +152,7 @@ class VideoProcessor:
 
     def _process_video_yolo(self, frame_files):
         """
-        YOLO and ByteTrack processing method
+        YOLO and ByteTrack/DeepSORT processing method
         """
         for frame_number, frame_file in enumerate(frame_files):
             print(f"Processing frame {frame_file}")
@@ -167,7 +173,7 @@ class VideoProcessor:
             # Handle tracking
             if self.tracker_arg == '-':
                 self.add_detections_in_db(detections, tracker=self.tracker_arg, frame_number=frame_number)
-            elif self.tracker_arg == 'bytetrack':
+            else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
                 self.log_entries[frame_number] = tracked_detections
                 self.add_detections_in_db(tracked_detections, tracker=self.tracker_arg, frame_number=frame_number)

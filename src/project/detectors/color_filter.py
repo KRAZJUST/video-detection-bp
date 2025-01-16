@@ -11,7 +11,7 @@ class ColorFilter:
         """
         Initialize the color filter with predefined HSV ranges for colors.
         """
-        # Defines HSV ranges for colors
+        # Defines HSV ranges for colors - the values in format (H, S, V) are overlapping to prevent unclassified pixels
         self.color_ranges = {
             'red': [((0, 70, 50), (10, 255, 255)), ((170, 70, 50), (180, 255, 255))],
             'blue': [((100, 150, 0), (140, 255, 255))],
@@ -22,6 +22,8 @@ class ColorFilter:
             'purple': [((140, 50, 50), (160, 255, 255))],
             'brown': [((10, 50, 50), (20, 200, 200))],
             'black': [((0, 0, 0), (180, 255, 30))],
+            # Catchall for grays and uncertain colors limited to low saturation areas
+            'gray': [((0, 0, 30), (180, 20, 200))]
         }
 
     def detect_dominant_color(self, image: np.ndarray, bbox: Tuple) -> str:
@@ -46,26 +48,28 @@ class ColorFilter:
         aspect_ratio = width / height
 
         if aspect_ratio <= 0.8 and aspect_ratio >= 1.2:
-            mask = self._create_circular_mask(width, height)
+            mask = self.create_circular_mask(width, height)
         else:
-            mask = self._create_elliptical_mask(width, height)
+            mask = self.create_elliptical_mask(width, height)
 
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         masked_hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
-        color_presence = self._calculate_color_presence(masked_hsv, mask)
+        color_presence = self.calculate_color_presence(masked_hsv, mask)
 
          # Apply threshold and filter out colors with low presence
-        threshold = 0.001
+        threshold = 0.05
         filtered_colors = {color: presence for color, presence in color_presence.items() if presence >= threshold}
 
         if not filtered_colors:
-            return 'none'
+            # If no colors detected, return the color with the highest presence
+            if color_presence:
+                return max(color_presence.items(), key=lambda x: x[1])[0]
 
         # Return the color with the highest presence
         dominant_color = max(filtered_colors, key=filtered_colors.get)
         return dominant_color
 
-    def _create_circular_mask(self, width: int, height: int) -> np.ndarray:
+    def create_circular_mask(self, width: int, height: int) -> np.ndarray:
         """
         Create a circular mask for the given width and height.
 
@@ -82,7 +86,7 @@ class ColorFilter:
         cv2.circle(mask, center, radius, 255, -1)
         return mask
     
-    def _create_elliptical_mask(self, width: int, height: int) -> np.ndarray:
+    def create_elliptical_mask(self, width: int, height: int) -> np.ndarray:
         """
         Create an elliptical mask for the given width and height.
 
@@ -99,31 +103,89 @@ class ColorFilter:
         cv2.ellipse(mask, center, axes, 0, 0, 360, 255, -1)
         return mask
     
-    def _calculate_color_presence(self, hsv: np.ndarray, mask: np.ndarray) -> dict:
+    def calculate_color_presence(self, hsv: np.ndarray, mask: np.ndarray) -> dict:
         """
-        Calculate the presence percentage of each predefined color in the masked HSV region.
+        Calculate the presence of different colors in the masked HSV image.
+        Works in two passes: first detects all colors except gray, then checks for gray presence
+        in unclassified pixels if no other colors are dominant.
+        
+        Args:
+            hsv (np.ndarray): The HSV image.
+            mask (np.ndarray): The mask of the region of interest.
+        
+        Returns:
+            dict: A dictionary with color names as keys and their presence as values.
         """
         color_presence = {}
-        for color, ranges in self.color_ranges.items():
+        total_mask_pixels = np.sum(mask) / 255
+        
+        if total_mask_pixels == 0:
+            return {'unknown': 1.0}
+            
+        unclassified_pixels = np.ones_like(mask) * 255
+        
+        # First pass: detect all colors except gray
+        non_gray_colors = {k: v for k, v in self.color_ranges.items() if k != 'gray'}
+        for color, ranges in non_gray_colors.items():
             combined_mask = None
             for lower, upper in ranges:
                 lower_np = np.array(lower, dtype=np.uint8)
                 upper_np = np.array(upper, dtype=np.uint8)
                 current_mask = cv2.inRange(hsv, lower_np, upper_np)
+                
                 if combined_mask is None:
                     combined_mask = current_mask
                 else:
                     combined_mask = cv2.bitwise_or(combined_mask, current_mask)
-
-            # Calculate the percentage of masked pixels matching the color
-            # sum the matching pixels, divide by 255 to normalize, and then by the total number of pixels in the mask
-            intersection_pixels = np.sum(cv2.bitwise_and(combined_mask, mask))
-            total_mask_pixels = np.sum(mask)
-            if total_mask_pixels > 0:  # Avoid division by zero
-                percentage = intersection_pixels / total_mask_pixels
-            else:
-                percentage = 0
-
-            color_presence[color] = percentage
-
+            
+            if combined_mask is not None:
+                matching_pixels = cv2.bitwise_and(combined_mask, mask)
+                pixel_count = np.sum(matching_pixels) / 255
+                percentage = pixel_count / total_mask_pixels
+                if percentage > 0.1:  # Only include if more than 10%
+                    color_presence[color] = percentage
+                
+                # Update unclassified pixels
+                unclassified_pixels = cv2.bitwise_and(
+                    unclassified_pixels, 
+                    cv2.bitwise_not(matching_pixels)
+                )
+        
+        # Second pass: check if unclassified pixels match gray criteria
+        unclassified_percentage = np.sum(unclassified_pixels) / (255 * total_mask_pixels)
+        if unclassified_percentage > 0.5:  # Only classify as gray if majority unclassified
+            gray_ranges = self.color_ranges['gray']
+            gray_mask = None
+            for lower, upper in gray_ranges:
+                lower_np = np.array(lower, dtype=np.uint8)
+                upper_np = np.array(upper, dtype=np.uint8)
+                current_mask = cv2.inRange(hsv, lower_np, upper_np)
+                
+                if gray_mask is None:
+                    gray_mask = current_mask
+                else:
+                    gray_mask = cv2.bitwise_or(gray_mask, current_mask)
+            
+            if gray_mask is not None:
+                gray_pixels = cv2.bitwise_and(gray_mask, cv2.bitwise_and(mask, unclassified_pixels))
+                gray_percentage = np.sum(gray_pixels) / (255 * total_mask_pixels)
+                if gray_percentage > 0.3:  # Only include if significant gray presence
+                    color_presence['gray'] = gray_percentage
+        
+        # If no colors detected, assign the strongest match even if below threshold
+        if not color_presence:
+            max_presence = 0
+            max_color = 'unknown'
+            for color, ranges in non_gray_colors.items():
+                for lower, upper in ranges:
+                    lower_np = np.array(lower, dtype=np.uint8)
+                    upper_np = np.array(upper, dtype=np.uint8)
+                    current_mask = cv2.inRange(hsv, lower_np, upper_np)
+                    matching_pixels = cv2.bitwise_and(current_mask, mask)
+                    presence = np.sum(matching_pixels) / (255 * total_mask_pixels)
+                    if presence > max_presence:
+                        max_presence = presence
+                        max_color = color
+            color_presence[max_color] = max_presence
+        
         return color_presence
