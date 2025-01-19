@@ -120,6 +120,9 @@ class DetectionParser:
         """
         Parse detections in the database and filter based on the query.
         Annotate and save frames without duplicating saves for multiple detections.
+        
+        Returns:
+            None
         """
 
         # Parse the query and extract the filter conditions
@@ -146,7 +149,7 @@ class DetectionParser:
 
         print(f"Unknown conditions: {self.unknown_conditions}")
         # If multiple objects or colors are provided and interaction filter is set, add 'and' logic by default
-        if (self.filter_interactions) \
+        if (self.filter_interactions or self.filter_quadrants) \
                 and (len(self.filter_objects) > 1 or len(self.filter_colors) > 1) \
                 and not self.filter_logic:
                     self.filter_logic.append('and')
@@ -202,13 +205,23 @@ class DetectionParser:
 
         self.save_found_log()
 
-    def apply_spatial_filters(self, frames):
-        """Apply spatial filters (interactions and quadrants) to frames."""
+    def apply_spatial_filters(self, frames) -> dict:
+        """
+        Apply spatial filters (interactions and quadrants) to frames.
+        
+        First, filter frames based on quadrants if specified.
+        Then, filter frames based on interactions if specified by checking pairs of objects that should interact.
+        
+        Args:
+            frames (dict): Frames and their detections.
+            
+        Returns:
+            dict: Filtered frames based on spatial filters.
+        """
         filtered_frames = {}
 
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
-            keep_frame = True
 
             # Filter by quadrants if specified
             if self.filter_quadrants:

@@ -70,12 +70,13 @@ class Database:
     def insert_frame(self, frame_number: int, timestamp: float) -> int:
         """
         If the frame does not exist, insert it into the database.
-        If it already exists, return the existing frame ID.
+        If it already exists, remove the frame and re-insert it.
         """
         existing_frame = self.get_frame_number(frame_number)
         if existing_frame:
-            print(f"Frame {frame_number} already exists in the database.")
-            return existing_frame[0]
+            # Remove the frame if it already exists and re-insert it
+            self.cursor.execute("DELETE FROM frames WHERE frame_number = ?", (frame_number,))
+            self.connection.commit()
 
         self.cursor.execute("""
             INSERT INTO frames (frame_number, timestamp)
