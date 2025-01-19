@@ -8,8 +8,10 @@ DIRECTIONS = {
         'SE': 'south-east',
         'SW': 'south-west'
     }
-COLORS = ['red', 'blue', 'green', 'yellow', 'white', 'orange', 'purple', 'brown', 'black']
+COLORS = ['red', 'blue', 'green', 'yellow', 'white', 'orange', 'purple', 'brown', 'black', 'gray']
 OBJECTS = ['person', 'car', 'truck', 'bus']
+QUADRANTS = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+INTERACTIONS = ['near', 'touching', 'overlapping', 'far']
 COLOR_MAP = {
     'red': (10, 255, 255),
     'blue': (100, 150, 255),

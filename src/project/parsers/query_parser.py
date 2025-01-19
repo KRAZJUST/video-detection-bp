@@ -1,6 +1,6 @@
 """ This module contains the QueryParser class that parses the user query into structured format. """
 from transformers import pipeline
-from constants.constants import COLORS, OBJECTS, DIRECTIONS
+from constants.constants import COLORS, OBJECTS, DIRECTIONS, QUADRANTS, INTERACTIONS
 
 class QueryParser:
     
@@ -15,7 +15,7 @@ class QueryParser:
 
         url: https://huggingface.co/docs/transformers/en/model_doc/siglip
         """
-        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or']
+        possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or'] + QUADRANTS + INTERACTIONS
 
 
         # Get predictions from SigLIP
@@ -34,10 +34,13 @@ class QueryParser:
         conditions = []
         
         # Filter out labels with low confidence
-        threshold = 0.04
+        threshold = 0.02
         # Placeholder for the logic operator
         logic_operator = None
         logic_score = 0.0
+        # Placeholder for the interaction
+        interaction = None
+        interaction_score = 0.0
         
         for label, score in zip(result['labels'], result['scores']):
             if score >= threshold: 
@@ -47,14 +50,25 @@ class QueryParser:
                     conditions.append({'color': label})
                 elif label in OBJECTS:
                     conditions.append({'object': label})
+                elif label in QUADRANTS:
+                    conditions.append({'quadrant': label})
+                elif label in INTERACTIONS:
+                    if score > interaction_score and score > 0.2:
+                        interaction = label
+                        interaction_score = score
                 elif label in ['and', 'or']:
                     if score > logic_score and score > 0.2:
                         logic_operator = label
                         logic_score = score
+                else:
+                    conditions.append({'Unknown': label})
 
         # Append only the logic operator with highest probability score and if it exists
         if logic_operator:
             conditions.append({'logic': logic_operator})
+        # Append only the interaction with highest probability score and if it exists
+        if interaction:
+            conditions.append({'interaction': interaction})
         
         return conditions
 
