@@ -402,28 +402,41 @@ class DetectionParser:
 
         # Visualize detections with segmentation masks if the flag is set or with bounding boxes otherwise
         if self.use_segmentation:
-            annotated_image = self.segmenter.annotate_image(image, detections)
+            annotated_frame = self.segmenter.annotate_image(image, detections)
         elif not self.use_segmentation:
             # Create a copy for drawing
-            annotated_image = image.copy()
+            annotated_frame = image.copy()
 
             for detection in detections:
                 # Get bounding box coordinates and class
-                x1, y1, x2, y2 = detection['bbox']
-                class_name = detection.get('class_name', 'unknown')
-                dominant_color = detection.get('dominant_color', 'unknown')
-                color = COLOR_MAP.get(dominant_color, (0, 255, 0))
-
+                xmin, ymin, xmax, ymax = detection['bbox']
+                
+                # Create a label for the object with known properties
+                label_parts = [detection['class_name']]
+                
+                if detection.get('dominant_color'):
+                    color = COLOR_MAP.get(detection['dominant_color'], (255, 255, 255))
+                    label_parts.append(detection['dominant_color'])
+                if detection.get('direction'):
+                    label_parts.append(detection['direction'])
+                # Combine the label parts
+                label = ' '.join(label_parts)
                 # Draw the bounding box
-                cv2.rectangle(annotated_image, (x1, y1), (x2, y2), color, 2)
-
-                # Add a label to the object
-                label = f"{class_name}: {dominant_color}"
-                cv2.putText(annotated_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                cv2.rectangle(annotated_frame, (xmin, ymin), (xmax, ymax), color, 2)
+                # Draw label background
+                label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+                cv2.rectangle(annotated_frame, 
+                            (int(xmin), int(ymin) - 20),
+                            (int(xmin) + label_size[0], int(ymin)),
+                            color, -1)
+                # Draw label text
+                cv2.putText(annotated_frame, label,
+                        (int(xmin), int(ymin) - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         else:
             print("Invalid segmentation flag value. Please use True or False.")
             return
 
         # Save the annotated image
         output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")
-        cv2.imwrite(output_path, annotated_image)
+        cv2.imwrite(output_path, annotated_frame)

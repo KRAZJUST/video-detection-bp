@@ -112,11 +112,18 @@ class VideoInfoUtils:
                 
             # Parse frame rate which might be in ratio format (e.g., "30000/1001")
             fps_str = video_stream.get('r_frame_rate', '0/1')
-            if '/' in fps_str:
-                num, den = map(int, fps_str.split('/'))
-                fps = num / den if den != 0 else 0
-            else:
-                fps = float(fps_str)
+            fps = 'unknown'
+            if fps_str and '/' in fps_str:
+                try:
+                    num, den = map(int, fps_str.split('/'))
+                    fps = round(num / den, 2) if den != 0 else 'unknown'
+                except (ValueError, ZeroDivisionError):
+                    fps = 'unknown'
+            elif fps_str:
+                try:
+                    fps = round(float(fps_str), 2)
+                except ValueError:
+                    fps = 'unknown'
                 
             # Get duration from format section if available, otherwise from stream
             duration = float(probe_data['format'].get('duration', 

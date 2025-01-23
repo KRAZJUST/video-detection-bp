@@ -174,43 +174,53 @@ class VideoProcessingApp:
             self.interval_entry.insert(0, "10")
 
     def select_video(self):
-        """Open file dialog to select video and display its information."""
-        file_path = filedialog.askopenfilename(
-            title="Select Video File",
-            filetypes=(("Video files", "*.mp4 *.avi *.mkv *.mov"), ("All files", "*.*"))
-        )
-        if file_path:
-            self.video_path = file_path
-            self.video_path_entry.delete(0, tk.END)
-            self.video_path_entry.insert(0, file_path)
-            
-            # Get and display video info
-            self.video_metadata = VideoInfoUtils.get_video_info(file_path)
-            if self.video_metadata:
-                # Format duration as minutes:seconds
-                minutes = int(self.video_metadata.duration // 60)
-                seconds = int(self.video_metadata.duration % 60)
+        """Open file dialog to select video and display its information in a non-blocking manner."""
+        def process_video_info():
+            file_path = filedialog.askopenfilename(
+                title="Select Video File",
+                filetypes=(("Video files", "*.mp4 *.avi *.mkv *.mov"), ("All files", "*.*"))
+            )
+            if file_path:
+                # Update UI elements in main thread
+                self.video_path = file_path
+                self.video_path_entry.delete(0, tk.END)
+                self.video_path_entry.insert(0, file_path)
+
+                # Perform video info processing in a separate thread
+                try:
+                    video_metadata = VideoInfoUtils.get_video_info(file_path)
+                    
+                    if video_metadata:
+                        # Format video info
+                        minutes = int(video_metadata.duration // 60)
+                        seconds = int(video_metadata.duration % 60)
+                        
+                        bitrate_str = "unknown"
+                        if video_metadata.bitrate != "unknown":
+                            bitrate_mbps = float(video_metadata.bitrate) / 1_000_000
+                            bitrate_str = f"{bitrate_mbps:.2f} Mbps"
+                        
+                        info_text = (
+                            f"Video Information:\n"
+                            f"Duration: {minutes:02d}:{seconds:02d}\n"
+                            f"FPS: {video_metadata.fps}\n"
+                            f"Resolution: {video_metadata.width}x{video_metadata.height}\n"
+                            f"Total Frames: {video_metadata.frame_count:,}\n"
+                            f"Codec: {video_metadata.codec}\n"
+                            f"Bitrate: {bitrate_str}\n"
+                            f"File Size: {video_metadata.size}"
+                        )
+                        
+                        # .after() to update UI from background thread safely
+                        self.root.after(0, lambda: self.video_info_label.config(text=info_text))
+                    else:
+                        self.root.after(0, lambda: self.video_info_label.config(text="Error reading video information"))
                 
-                # Convert bitrate to Mbps if available
-                bitrate_str = "unknown"
-                if self.video_metadata.bitrate != "unknown":
-                    bitrate_mbps = float(self.video_metadata.bitrate) / 1_000_000
-                    bitrate_str = f"{bitrate_mbps:.2f} Mbps"
-                
-                info_text = (
-                    f"Video Information:\n"
-                    f"Duration: {minutes:02d}:{seconds:02d}\n"
-                    f"FPS: {self.video_metadata.fps}\n"
-                    f"Resolution: {self.video_metadata.width}x{self.video_metadata.height}\n"
-                    f"Total Frames: {self.video_metadata.frame_count:,}\n"
-                    f"Codec: {self.video_metadata.codec}\n"
-                    f"Bitrate: {bitrate_str}\n"
-                    f"File Size: {self.video_metadata.size}"
-                )
-                self.video_info_label.config(text=info_text)
-                
-            else:
-                self.video_info_label.config(text="Error reading video information")
+                except Exception as e:
+                    self.root.after(0, lambda: self.video_info_label.config(text=f"Error: {str(e)}"))
+
+        # Start processing in a separate thread
+        threading.Thread(target=process_video_info, daemon=True).start()
 
     def select_output_dir(self):
         """Open directory dialog to select output directory."""

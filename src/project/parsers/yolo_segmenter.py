@@ -36,9 +36,10 @@ class YOLOSegmenter:
         for detection in detections:
             print(detection)
             # Get bounding box coordinates and class
-            x1, y1, x2, y2 = detection['bbox']
+            xmin, ymin, xmax, ymax = detection['bbox']
             class_name = detection.get('class_name', 'unknown')
             dominant_color = detection.get('dominant_color', 'unknown')
+            direction = detection.get('direction', 'unknown')
 
             # Get all masks from YOLO results
             if results[0].masks is None:
@@ -70,10 +71,10 @@ class YOLOSegmenter:
                 cv2.drawContours(annotated_image, contours, -1, color, 2)
 
                 # Add a label to the object
-                label = f"{class_name}: {dominant_color}"
+                label = f"{class_name}: {dominant_color}, {direction}"
                 cv2.putText(
                     annotated_image, label,
-                    (int(x1), int(y1) - 10),
+                    (int(xmin), int(ymin) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2
                 )
 
