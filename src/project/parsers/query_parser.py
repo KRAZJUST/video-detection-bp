@@ -57,7 +57,7 @@ class QueryParser:
                         interaction = label
                         interaction_score = score
                 elif label in ['and', 'or']:
-                    if score > logic_score and score > 0.2:
+                    if score > logic_score and score > 0.13:
                         logic_operator = label
                         logic_score = score
                 else:

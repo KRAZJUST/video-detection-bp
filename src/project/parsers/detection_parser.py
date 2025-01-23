@@ -69,7 +69,6 @@ class DetectionParser:
         
         # Calculate distance between centers
         distance = ((center1[0] - center2[0])**2 + (center1[1] - center2[1])**2)**0.5
-        print(f"Distance between centers: {distance}")
         
         # Check for overlap
         if (x1_1 < x2_2 and x2_1 > x1_2 and y1_1 < y2_2 and y2_1 > y1_2):
@@ -132,10 +131,13 @@ class DetectionParser:
                 if label == 'color':
                     self.filter_colors.append(value)
                 elif label == 'object':
-                    if value == 'vehicle':
-                        self.filter_objects.extend(['car', 'truck', 'bus'])
-                    else:
-                        self.filter_objects.append(value)
+                    # If the object is 'truck' or 'bus', add both to the filter list because the model may not distinguish them correctly a lot of the time
+                    #if value == 'truck':
+                    #    self.filter_objects.extend(['truck', 'bus'])
+                    #elif value == 'bus':
+                    #    self.filter_objects.extend(['bus', 'truck'])
+                    #else:
+                    self.filter_objects.append(value)
                 elif label == 'logic':
                     self.filter_logic.append(value)
                 elif label == 'direction':
@@ -222,77 +224,62 @@ class DetectionParser:
 
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
+            print(f"Detections in frame {frame_number}: {detections}")
 
-            # Filter by quadrants if specified
+            # Quadrant filtering remains the same
             if self.filter_quadrants:
-                quadrant_match = False
-                for detection in detections:
-                    quadrant = self.get_frame_quadrant(detection['bbox'], (self.frame_width, self.frame_height))
-                    if quadrant in self.filter_quadrants:
-                        quadrant_match = True
-                        break
+                quadrant_match = any(
+                    self.get_frame_quadrant(detection['bbox'], (self.frame_width, self.frame_height)) in self.filter_quadrants 
+                    for detection in detections
+                )
                 if not quadrant_match:
                     continue
 
-            # Filter by interactions if specified
+            # Interaction filtering
             if self.filter_interactions:
                 interaction_match = False
                 
-                # Get combinations of objects that should interact based on query
-                expected_pairs = []
-                if self.filter_logic and self.filter_logic[0] == 'and':
-                    # Find pairs of objects/colors that should interact
-                    objects_with_props = []
-                    for obj in self.filter_objects:
-                        color = None
-                        # Match colors with objects if specified
-                        if self.filter_colors:
-                            for element in self.query_parser.get_parsed_queries():
-                                if 'object' in element and element['object'] == obj:
-                                    if 'color' in element:
-                                        color = element['color']
-                        objects_with_props.append({'class_name': obj, 'color': color})
-                    
-                    # Create pairs of objects that should interact
-                    for i in range(len(objects_with_props)):
-                        for j in range(i + 1, len(objects_with_props)):
-                            expected_pairs.append((objects_with_props[i], objects_with_props[j]))
-
-                # Check each pair of detections
-                for expected_pair in expected_pairs:
-                    obj1_props, obj2_props = expected_pair
-                    
-                    # Find matching detections for each object in the pair
-                    for i, det1 in enumerate(detections):
-                        if self.matches_properties(det1, obj1_props):
-                            for det2 in detections[i+1:]:
-                                if self.matches_properties(det2, obj2_props):
-                                    interaction = self.calculate_interaction(det1['bbox'], det2['bbox'])
-                                    if interaction in self.filter_interactions:
-                                        interaction_match = True
-                                        break
-                            if interaction_match:
-                                break
-                        # Check the reverse matching (in case objects are detected in different order)
-                        elif self.matches_properties(det1, obj2_props):
-                            for det2 in detections[i+1:]:
-                                if self.matches_properties(det2, obj1_props):
-                                    interaction = self.calculate_interaction(det1['bbox'], det2['bbox'])
-                                    if interaction in self.filter_interactions:
-                                        interaction_match = True
-                                        break
-                            if interaction_match:
-                                break
-                    if interaction_match:
-                        break
+                # Filter detections by objects and colors
+                matching_detections = [
+                    detection for detection in detections 
+                    if any(
+                        self.matches_properties(detection, {'class_name': obj, 'color': self.get_color_for_object(obj)})
+                        for obj in self.filter_objects
+                    )
+                ]
+                
+                # Check unique interactions between different detections
+                if len(matching_detections) >= 2:
+                    for i in range(len(matching_detections)):
+                        for j in range(i+1, len(matching_detections)):
+                            # Ensure we're comparing different detections
+                            if matching_detections[i] != matching_detections[j]:
+                                interaction_type = self.calculate_interaction(
+                                    matching_detections[i]['bbox'], 
+                                    matching_detections[j]['bbox']
+                                )
+                                if interaction_type in self.filter_interactions:
+                                    interaction_match = True
+                                    break
+                        if interaction_match:
+                            break
                 
                 if not interaction_match:
                     continue
 
-            # If frame passed all filters, add it to filtered frames
             filtered_frames[frame_number] = frame_data
 
         return filtered_frames
+
+    def get_color_for_object(self, obj):
+        """
+        Helper method to get color for a specific object from query parser.
+        Returns None if no color specified.
+        """
+        for element in self.query_parser.get_parsed_queries():
+            if 'object' in element and element['object'] == obj and 'color' in element:
+                return element['color']
+        return None
 
     def matches_properties(self, detection, expected_props):
         """
@@ -325,31 +312,24 @@ class DetectionParser:
         filtered_frames = {}
         print(f"Filtering frames based on logic: {logic_operator} and conditions: {expected_conditions}")
 
-        # Handle 'vehicle' expansion to specific vehicle types
-        for condition in expected_conditions:
-            if 'object' in condition and condition['object'] == 'vehicle':
-                expected_conditions.remove(condition)
-                expected_conditions.extend([{'object': 'car'}, {'object': 'truck'}, {'object': 'bus'}])
-            if 'logic' in condition:
-                expected_conditions.remove(condition)
-
         # Loop through each frame
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
             
-            # Check conditions based on logic
             if logic_operator == "and":
-                # For AND, we need at least one match for each condition
-                matched_conditions = set()
+                # Track which conditions are matched
+                matched_conditions = []
+                
+                # For each condition, find at least one matching detection
                 for condition in expected_conditions:
-                    for detection in detections:
-                        if self.check_detection_condition(detection, condition):
-                            # Add the matched condition to the set
-                            matched_conditions.add(frozenset(condition.items()))
-                            # Once condition is matched, no need to check the same detection again
-                            break
-                # If all conditions are matched, keep the frame
-                if len(matched_conditions) == len(expected_conditions):
+                    condition_match = any(
+                        self.check_detection_condition(detection, condition) 
+                        for detection in detections
+                    )
+                    matched_conditions.append(condition_match)
+                
+                # Only keep frame if ALL conditions are matched
+                if all(matched_conditions):
                     filtered_frames[frame_number] = frame_data
 
         return filtered_frames
@@ -417,8 +397,8 @@ class DetectionParser:
                 if detection.get('dominant_color'):
                     color = COLOR_MAP.get(detection['dominant_color'], (255, 255, 255))
                     label_parts.append(detection['dominant_color'])
-                if detection.get('direction'):
-                    label_parts.append(detection['direction'])
+                #if detection.get('direction'):
+                    #label_parts.append(detection['direction'])
                 # Combine the label parts
                 label = ' '.join(label_parts)
                 # Draw the bounding box

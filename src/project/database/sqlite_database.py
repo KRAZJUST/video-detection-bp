@@ -181,6 +181,7 @@ class Database:
     def reset_database(self):
         """ Function to clear previous detections from the database. """
         self.cursor.execute("DELETE FROM detections")
+        self.cursor.execute("DELETE FROM refined_detections")
         self.cursor.execute("DELETE FROM frames")
         self.connection.commit()
         print("Database reset complete.")

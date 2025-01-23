@@ -17,13 +17,13 @@ class ColorFilter:
             'blue': [((100, 150, 0), (140, 255, 255))],
             'green': [((40, 70, 70), (80, 255, 255))],
             'yellow': [((20, 100, 100), (30, 255, 255))],
-            'white': [((0, 0, 200), (180, 25, 255))],
+            'white': [((0, 0, 168), (180, 25, 255))],
             'orange': [((10, 100, 100), (20, 255, 255))],
             'purple': [((140, 50, 50), (160, 255, 255))],
             'brown': [((10, 50, 50), (20, 200, 200))],
             'black': [((0, 0, 0), (180, 255, 30))],
             # Catchall for grays and uncertain colors limited to low saturation areas
-            'gray': [((0, 0, 30), (180, 20, 200))]
+            'gray': [((0, 0, 40), (180, 18, 230))]
         }
 
     def detect_dominant_color(self, image: np.ndarray, bbox: Tuple) -> str:
@@ -169,7 +169,7 @@ class ColorFilter:
             if gray_mask is not None:
                 gray_pixels = cv2.bitwise_and(gray_mask, cv2.bitwise_and(mask, unclassified_pixels))
                 gray_percentage = np.sum(gray_pixels) / (255 * total_mask_pixels)
-                if gray_percentage > 0.3:  # Only include if significant gray presence
+                if gray_percentage > 0.35:  # Only include if significant gray presence
                     color_presence['gray'] = gray_percentage
         
         # If no colors detected, assign the strongest match even if below threshold
