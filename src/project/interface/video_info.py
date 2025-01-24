@@ -106,12 +106,14 @@ class VideoInfoUtils:
                  if stream['codec_type'] == 'video'),
                 None
             )
+            print(video_stream)
             
             if not video_stream:
                 return None
                 
-            # Parse frame rate which might be in ratio format (e.g., "30000/1001")
-            fps_str = video_stream.get('r_frame_rate', '0/1')
+            # Parse frame rate from the ratio format (xxxxx/yyyyy)
+            fps_str = video_stream.get('avg_frame_rate', '0/1')
+            print(fps_str)
             fps = 'unknown'
             if fps_str and '/' in fps_str:
                 try:

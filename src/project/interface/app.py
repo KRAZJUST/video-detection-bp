@@ -159,7 +159,34 @@ class VideoProcessingApp:
         # Store the last known canvas size to detect actual size changes
         self.last_canvas_width = 0
         self.last_canvas_height = 0
+        
+        # Video information section progress bar
+        self.video_info_progress = ttk.Progressbar(
+            video_info_frame, 
+            mode='indeterminate', 
+            length=150
+        )
+        self.video_info_progress.grid(row=1, column=0, sticky="ew", pady=5)
+        self.video_info_progress.grid_remove()
 
+        # Processing section progress bar
+        self.processing_progress = ttk.Progressbar(
+            settings_frame, 
+            mode='indeterminate', 
+            length=180
+        )
+        self.processing_progress.grid(row=5, column=0, sticky="ew", pady=5)
+        self.processing_progress.grid_remove()
+
+        # Query section progress bar
+        self.query_progress = ttk.Progressbar(
+            query_frame, 
+            mode='indeterminate', 
+            length=200
+        )
+        self.query_progress.grid(row=3, column=0, sticky="ew", pady=5)
+        self.query_progress.grid_remove()
+        
     def update_interval_entry(self, event):
         """Update the interval entry based on the selected tracker."""
         selected_tracker = self.tracker_combobox.get()
@@ -173,14 +200,50 @@ class VideoProcessingApp:
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, "10")
 
+    def show_loading(self, section=None, show=True):
+        """
+        Show/hide loading indicator for specific sections.
+        
+        Args:
+            section (str): Section to show loading indicator for
+            show (bool): Whether to show or hide the loading
+        """
+        button = None
+        
+        if section == 'video_info':
+            progress_bar = self.video_info_progress
+        elif section == 'video_processing':
+            progress_bar = self.processing_progress
+            button = self.process_button
+        elif section == 'query':
+            progress_bar = self.query_progress
+            button = self.query_button
+        else:
+            return
+
+        if show:
+            progress_bar.grid()
+            progress_bar.start()
+            if button:
+                button.config(state=tk.DISABLED)
+        else:
+            progress_bar.stop()
+            progress_bar.grid_remove()
+            if button:
+                button.config(state=tk.NORMAL)
+
     def select_video(self):
         """Open file dialog to select video and display its information in a non-blocking manner."""
         def process_video_info():
+            
             file_path = filedialog.askopenfilename(
                 title="Select Video File",
                 filetypes=(("Video files", "*.mp4 *.avi *.mkv *.mov"), ("All files", "*.*"))
             )
             if file_path:
+                # Show loading indicator
+                self.root.after(0, lambda: self.show_loading('video_info', True))
+                
                 # Update UI elements in main thread
                 self.video_path = file_path
                 self.video_path_entry.delete(0, tk.END)
@@ -212,12 +275,21 @@ class VideoProcessingApp:
                         )
                         
                         # .after() to update UI from background thread safely
-                        self.root.after(0, lambda: self.video_info_label.config(text=info_text))
+                        self.root.after(0, lambda: [
+                            self.video_info_label.config(text=info_text),
+                            self.show_loading('video_info', False)
+                        ])
                     else:
-                        self.root.after(0, lambda: self.video_info_label.config(text="Error reading video information"))
+                        self.root.after(0, lambda: [
+                            self.video_info_label.config(text="Error reading video information"),
+                            self.show_loading('video_info', False)
+                        ])
                 
                 except Exception as e:
-                    self.root.after(0, lambda: self.video_info_label.config(text=f"Error: {str(e)}"))
+                    self.root.after(0, lambda: [
+                        self.video_info_label.config(text=f"Error: {str(e)}"),
+                        self.show_loading('video_info', False)
+                    ])
 
         # Start processing in a separate thread
         threading.Thread(target=process_video_info, daemon=True).start()
@@ -240,16 +312,16 @@ class VideoProcessingApp:
             self.segmentation_checkbox.grid_remove()
 
     def start_video_processing(self):
-        """Disable process button and show loading during video processing."""
-        # Disable the buttons during processing
-        self.process_button.config(state=tk.DISABLED)
-
+        """Start the video processing in a separate thread."""
+        # Show loading indicator and disable button while processing
+        self.root.after(0, lambda: self.show_loading('video_processing', True))
+        
         # Run video processing in a separate thread to avoid freezing the GUI
         video_thread = threading.Thread(target=self.process_video)
         video_thread.start()
 
     def process_video(self):
-        """Process the video with VideoProcessor."""
+        """Process the video with VideoProcessor."""        
         try:
             processor = VideoProcessor(
                 video_path=self.video_path,
@@ -270,15 +342,16 @@ class VideoProcessingApp:
 
         except Exception as e:
             print(f"Error processing video: {e}")
+            # Hide loading indicator
+            self.root.after(0, lambda: self.show_loading('video_processing', False))
 
-        # Re-enable buttons and hide loading indicator after processing
-        self.process_button.config(state=tk.NORMAL)
+        # Hide loading indicator
+        self.root.after(0, lambda: self.show_loading('video_processing', False))
 
     def start_query(self):
         """Start the query process when the button is clicked and disable the button."""
-        
-        # Disable search query button
-        self.query_button.config(state=tk.DISABLED)
+        # Show loading indicator
+        self.root.after(0, lambda: self.show_loading('query', True))
 
         # Run query parsing in a separate thread to avoid freezing the GUI
         query_thread = threading.Thread(target=self.run_query)
@@ -319,10 +392,11 @@ class VideoProcessingApp:
 
         except Exception as e:
             print(f"Error running query: {e}")
+            self.root.after(0, lambda: self.show_loading('query', False))
             traceback.print_exc()
 
-        # Re-enable buttons and hide loading indicator after processing
-        self.query_button.config(state=tk.NORMAL)
+        # Hide loading indicator
+        self.root.after(0, lambda: self.show_loading('query', False))
 
     def clear_canvas(self):
         """Remove all widgets from the canvas."""
