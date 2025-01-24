@@ -28,7 +28,7 @@ class YOLODetector:
             for box in result.boxes:
                 class_idx = int(box.cls[0])
                 class_name = self.class_names.get(class_idx, "Unknown")
-                # Detect only people and vehicles
+                # Detect only people and vehicles - NOTE: might add more classes later because it is detecting them anyway and just filtering them out
                 if class_name in OBJECTS:
                     confidence = float(box.conf[0])
                     xmin, ymin, xmax, ymax = map(int, box.xyxy[0].tolist())

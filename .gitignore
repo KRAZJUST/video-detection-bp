@@ -9,3 +9,8 @@ src/project/outputs/*.json
 /src/outputs/
 src/examples/
 sr/project/detections.db
+src/project/venv/
+
+src/project/detections.db
+src/project/outputs/
+src/project/vector_database/
