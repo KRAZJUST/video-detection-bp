@@ -1,3 +1,8 @@
+"""
+
+
+"""
+
 import tkinter as tk
 import traceback
 from tkinter import filedialog
@@ -385,7 +390,7 @@ class VideoProcessingApp:
                     output_dir=self.output_dir,
                 )
                 print('Getting query embeddings...')
-                similarities, metadata = xclip_parser.search_embeddings(top_k=3)
+                similarities, metadata = xclip_parser.search_embeddings(top_k=5)
                 print(f"Similarities: {similarities}")
                 print(f"Metadata: {metadata}")
                 self.display_frames_in_grid(xclip_parser.top_frames)

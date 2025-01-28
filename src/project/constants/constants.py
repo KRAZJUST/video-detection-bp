@@ -13,14 +13,14 @@ OBJECTS = ['person', 'car', 'truck', 'bus']
 QUADRANTS = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
 INTERACTIONS = ['near', 'touching', 'overlapping', 'far']
 COLOR_MAP = {
-    'red': (10, 255, 255),
-    'blue': (100, 150, 255),
-    'green': (40, 70, 255),
-    'yellow': (20, 100, 255),
-    'white': (0, 0, 255),
-    'orange': (10, 100, 255),
-    'purple': (140, 50, 255),
-    'brown': (10, 50, 200),
-    'black': (0, 0, 30),
-    'gray': (0, 0, 100)
+    'red': (30, 30, 180),     
+    'blue': (180, 30, 30),    
+    'green': (30, 150, 30),   
+    'yellow': (50, 180, 255), 
+    'white': (220, 220, 220), 
+    'orange': (30, 90, 180),  
+    'purple': (120, 30, 120), 
+    'brown': (20, 50, 100),   
+    'black': (10, 10, 10),    
+    'gray': (100, 100, 100)   
 }

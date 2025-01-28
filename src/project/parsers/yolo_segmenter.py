@@ -49,12 +49,13 @@ class YOLOSegmenter:
             if best_mask is not None:
                 # Create colored overlay
                 color = COLOR_MAP.get(dominant_color, (0, 255, 0))
+                print(color)
                 colored_mask = np.zeros_like(image)
                 for c in range(3):
                     colored_mask[:, :, c] = (best_mask / 255) * color[c]
 
                 # Blend the mask with the original image
-                alpha = 0.5
+                alpha = 0.3
                 annotated_image = cv2.addWeighted(
                     annotated_image, 1,
                     colored_mask.astype(np.uint8), alpha,
@@ -71,10 +72,46 @@ class YOLOSegmenter:
 
                 # Add a label to the object
                 label = f"{class_name}: {dominant_color}"
+                # get the size of the text to determine rectangle size
+                (text_width, text_height), _ = cv2.getTextSize(
+                    label, 
+                    cv2.FONT_HERSHEY_SIMPLEX, 
+                    0.5, 
+                    2
+                )
+
+                # Calculate rectangle coordinates
+                rect_x = int(xmin)
+                rect_y = int(ymin) - text_height - 15
+                # + padding
+                rect_w = text_width + 10
+                rect_h = text_height + 10
+
+                # Create a separate overlay for the semi-transparent rectangle
+                overlay = annotated_image.copy()
+                cv2.rectangle(
+                    overlay,
+                    (rect_x, rect_y),
+                    (rect_x + rect_w, rect_y + rect_h),
+                    # Dark gray
+                    (64, 64, 64),
+                    -1
+                )
+
+                # Add the overlay with transparency
+                alpha = 0.8 
+                cv2.addWeighted(overlay, alpha, annotated_image, 1 - alpha, 0, annotated_image)
+
+                # Add the text on top
                 cv2.putText(
-                    annotated_image, label,
-                    (int(xmin), int(ymin) - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2
+                    annotated_image,
+                    label,
+                    # put the label in the middle of the rectangle
+                    (rect_x + 5, rect_y + text_height + 5),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    color,
+                    2
                 )
 
         return annotated_image
