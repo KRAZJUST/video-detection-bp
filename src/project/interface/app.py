@@ -200,7 +200,7 @@ class VideoProcessingApp:
             self.interval_entry.insert(0, "30")
         elif selected_tracker == "xclip":
             self.interval_entry.delete(0, tk.END)
-            self.interval_entry.insert(0, "20")
+            self.interval_entry.insert(0, "30")
         else:
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, "10")
