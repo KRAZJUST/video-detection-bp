@@ -14,3 +14,4 @@ src/project/venv/
 src/project/detections.db
 src/project/outputs/
 src/project/vector_database/
+src/tests/*

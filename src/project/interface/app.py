@@ -14,6 +14,7 @@ from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
 from .video_info import VideoInfoUtils, VideoMetadata
+import time
 
 class VideoProcessingApp:
     def __init__(self, database_path: str):
@@ -320,7 +321,6 @@ class VideoProcessingApp:
         """Start the video processing in a separate thread."""
         # Show loading indicator and disable button while processing
         self.root.after(0, lambda: self.show_loading('video_processing', True))
-        
         # Run video processing in a separate thread to avoid freezing the GUI
         video_thread = threading.Thread(target=self.process_video)
         video_thread.start()
@@ -328,6 +328,7 @@ class VideoProcessingApp:
     def process_video(self):
         """Process the video with VideoProcessor."""        
         try:
+            start_time = time.time()
             processor = VideoProcessor(
                 video_path=self.video_path,
                 database_path=self.database_path,
@@ -336,6 +337,7 @@ class VideoProcessingApp:
                 tracker_arg=self.tracker_combobox.get()
             )
             processor.process_video()
+            print(f'Time taken to process video: {time.time() - start_time}')
             
             # Get the correct log results if the tracker was selected or not
             if self.tracker_combobox.get() == "-":
