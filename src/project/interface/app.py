@@ -39,9 +39,13 @@ class VideoProcessingApp:
         self.root.title("Video Processing Application")
         self.root.geometry("1400x900")
         self.root.configure(bg=self.bg_color)
+        # Bind window close event to stop processing
+        #self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # Container for dynamically added comboboxes
         self.combobox_rows = []
+        # Stop event for the separate threads
+        #self.stop_event = threading.Event()
 
     def setup_gui(self):
         """Sets up the main GUI layout."""
@@ -319,6 +323,8 @@ class VideoProcessingApp:
 
     def start_video_processing(self):
         """Start the video processing in a separate thread."""
+        # Reset stop event
+        #self.stop_event.clear()
         # Show loading indicator and disable button while processing
         self.root.after(0, lambda: self.show_loading('video_processing', True))
         # Run video processing in a separate thread to avoid freezing the GUI
@@ -336,6 +342,7 @@ class VideoProcessingApp:
                 interval=int(self.interval_entry.get()),
                 tracker_arg=self.tracker_combobox.get()
             )
+            # TODO: maybe add thread termination here if stop_event is set - migh slow down the process though
             processor.process_video()
             print(f'Time taken to process video: {time.time() - start_time}')
             
@@ -526,6 +533,17 @@ class VideoProcessingApp:
         self.frame_in_canvas.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    # TODO: use this if needed to stop the video processing
+    def on_close(self):
+        """Handle GUI close event."""
+        print("Closing application... Stopping threads.")
+        # Signal thread to stop
+        self.stop_event.set()
+        if self.video_thread and self.video_thread.is_alive():
+            # Wait for thread to finish
+            self.video_thread.join()
+        # Close the GUI
+        self.root.destroy()
 
     def run(self):
         """Start the Tkinter mainloop."""
