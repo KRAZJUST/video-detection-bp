@@ -10,7 +10,7 @@ from .yolo_segmenter import YOLOSegmenter
 
 class DetectionParser:
     def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
-                 frame_width: int = 640, frame_height: int = 327):
+                 frame_width: int = 640, frame_height: int = 360):
         self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)

@@ -13,7 +13,7 @@ import threading
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
-from .video_info import VideoInfoUtils, VideoMetadata
+from .video_info import VideoInfoUtils
 import time
 
 class VideoProcessingApp:

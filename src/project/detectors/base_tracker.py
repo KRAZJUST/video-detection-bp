@@ -9,7 +9,7 @@ from .color_filter import ColorFilter
 from constants.constants import COLOR_MAP
 
 class BaseTracker(ABC):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 374):
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 360):
         self.output_dir = output_dir
         self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
         self.track_history = {}
