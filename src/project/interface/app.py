@@ -15,6 +15,7 @@ from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
 from .video_info import VideoInfoUtils
 import time
+from .frame_display import FrameDisplay
 
 class VideoProcessingApp:
     def __init__(self, database_path: str):
@@ -27,6 +28,7 @@ class VideoProcessingApp:
         self.found_frames_dir = ""
         self.found_log_entries = {}
         self.temp_embeddings = None
+        self.video_info = None
 
         # GUI colors
         self.bg_color = "#2E2E2E"  # Dark gray background
@@ -41,11 +43,11 @@ class VideoProcessingApp:
         self.root.configure(bg=self.bg_color)
         # Bind window close event to stop processing
         #self.root.protocol("WM_DELETE_WINDOW", self.on_close)
-
-        # Container for dynamically added comboboxes
-        self.combobox_rows = []
         # Stop event for the separate threads
         #self.stop_event = threading.Event()
+
+        # Initialize the display section
+        self.frame_display = None
 
     def setup_gui(self):
         """Sets up the main GUI layout."""
@@ -150,25 +152,21 @@ class VideoProcessingApp:
         self.canvas_frame.grid_rowconfigure(0, weight=1)
         self.canvas_frame.grid_columnconfigure(0, weight=1)
 
-        # Create the canvas and scrollbar
-        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color)
+        # Create the canvas with initial large scrollregion
+        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color, scrollregion=(0, 0, 400, 1000))
         self.canvas.grid(row=0, column=0, sticky="nsew")
-
+        # Create a vertical scrollbar linked to the canvas
         self.scrollbar = ttk.Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.scrollbar.grid(row=0, column=1, sticky="ns")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        # Create a frame inside the canvas to hold the grid
-        self.frame_in_canvas = tk.Frame(self.canvas, bg=self.bg_color)
-        self.canvas_window = self.canvas.create_window((0, 0), window=self.frame_in_canvas, anchor="nw")
-
-        # Bind resize events
-        self.root.bind('<Configure>', self.on_window_resize)
-        self.canvas.bind('<Configure>', self.on_canvas_configure)
-        
-        # Store the last known canvas size to detect actual size changes
-        self.last_canvas_width = 0
-        self.last_canvas_height = 0
+        # Initialize the frame display section
+        self.frame_display = FrameDisplay(
+            root=self.root,
+            canvas=self.canvas,
+            scrollbar=self.scrollbar,
+            found_frames_dir=self.found_frames_dir
+        )
         
         # Video information section progress bar
         self.video_info_progress = ttk.Progressbar(
@@ -196,6 +194,9 @@ class VideoProcessingApp:
         )
         self.query_progress.grid(row=3, column=0, sticky="ew", pady=5)
         self.query_progress.grid_remove()
+
+        # Bind resize events
+        self.root.bind("<Configure>", self.on_window_resize)
         
     def update_interval_entry(self, event):
         """Update the interval entry based on the selected tracker."""
@@ -264,6 +265,8 @@ class VideoProcessingApp:
                     video_metadata = VideoInfoUtils.get_video_info(file_path)
                     
                     if video_metadata:
+                        # Store video info
+                        self.video_info = video_metadata
                         # Format video info
                         minutes = int(video_metadata.duration // 60)
                         seconds = int(video_metadata.duration % 60)
@@ -312,6 +315,10 @@ class VideoProcessingApp:
             self.found_frames_dir = os.path.join(self.output_dir, "found_frames")
             self.output_dir_entry.delete(0, tk.END)
             self.output_dir_entry.insert(0, dir_path)
+
+            # Update frame display with new directory if it exists
+            if self.frame_display:
+                self.frame_display.found_frames_dir = self.found_frames_dir
 
     def update_checkbox_visibility(self, event=None):
         """Show or hide the segmentation checkbox based on tracker selection."""
@@ -412,126 +419,43 @@ class VideoProcessingApp:
         # Hide loading indicator
         self.root.after(0, lambda: self.show_loading('query', False))
 
-    def clear_canvas(self):
-        """Remove all widgets from the canvas."""
-        for widget in self.frame_in_canvas.winfo_children():
-            widget.destroy()
-
-
     def on_window_resize(self, event):
         """Handle window resize events."""
         if event.widget == self.root:
             # Update canvas size after a short delay
-            self.root.after(100, self.update_canvas_size)
+            self.root.after(0, self.update_canvas_layout)
 
-    def on_canvas_configure(self, event):
-        """Handle canvas configure events."""
-        # Check if the canvas size actually changed
-        if (event.width != self.last_canvas_width or 
-            event.height != self.last_canvas_height):
-            
-            # Update stored dimensions
-            self.last_canvas_width = event.width
-            self.last_canvas_height = event.height
-            
-            # Update the frame_in_canvas width to match the canvas
-            self.canvas.itemconfig(self.canvas_window, width=event.width)
-            
-            # Resize images with the new dimensions
-            self.resize_images()
-
-    def update_canvas_size(self):
-        """Update the canvas size to fill available space."""
+    def update_canvas_layout(self):
+        """Update canvas and frame display layout."""
         # Get the available height and width
         top_height = self.root.winfo_children()[0].winfo_height()
-        available_height = self.root.winfo_height() - top_height - 40  # 40 for padding
-        available_width = self.root.winfo_width() - 40  # 40 for padding
-        
+        available_height = self.root.winfo_height() - top_height - 40
+        available_width = self.root.winfo_width() - 40
+
         # Update canvas dimensions
         self.canvas.configure(
-            height=max(available_height, 100),  # Minimum height of 100
-            width=max(available_width, 200)  # Minimum width of 200
+            height=max(available_height, 300),
+            width=max(available_width, 400)
         )
 
-    def resize_images(self):
-        """Resize images to fit the current canvas width."""
-        if not hasattr(self, 'frame_in_canvas') or not self.frame_in_canvas.winfo_children():
-            return
-
-        # Get the actual canvas width
-        canvas_width = self.canvas.winfo_width()
-        
-        # Calculate new image dimensions
-        padding = 20  # Total horizontal padding between images
-        scrollbar_width = self.scrollbar.winfo_width()
-        available_width = canvas_width - scrollbar_width - padding
-        
-        # Calculate image width (2 images per row)
-        new_image_width = available_width // 2
-        new_image_height = int(new_image_width * 0.75)  # Maintain 4:3 aspect ratio
-
-        # Resize all images in the grid
-        for label in self.frame_in_canvas.winfo_children():
-            if isinstance(label, tk.Label) and hasattr(label, 'original_image'):
-                # Resize the image
-                resized_image = label.original_image.resize(
-                    (new_image_width, new_image_height),
-                    Image.Resampling.LANCZOS
-                )
-                photo = ImageTk.PhotoImage(resized_image)
-                label.configure(image=photo)
-                label.image = photo  # Keep a reference
-
-        # Update the scroll region after resizing
-        self.frame_in_canvas.update_idletasks()
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        # Trigger frame resizing and update
+        if self.frame_display:
+            self.frame_display.resize_all_visible_images()
+            self.frame_display.update_visible_frames()
 
     def display_frames_in_grid(self, results):
-        """Load frames and display in a 2xN scrollable grid."""
-        self.clear_canvas()
-
-        # Get the list of images from the found frames directory
-        image_files = sorted(os.listdir(self.found_frames_dir))
-
-        # Initial canvas width and calculate image dimensions
-        canvas_width = self.canvas.winfo_width()
-        scrollbar_width = self.scrollbar.winfo_width()
-        padding = 20
-        available_width = canvas_width - scrollbar_width - padding
-        
-        # Calculate initial image dimensions
-        image_width = available_width // 2
-        image_height = int(image_width * 0.75)  # Maintain 4:3 aspect ratio
-
-        # Set up the grid
-        for idx, image_file in enumerate(image_files):
-            row = idx // 2
-            col = idx % 2
-            
-            # Load and resize the image
-            image_path = os.path.join(self.found_frames_dir, image_file)
-            original_image = Image.open(image_path)
-            
-            # Store original image for later resizing
-            resized_image = original_image.resize(
-                (image_width, image_height),
-                Image.Resampling.LANCZOS
+        """Load frames and display in a scrollable grid."""
+        if self.frame_display is None:
+            # Initialize if not already done
+            self.frame_display = OptimizedFrameDisplay(
+                root=self.root,
+                canvas=self.canvas,
+                scrollbar=self.scrollbar,
+                found_frames_dir=self.found_frames_dir
             )
-            photo = ImageTk.PhotoImage(resized_image)
-
-            # Create label and store original image for resizing
-            label = tk.Label(self.frame_in_canvas, image=photo, bg="#3C3C3C")
-            label.original_image = original_image  # Store original for resizing
-            label.image = photo  # Keep a reference
-            label.grid(row=row, column=col, padx=5, pady=5)
-
-        # Configure grid columns to be equal width
-        self.frame_in_canvas.grid_columnconfigure(0, weight=1)
-        self.frame_in_canvas.grid_columnconfigure(1, weight=1)
-
-        # Update the scroll region
-        self.frame_in_canvas.update_idletasks()
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        
+        # Display the frames
+        self.frame_display.display_frames_in_grid()
 
     # TODO: use this if needed to stop the video processing
     def on_close(self):
