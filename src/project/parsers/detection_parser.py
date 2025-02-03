@@ -146,8 +146,6 @@ class DetectionParser:
                     self.filter_interactions.append(value)
                 elif label == 'quadrant':
                     self.filter_quadrants.append(value)
-                else:
-                    self.unknown_conditions.append(value)
 
         print(f"Unknown conditions: {self.unknown_conditions}")
         # If multiple objects or colors are provided and interaction filter is set, add 'and' logic by default
