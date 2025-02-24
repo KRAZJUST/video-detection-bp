@@ -16,6 +16,7 @@ from xclip.xclip_parser import XClipParser
 from .video_info import VideoInfoUtils
 import time
 from .frame_display import FrameDisplay
+import sv_ttk
 
 class VideoProcessingApp:
     def __init__(self, database_path: str):
@@ -30,17 +31,12 @@ class VideoProcessingApp:
         self.temp_embeddings = None
         self.video_info = None
 
-        # GUI colors
-        self.bg_color = "#2E2E2E"  # Dark gray background
-        self.fg_color = "#D3D3D3"  # Light gray text
-        self.button_bg_color = "#4A4A4A"  # Dark button background
-        self.button_fg_color = "#FFFFFF"  # White button text
-
         self.root = tk.Tk()
+        sv_ttk.set_theme("dark")
         self.use_segmentation = tk.BooleanVar(value=True)
         self.root.title("Video Processing Application")
         self.root.geometry("1400x900")
-        self.root.configure(bg=self.bg_color)
+        self.root.configure()
         # Bind window close event to stop processing
         #self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         # Stop event for the separate threads
@@ -52,7 +48,7 @@ class VideoProcessingApp:
     def setup_gui(self):
         """Sets up the main GUI layout."""
         # Create a top-level frame to hold the three sections
-        top_frame = tk.Frame(self.root, bg=self.bg_color)
+        top_frame = tk.Frame(self.root)
         top_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         # Configure columns for the three sections
@@ -62,33 +58,33 @@ class VideoProcessingApp:
         top_frame.grid_columnconfigure(3, weight=1)
 
         # === Input and Output Section ===
-        io_frame = tk.LabelFrame(top_frame, text="Input & Output", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        io_frame = tk.LabelFrame(top_frame, text="Input & Output", padx=10, pady=10)
         io_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Video Path
-        tk.Label(io_frame, text="Video Path:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.video_path_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        tk.Label(io_frame, text="Video Path:").grid(row=0, column=0, sticky="w")
+        self.video_path_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C")
         self.video_path_entry.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Video", command=self.select_video, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=2, column=0, pady=2, sticky="w")
+        tk.Button(io_frame, text="Browse Video", command=self.select_video).grid(row=2, column=0, pady=2, sticky="w")
 
         # Output Directory
-        tk.Label(io_frame, text="Output Directory:", bg=self.bg_color, fg=self.fg_color).grid(row=3, column=0, sticky="w")
-        self.output_dir_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        tk.Label(io_frame, text="Output Directory:").grid(row=3, column=0, sticky="w")
+        self.output_dir_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C")
         self.output_dir_entry.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir, bg=self.button_bg_color, fg=self.button_fg_color).grid(row=5, column=0, pady=2, 
+        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir).grid(row=5, column=0, pady=2, 
                                                                                                                                             sticky="w")
 
         # === Query Section ===
-        query_frame = tk.LabelFrame(top_frame, text="Query Builder", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        query_frame = tk.LabelFrame(top_frame, text="Query Builder", padx=10, pady=10)
         query_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # Add text input for query
-        tk.Label(query_frame, text="Query:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
-        self.query_entry = tk.Entry(query_frame, width=50, bg="#3C3C3C", fg=self.fg_color)
+        tk.Label(query_frame, text="Query:").grid(row=0, column=0, sticky="w")
+        self.query_entry = tk.Entry(query_frame, width=50, bg="#3C3C3C")
         self.query_entry.grid(row=1, column=0, sticky="ew", pady=5)
 
         # Search Query Button (bottom-right)
-        self.query_button = tk.Button(query_frame, text="Search Query", command=self.start_query, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.query_button = tk.Button(query_frame, text="Search Query", command=self.start_query)
         self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
 
         # Conditional Segmentation Checkbox
@@ -96,11 +92,6 @@ class VideoProcessingApp:
             query_frame,
             text="Use Segmentation",
             variable=self.use_segmentation,
-            bg=self.bg_color,
-            fg=self.fg_color,
-            selectcolor=self.button_bg_color,
-            activebackground=self.bg_color,
-            activeforeground=self.fg_color
         )
         self.segmentation_checkbox.grid(row=2, column=0, sticky="se", pady=5, padx=5)
 
@@ -109,35 +100,35 @@ class VideoProcessingApp:
         query_frame.grid_columnconfigure(0, weight=1)  # Query section uses full width
 
         # === Tracker and Interval Section ===
-        settings_frame = tk.LabelFrame(top_frame, text="Settings", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        settings_frame = tk.LabelFrame(top_frame, text="Settings", padx=10, pady=10)
         settings_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
         # Tracker Selection
-        tk.Label(settings_frame, text="Tracker:", bg=self.bg_color, fg=self.fg_color).grid(row=0, column=0, sticky="w")
+        tk.Label(settings_frame, text="Tracker:").grid(row=0, column=0, sticky="w")
         self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort","xclip"], state="readonly")
         self.tracker_combobox.set("-")
         self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
         self.tracker_combobox.bind("<<ComboboxSelected>>", self.update_interval_entry)
 
         # Frame Interval
-        tk.Label(settings_frame, text="Frame Interval:", bg=self.bg_color, fg=self.fg_color).grid(row=2, column=0, sticky="w")
-        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C", fg=self.fg_color)
+        tk.Label(settings_frame, text="Frame Interval:").grid(row=2, column=0, sticky="w")
+        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C")
         self.interval_entry.insert(0, "30")
         self.interval_entry.grid(row=3, column=0, sticky="ew", pady=5)
 
         # Process Button
-        self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing, bg=self.button_bg_color, fg=self.button_fg_color)
+        self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing)
         self.process_button.grid(row=4, column=0, pady=10, sticky="ew")
 
         # === Video Information Section ===
-        video_info_frame = tk.LabelFrame(top_frame, text="Video Information", bg=self.bg_color, fg=self.fg_color, padx=10, pady=10)
+        video_info_frame = tk.LabelFrame(top_frame, text="Video Information", padx=10, pady=10)
         video_info_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
         
-        self.video_info_label = tk.Label(video_info_frame, text="Video Information:\n", bg=self.bg_color, fg=self.fg_color, justify="left")
+        self.video_info_label = tk.Label(video_info_frame, text="Video Information:\n", justify="left")
         self.video_info_label.grid(row=0, column=0, sticky="w")
         
         # === Results section ===
-        results_frame = tk.Frame(self.root, bg=self.bg_color)
+        results_frame = tk.Frame(self.root)
         results_frame.grid(row=1, column=0, padx=10, pady=3, sticky="nsew")
 
         # Configure results_frame to expand
@@ -145,7 +136,7 @@ class VideoProcessingApp:
         results_frame.grid_columnconfigure(0, weight=1)
 
         # Main Frame Display Section
-        self.canvas_frame = tk.Frame(results_frame, bg=self.bg_color)
+        self.canvas_frame = tk.Frame(results_frame)
         self.canvas_frame.grid(row=0, column=0, sticky="nsew")
         
         # Configure canvas_frame to expand
@@ -153,7 +144,7 @@ class VideoProcessingApp:
         self.canvas_frame.grid_columnconfigure(0, weight=1)
 
         # Create the canvas with initial large scrollregion
-        self.canvas = tk.Canvas(self.canvas_frame, bg=self.bg_color, scrollregion=(0, 0, 400, 1000))
+        self.canvas = tk.Canvas(self.canvas_frame, scrollregion=(0, 0, 400, 1000))
         self.canvas.grid(row=0, column=0, sticky="nsew")
         # Create a vertical scrollbar linked to the canvas
         self.scrollbar = ttk.Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
