@@ -1,25 +1,113 @@
-"""
-
-
-"""
-
-import tkinter as tk
-import traceback
-from tkinter import filedialog
-from tkinter import ttk
-from PIL import Image, ImageTk
+import sys
 import os
 import threading
+import time
+import traceback
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                            QHBoxLayout, QLabel, QLineEdit, QPushButton, 
+                            QComboBox, QCheckBox, QFileDialog, QProgressBar,
+                            QScrollArea, QGridLayout, QGroupBox, QFrame)
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
+from PyQt6.QtGui import QImage, QPixmap
+from PIL import Image, ImageQt
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
 from .video_info import VideoInfoUtils
-import time
-from .frame_display import FrameDisplay
-import sv_ttk
 
-class VideoProcessingApp:
+class VideoInfoWorker(QThread):
+    finished = pyqtSignal(dict)
+    error = pyqtSignal(str)
+
+    def __init__(self, video_path):
+        super().__init__()
+        self.video_path = video_path
+
+    def run(self):
+        try:
+            video_metadata = VideoInfoUtils.get_video_info(self.video_path)
+            if video_metadata:
+                self.finished.emit(vars(video_metadata))
+            else:
+                self.error.emit("Error reading video information")
+        except Exception as e:
+            self.error.emit(str(e))
+
+class VideoProcessingWorker(QThread):
+    finished = pyqtSignal()
+    error = pyqtSignal(str)
+
+    def __init__(self, app, video_path, database_path, output_dir, interval, tracker):
+        super().__init__()
+        self.app = app
+        self.video_path = video_path
+        self.database_path = database_path
+        self.output_dir = output_dir
+        self.interval = interval
+        self.tracker = tracker
+
+    def run(self):
+        try:
+            start_time = time.time()
+            processor = VideoProcessor(
+                video_path=self.video_path,
+                database_path=self.database_path,
+                output_dir=self.output_dir,
+                interval=self.interval,
+                tracker_arg=self.tracker
+            )
+            processor.process_video()
+            print(f'Time taken to process video: {time.time() - start_time}')
+            
+            # Store results in the main app
+            if self.tracker == "-":
+                self.app.log_results = processor.initial_yolo_results_log
+            elif self.tracker in ["bytetrack", "deepsort"]:
+                self.app.log_results = processor.log_entries
+            elif self.tracker == "xclip":
+                self.app.temp_embeddings = processor.temp_embeddings
+                
+            self.finished.emit()
+        except Exception as e:
+            self.error.emit(str(e))
+
+class QueryWorker(QThread):
+    finished = pyqtSignal(dict)
+    error = pyqtSignal(str)
+
+    def __init__(self, app, query):
+        super().__init__()
+        self.app = app
+        self.query = query
+
+    def run(self):
+        try:
+            if self.app.tracker_combo.currentText() in ["-", "bytetrack", "deepsort"]:
+                log_parser = DetectionParser(
+                    log_entries=self.app.log_results,
+                    query=self.query,
+                    output_dir=self.app.output_dir,
+                    database_path=self.app.database_path,
+                    tracker=self.app.tracker_combo.currentText(),
+                    use_segmentation=self.app.use_segmentation.isChecked()
+                )
+                log_parser.parse_detections()
+                self.finished.emit(log_parser.found_log_entries)
+                
+            elif self.app.tracker_combo.currentText() == "xclip":
+                xclip_parser = XClipParser(
+                    video_path=self.app.video_path,
+                    query=self.query,
+                    output_dir=self.app.output_dir,
+                )
+                similarities, metadata = xclip_parser.search_embeddings(top_k=5)
+                self.finished.emit(xclip_parser.top_frames)
+        except Exception as e:
+            self.error.emit(str(e))
+
+class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
+        super().__init__()
         self.database_path = database_path
         self.video_path = ""
         self.output_dir = os.getcwd()
@@ -31,185 +119,211 @@ class VideoProcessingApp:
         self.temp_embeddings = None
         self.video_info = None
 
-        self.root = tk.Tk()
-        sv_ttk.set_theme("dark")
-        self.use_segmentation = tk.BooleanVar(value=True)
-        self.root.title("Video Processing Application")
-        self.root.geometry("1400x900")
-        self.root.configure()
-        # Bind window close event to stop processing
-        #self.root.protocol("WM_DELETE_WINDOW", self.on_close)
-        # Stop event for the separate threads
-        #self.stop_event = threading.Event()
+        self.setWindowTitle("Video Processing Application")
+        self.setMinimumSize(1400, 900)
+        
+        # Create main widget and layout
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
+        main_layout = QVBoxLayout(main_widget)
+        
+        # Create top section with horizontal layout
+        top_section = QHBoxLayout()
+        
+        # Setup all GUI components
+        self.setup_io_section(top_section)
+        self.setup_query_section(top_section)
+        self.setup_settings_section(top_section)
+        self.setup_video_info_section(top_section)
+        
+        # Add top section to main layout
+        main_layout.addLayout(top_section)
+        
+        # Setup results section
+        self.setup_results_section(main_layout)
 
-        # Initialize the display section
-        self.frame_display = None
-
-    def setup_gui(self):
-        """Sets up the main GUI layout."""
-        # Create a top-level frame to hold the three sections
-        top_frame = tk.Frame(self.root)
-        top_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-
-        # Configure columns for the three sections
-        top_frame.grid_columnconfigure(0, weight=1)
-        top_frame.grid_columnconfigure(1, weight=1)
-        top_frame.grid_columnconfigure(2, weight=1)
-        top_frame.grid_columnconfigure(3, weight=1)
-
-        # === Input and Output Section ===
-        io_frame = tk.LabelFrame(top_frame, text="Input & Output", padx=10, pady=10)
-        io_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-
+    def setup_io_section(self, parent_layout):
+        io_group = QGroupBox("Input & Output")
+        layout = QVBoxLayout()
+        
         # Video Path
-        tk.Label(io_frame, text="Video Path:").grid(row=0, column=0, sticky="w")
-        self.video_path_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C")
-        self.video_path_entry.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Video", command=self.select_video).grid(row=2, column=0, pady=2, sticky="w")
-
+        layout.addWidget(QLabel("Video Path:"))
+        self.video_path_entry = QLineEdit()
+        layout.addWidget(self.video_path_entry)
+        browse_video_btn = QPushButton("Browse Video")
+        browse_video_btn.clicked.connect(self.select_video)
+        layout.addWidget(browse_video_btn)
+        
         # Output Directory
-        tk.Label(io_frame, text="Output Directory:").grid(row=3, column=0, sticky="w")
-        self.output_dir_entry = tk.Entry(io_frame, width=50, bg="#3C3C3C")
-        self.output_dir_entry.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
-        tk.Button(io_frame, text="Browse Directory", command=self.select_output_dir).grid(row=5, column=0, pady=2, 
-                                                                                                                                            sticky="w")
-
-        # === Query Section ===
-        query_frame = tk.LabelFrame(top_frame, text="Query Builder", padx=10, pady=10)
-        query_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
-        # Add text input for query
-        tk.Label(query_frame, text="Query:").grid(row=0, column=0, sticky="w")
-        self.query_entry = tk.Entry(query_frame, width=50, bg="#3C3C3C")
-        self.query_entry.grid(row=1, column=0, sticky="ew", pady=5)
-
-        # Search Query Button (bottom-right)
-        self.query_button = tk.Button(query_frame, text="Search Query", command=self.start_query)
-        self.query_button.grid(row=2, column=0, sticky="s", padx=5, pady=5)
-
-        # Conditional Segmentation Checkbox
-        self.segmentation_checkbox = tk.Checkbutton(
-            query_frame,
-            text="Use Segmentation",
-            variable=self.use_segmentation,
-        )
-        self.segmentation_checkbox.grid(row=2, column=0, sticky="se", pady=5, padx=5)
-
-        # Configure Grid Weights for Query Section
-        query_frame.grid_rowconfigure(1, weight=1) 
-        query_frame.grid_columnconfigure(0, weight=1)  # Query section uses full width
-
-        # === Tracker and Interval Section ===
-        settings_frame = tk.LabelFrame(top_frame, text="Settings", padx=10, pady=10)
-        settings_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
-
-        # Tracker Selection
-        tk.Label(settings_frame, text="Tracker:").grid(row=0, column=0, sticky="w")
-        self.tracker_combobox = ttk.Combobox(settings_frame, values=["-", "bytetrack", "deepsort","xclip"], state="readonly")
-        self.tracker_combobox.set("-")
-        self.tracker_combobox.grid(row=1, column=0, sticky="ew", pady=5)
-        self.tracker_combobox.bind("<<ComboboxSelected>>", self.update_interval_entry)
-
-        # Frame Interval
-        tk.Label(settings_frame, text="Frame Interval:").grid(row=2, column=0, sticky="w")
-        self.interval_entry = tk.Entry(settings_frame, width=20, bg="#3C3C3C")
-        self.interval_entry.insert(0, "30")
-        self.interval_entry.grid(row=3, column=0, sticky="ew", pady=5)
-
-        # Process Button
-        self.process_button = tk.Button(settings_frame, text="Process Video", command=self.start_video_processing)
-        self.process_button.grid(row=4, column=0, pady=10, sticky="ew")
-
-        # === Video Information Section ===
-        video_info_frame = tk.LabelFrame(top_frame, text="Video Information", padx=10, pady=10)
-        video_info_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+        layout.addWidget(QLabel("Output Directory:"))
+        self.output_dir_entry = QLineEdit()
+        self.output_dir_entry.setText(self.output_dir)
+        layout.addWidget(self.output_dir_entry)
+        browse_dir_btn = QPushButton("Browse Directory")
+        browse_dir_btn.clicked.connect(self.select_output_dir)
+        layout.addWidget(browse_dir_btn)
         
-        self.video_info_label = tk.Label(video_info_frame, text="Video Information:\n", justify="left")
-        self.video_info_label.grid(row=0, column=0, sticky="w")
+        io_group.setLayout(layout)
+        parent_layout.addWidget(io_group)
+
+    def setup_query_section(self, parent_layout):
+        query_group = QGroupBox("Query Builder")
+        layout = QVBoxLayout()
         
-        # === Results section ===
-        results_frame = tk.Frame(self.root)
-        results_frame.grid(row=1, column=0, padx=10, pady=3, sticky="nsew")
-
-        # Configure results_frame to expand
-        results_frame.grid_rowconfigure(0, weight=1)
-        results_frame.grid_columnconfigure(0, weight=1)
-
-        # Main Frame Display Section
-        self.canvas_frame = tk.Frame(results_frame)
-        self.canvas_frame.grid(row=0, column=0, sticky="nsew")
+        layout.addWidget(QLabel("Query:"))
+        self.query_entry = QLineEdit()
+        layout.addWidget(self.query_entry)
         
-        # Configure canvas_frame to expand
-        self.canvas_frame.grid_rowconfigure(0, weight=1)
-        self.canvas_frame.grid_columnconfigure(0, weight=1)
+        # Query controls layout
+        controls_layout = QHBoxLayout()
+        
+        self.query_button = QPushButton("Search Query")
+        self.query_button.clicked.connect(self.start_query)
+        controls_layout.addWidget(self.query_button)
+        
+        self.use_segmentation = QCheckBox("Use Segmentation")
+        self.use_segmentation.setChecked(True)
+        controls_layout.addWidget(self.use_segmentation)
+        
+        layout.addLayout(controls_layout)
+        
+        # Progress bar
+        self.query_progress = QProgressBar()
+        self.query_progress.setVisible(False)
+        layout.addWidget(self.query_progress)
+        
+        query_group.setLayout(layout)
+        parent_layout.addWidget(query_group)
 
-        # Create the canvas with initial large scrollregion
-        self.canvas = tk.Canvas(self.canvas_frame, scrollregion=(0, 0, 400, 1000))
-        self.canvas.grid(row=0, column=0, sticky="nsew")
-        # Create a vertical scrollbar linked to the canvas
-        self.scrollbar = ttk.Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollbar.grid(row=0, column=1, sticky="ns")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+    def setup_settings_section(self, parent_layout):
+        settings_group = QGroupBox("Settings")
+        layout = QVBoxLayout()
+        
+        # Tracker selection
+        layout.addWidget(QLabel("Tracker:"))
+        self.tracker_combo = QComboBox()
+        self.tracker_combo.addItems(["-", "bytetrack", "deepsort", "xclip"])
+        self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
+        layout.addWidget(self.tracker_combo)
+        
+        # Interval
+        layout.addWidget(QLabel("Frame Interval:"))
+        self.interval_entry = QLineEdit()
+        self.interval_entry.setText("30")
+        layout.addWidget(self.interval_entry)
+        
+        # Process button
+        self.process_button = QPushButton("Process Video")
+        self.process_button.clicked.connect(self.start_video_processing)
+        layout.addWidget(self.process_button)
+        
+        # Progress bar
+        self.processing_progress = QProgressBar()
+        self.processing_progress.setVisible(False)
+        layout.addWidget(self.processing_progress)
+        
+        settings_group.setLayout(layout)
+        parent_layout.addWidget(settings_group)
 
-        # Initialize the frame display section
-        self.frame_display = FrameDisplay(
-            root=self.root,
-            canvas=self.canvas,
-            scrollbar=self.scrollbar,
-            found_frames_dir=self.found_frames_dir
+    def setup_video_info_section(self, parent_layout):
+        video_info_group = QGroupBox("Video Information")
+        layout = QVBoxLayout()
+        
+        self.video_info_label = QLabel("Video Information:\n")
+        layout.addWidget(self.video_info_label)
+        
+        self.video_info_progress = QProgressBar()
+        self.video_info_progress.setVisible(False)
+        layout.addWidget(self.video_info_progress)
+        
+        video_info_group.setLayout(layout)
+        parent_layout.addWidget(video_info_group)
+
+    def setup_results_section(self, parent_layout):
+        # Create scroll area for results
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        
+        # Create widget to hold the grid of results
+        self.results_widget = QWidget()
+        self.results_layout = QGridLayout(self.results_widget)
+        
+        scroll_area.setWidget(self.results_widget)
+        parent_layout.addWidget(scroll_area)
+
+    def select_video(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Video File",
+            "",
+            "Video files (*.mp4 *.avi *.mkv *.mov);;All files (*.*)"
         )
         
-        # Video information section progress bar
-        self.video_info_progress = ttk.Progressbar(
-            video_info_frame, 
-            mode='indeterminate', 
-            length=150
-        )
-        self.video_info_progress.grid(row=1, column=0, sticky="ew", pady=5)
-        self.video_info_progress.grid_remove()
+        if file_path:
+            self.video_path = file_path
+            self.relative_video_path = os.path.relpath(file_path)
+            if self.relative_video_path.startswith('..'):
+                self.video_path_entry.setText(self.relative_video_path)
+            
+            # Start video info worker
+            self.show_loading('video_info', True)
+            self.video_info_worker = VideoInfoWorker(file_path)
+            self.video_info_worker.finished.connect(self.update_video_info)
+            self.video_info_worker.error.connect(self.handle_video_info_error)
+            self.video_info_worker.start()
 
-        # Processing section progress bar
-        self.processing_progress = ttk.Progressbar(
-            settings_frame, 
-            mode='indeterminate', 
-            length=180
-        )
-        self.processing_progress.grid(row=5, column=0, sticky="ew", pady=5)
-        self.processing_progress.grid_remove()
-
-        # Query section progress bar
-        self.query_progress = ttk.Progressbar(
-            query_frame, 
-            mode='indeterminate', 
-            length=200
-        )
-        self.query_progress.grid(row=3, column=0, sticky="ew", pady=5)
-        self.query_progress.grid_remove()
-
-        # Bind resize events
-        self.root.bind("<Configure>", self.on_window_resize)
+    def update_video_info(self, metadata):
+        minutes = int(metadata['duration'] // 60)
+        seconds = int(metadata['duration'] % 60)
         
-    def update_interval_entry(self, event):
-        """Update the interval entry based on the selected tracker."""
-        selected_tracker = self.tracker_combobox.get()
-        if selected_tracker == "-":
-            self.interval_entry.delete(0, tk.END)
-            self.interval_entry.insert(0, "30")
-        elif selected_tracker == "xclip":
-            self.interval_entry.delete(0, tk.END)
-            self.interval_entry.insert(0, "30")
+        bitrate_str = "unknown"
+        if metadata['bitrate'] != "unknown":
+            bitrate_mbps = float(metadata['bitrate']) / 1_000_000
+            bitrate_str = f"{bitrate_mbps:.2f} Mbps"
+        
+        info_text = (
+            f"Video Information:\n"
+            f"Duration: {minutes:02d}:{seconds:02d}\n"
+            f"FPS: {metadata['fps']}\n"
+            f"Resolution: {metadata['width']}x{metadata['height']}\n"
+            f"Total Frames: {metadata['frame_count']:,}\n"
+            f"Codec: {metadata['codec']}\n"
+            f"Bitrate: {bitrate_str}\n"
+            f"File Size: {metadata['size']}"
+        )
+        
+        self.video_info_label.setText(info_text)
+        self.show_loading('video_info', False)
+
+    def handle_video_info_error(self, error_message):
+        self.video_info_label.setText(f"Error: {error_message}")
+        self.show_loading('video_info', False)
+
+    def select_output_dir(self):
+        dir_path = QFileDialog.getExistingDirectory(
+            self,
+            "Select Output Directory",
+            ""
+        )
+        
+        if dir_path:
+            self.output_dir = dir_path
+            self.found_frames_dir = os.path.join(self.output_dir, "found_frames")
+            self.relative_output_dir = os.path.relpath(dir_path)
+            if self.relative_output_dir:
+                self.output_dir_entry.setText(self.relative_output_dir)
+
+    def update_interval_entry(self, tracker):
+        if tracker == "-" or tracker == "xclip":
+            self.interval_entry.setText("30")
         else:
-            self.interval_entry.delete(0, tk.END)
-            self.interval_entry.insert(0, "10")
-
-    def show_loading(self, section=None, show=True):
-        """
-        Show/hide loading indicator for specific sections.
+            self.interval_entry.setText("10")
         
-        Args:
-            section (str): Section to show loading indicator for
-            show (bool): Whether to show or hide the loading
-        """
+        # Update segmentation checkbox visibility
+        self.use_segmentation.setVisible(tracker in ["-", "bytetrack", "deepsort"])
+
+    def show_loading(self, section, show):
+        progress_bar = None
         button = None
         
         if section == 'video_info':
@@ -220,247 +334,165 @@ class VideoProcessingApp:
         elif section == 'query':
             progress_bar = self.query_progress
             button = self.query_button
-        else:
-            return
-
-        if show:
-            progress_bar.grid()
-            progress_bar.start()
-            if button:
-                button.config(state=tk.DISABLED)
-        else:
-            progress_bar.stop()
-            progress_bar.grid_remove()
-            if button:
-                button.config(state=tk.NORMAL)
-
-    def select_video(self):
-        """Open file dialog to select video and display its information in a non-blocking manner."""
-        def process_video_info():
             
-            file_path = filedialog.askopenfilename(
-                title="Select Video File",
-                filetypes=(("Video files", "*.mp4 *.avi *.mkv *.mov"), ("All files", "*.*"))
-            )
-            if file_path:
-                # Show loading indicator
-                self.root.after(0, lambda: self.show_loading('video_info', True))
+        if progress_bar:
+            progress_bar.setVisible(show)
+            if show:
+                progress_bar.setRange(0, 0)  # Indeterminate progress
+            else:
+                progress_bar.setRange(0, 100)
                 
-                # Update UI elements in main thread
-                self.video_path = file_path
-                self.video_path_entry.delete(0, tk.END)
-                self.video_path_entry.insert(0, file_path)
-
-                # Perform video info processing in a separate thread
-                try:
-                    video_metadata = VideoInfoUtils.get_video_info(file_path)
-                    
-                    if video_metadata:
-                        # Store video info
-                        self.video_info = video_metadata
-                        # Format video info
-                        minutes = int(video_metadata.duration // 60)
-                        seconds = int(video_metadata.duration % 60)
-                        
-                        bitrate_str = "unknown"
-                        if video_metadata.bitrate != "unknown":
-                            bitrate_mbps = float(video_metadata.bitrate) / 1_000_000
-                            bitrate_str = f"{bitrate_mbps:.2f} Mbps"
-                        
-                        info_text = (
-                            f"Video Information:\n"
-                            f"Duration: {minutes:02d}:{seconds:02d}\n"
-                            f"FPS: {video_metadata.fps}\n"
-                            f"Resolution: {video_metadata.width}x{video_metadata.height}\n"
-                            f"Total Frames: {video_metadata.frame_count:,}\n"
-                            f"Codec: {video_metadata.codec}\n"
-                            f"Bitrate: {bitrate_str}\n"
-                            f"File Size: {video_metadata.size}"
-                        )
-                        
-                        # .after() to update UI from background thread safely
-                        self.root.after(0, lambda: [
-                            self.video_info_label.config(text=info_text),
-                            self.show_loading('video_info', False)
-                        ])
-                    else:
-                        self.root.after(0, lambda: [
-                            self.video_info_label.config(text="Error reading video information"),
-                            self.show_loading('video_info', False)
-                        ])
-                
-                except Exception as e:
-                    self.root.after(0, lambda: [
-                        self.video_info_label.config(text=f"Error: {str(e)}"),
-                        self.show_loading('video_info', False)
-                    ])
-
-        # Start processing in a separate thread
-        threading.Thread(target=process_video_info, daemon=True).start()
-
-    def select_output_dir(self):
-        """Open directory dialog to select output directory."""
-        dir_path = filedialog.askdirectory(title="Select Output Directory")
-        if dir_path:
-            self.output_dir = dir_path
-            self.found_frames_dir = os.path.join(self.output_dir, "found_frames")
-            self.output_dir_entry.delete(0, tk.END)
-            self.output_dir_entry.insert(0, dir_path)
-
-            # Update frame display with new directory if it exists
-            if self.frame_display:
-                self.frame_display.found_frames_dir = self.found_frames_dir
-
-    def update_checkbox_visibility(self, event=None):
-        """Show or hide the segmentation checkbox based on tracker selection."""
-        tracker = self.tracker_combobox.get()
-        if tracker in ["-", "bytetrack", "deepsort"]:
-            self.segmentation_checkbox.grid()
-        else:
-            self.segmentation_checkbox.grid_remove()
+        if button:
+            button.setEnabled(not show)
 
     def start_video_processing(self):
-        """Start the video processing in a separate thread."""
-        # Reset stop event
-        #self.stop_event.clear()
-        # Show loading indicator and disable button while processing
-        self.root.after(0, lambda: self.show_loading('video_processing', True))
-        # Run video processing in a separate thread to avoid freezing the GUI
-        video_thread = threading.Thread(target=self.process_video)
-        video_thread.start()
+        self.show_loading('video_processing', True)
+        
+        # Start processing worker
+        self.processing_worker = VideoProcessingWorker(
+            self,
+            self.video_path,
+            self.database_path,
+            self.output_dir,
+            int(self.interval_entry.text()),
+            self.tracker_combo.currentText()
+        )
+        self.processing_worker.finished.connect(
+            lambda: self.show_loading('video_processing', False)
+        )
+        self.processing_worker.error.connect(self.handle_processing_error)
+        self.processing_worker.start()
 
-    def process_video(self):
-        """Process the video with VideoProcessor."""        
-        try:
-            start_time = time.time()
-            processor = VideoProcessor(
-                video_path=self.video_path,
-                database_path=self.database_path,
-                output_dir=self.output_dir,
-                interval=int(self.interval_entry.get()),
-                tracker_arg=self.tracker_combobox.get()
-            )
-            # TODO: maybe add thread termination here if stop_event is set - migh slow down the process though
-            processor.process_video()
-            print(f'Time taken to process video: {time.time() - start_time}')
-            
-            # Get the correct log results if the tracker was selected or not
-            if self.tracker_combobox.get() == "-":
-                self.log_results = processor.initial_yolo_results_log
-            elif self.tracker_combobox.get() == "bytetrack" or self.tracker_combobox.get() == "deepsort":
-                self.log_results = processor.log_entries
-            elif self.tracker_combobox.get() == "xclip":
-                self.temp_embeddings = processor.temp_embeddings
-
-        except Exception as e:
-            print(f"Error processing video: {e}")
-            # Hide loading indicator
-            self.root.after(0, lambda: self.show_loading('video_processing', False))
-
-        # Hide loading indicator
-        self.root.after(0, lambda: self.show_loading('video_processing', False))
+    def handle_processing_error(self, error_message):
+        print(f"Error processing video: {error_message}")
+        self.show_loading('video_processing', False)
 
     def start_query(self):
-        """Start the query process when the button is clicked and disable the button."""
-        # Show loading indicator
-        self.root.after(0, lambda: self.show_loading('query', True))
-
-        # Run query parsing in a separate thread to avoid freezing the GUI
-        query_thread = threading.Thread(target=self.run_query)
-        query_thread.start()
-
-    def run_query(self):
-        """Run query on parsed results."""
-        self.query = self.query_entry.get()
-
-        try:
-            if self.tracker_combobox.get() in ["-", "bytetrack", "deepsort"]:
-                log_parser = DetectionParser(
-                    log_entries=self.log_results,
-                    query=self.query,
-                    output_dir=self.output_dir,
-                    database_path=self.database_path,
-                    tracker=self.tracker_combobox.get(),
-                    use_segmentation=self.use_segmentation.get()
-                )
-                log_parser.parse_detections()
-
-                # After query, load and display frames in grid
-                self.display_frames_in_grid(log_parser.found_log_entries)
-                
-            elif self.tracker_combobox.get() == "xclip":
-                print('Running XClip query...')
-                # XClip query processing
-                xclip_parser = XClipParser(
-                    video_path=self.video_path,
-                    query=self.query,
-                    output_dir=self.output_dir,
-                )
-                print('Getting query embeddings...')
-                similarities, metadata = xclip_parser.search_embeddings(top_k=5)
-                print(f"Similarities: {similarities}")
-                print(f"Metadata: {metadata}")
-                self.display_frames_in_grid(xclip_parser.top_frames)
-
-        except Exception as e:
-            print(f"Error running query: {e}")
-            self.root.after(0, lambda: self.show_loading('query', False))
-            traceback.print_exc()
-
-        # Hide loading indicator
-        self.root.after(0, lambda: self.show_loading('query', False))
-
-    def on_window_resize(self, event):
-        """Handle window resize events."""
-        if event.widget == self.root:
-            # Update canvas size after a short delay
-            self.root.after(0, self.update_canvas_layout)
-
-    def update_canvas_layout(self):
-        """Update canvas and frame display layout."""
-        # Get the available height and width
-        top_height = self.root.winfo_children()[0].winfo_height()
-        available_height = self.root.winfo_height() - top_height - 40
-        available_width = self.root.winfo_width() - 40
-
-        # Update canvas dimensions
-        self.canvas.configure(
-            height=max(available_height, 300),
-            width=max(available_width, 400)
-        )
-
-        # Trigger frame resizing and update
-        if self.frame_display:
-            self.frame_display.resize_all_visible_images()
-            self.frame_display.update_visible_frames()
-
-    def display_frames_in_grid(self, results):
-        """Load frames and display in a scrollable grid."""
-        if self.frame_display is None:
-            # Initialize if not already done
-            self.frame_display = OptimizedFrameDisplay(
-                root=self.root,
-                canvas=self.canvas,
-                scrollbar=self.scrollbar,
-                found_frames_dir=self.found_frames_dir
-            )
+        self.show_loading('query', True)
         
-        # Display the frames
-        self.frame_display.display_frames_in_grid()
+        # Start query worker
+        self.query_worker = QueryWorker(self, self.query_entry.text())
+        self.query_worker.finished.connect(self.display_query_results)
+        self.query_worker.error.connect(self.handle_query_error)
+        self.query_worker.start()
 
-    # TODO: use this if needed to stop the video processing
-    def on_close(self):
-        """Handle GUI close event."""
-        print("Closing application... Stopping threads.")
-        # Signal thread to stop
-        self.stop_event.set()
-        if self.video_thread and self.video_thread.is_alive():
-            # Wait for thread to finish
-            self.video_thread.join()
-        # Close the GUI
-        self.root.destroy()
+    def display_query_results(self, results):
+        # Clear existing results
+        while self.results_layout.count():
+            item = self.results_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
 
-    def run(self):
-        """Start the Tkinter mainloop."""
-        self.setup_gui()
-        self.root.mainloop()
+        # Display new results
+        row = 0
+        col = 0
+        max_cols = 4
+
+        for frame_path, metadata in results.items():
+            # Ensure frame_path is a string and exists
+            if isinstance(frame_path, int):
+                print(frame_path)  # Debug print
+                print(metadata)  # Debug print
+                # Convert frame number to actual path if needed
+                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:04d}_annotated.jpg")
+                        
+            if os.path.exists(frame_path):
+                try:
+                    frame_widget = self.create_frame_widget(frame_path, metadata)
+                    self.results_layout.addWidget(frame_widget, row, col)
+                    
+                    col += 1
+                    if col >= max_cols:
+                        col = 0
+                        row += 1
+                except Exception as e:
+                    print(f"Error creating widget for {frame_path}: {str(e)}")
+            else:
+                print(f"Frame not found: {frame_path}")
+
+        self.show_loading('query', False)
+
+    def create_frame_widget(self, frame_path, metadata):
+        # Create a frame container
+        frame_container = QFrame()
+        frame_container.setFrameStyle(QFrame.Shape.Box)
+        layout = QVBoxLayout(frame_container)
+
+        # Load and display the image
+        pixmap = self.load_frame_image(frame_path)
+        image_label = QLabel()
+        image_label.setPixmap(pixmap)
+        image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(image_label)
+
+        return frame_container
+
+    def load_frame_image(self, frame_path, target_size=QSize(300, 200)):
+        try:
+            # Ensure frame_path is a string
+            if not isinstance(frame_path, str):
+                raise ValueError(f"Invalid frame path type: {type(frame_path)}")
+                
+            print(f"Loading image from: {frame_path}")  # Debug print
+            
+            # Check if file exists
+            if not os.path.exists(frame_path):
+                raise FileNotFoundError(f"Image file not found: {frame_path}")
+                
+            # Load image using PIL
+            pil_image = Image.open(frame_path)
+            
+            # Calculate aspect ratio preserving resize dimensions
+            aspect_ratio = pil_image.width / pil_image.height
+            if aspect_ratio > (target_size.width() / target_size.height()):
+                new_width = target_size.width()
+                new_height = int(target_size.width() / aspect_ratio)
+            else:
+                new_height = target_size.height()
+                new_width = int(target_size.height() * aspect_ratio)
+
+            # Resize image
+            pil_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Convert PIL image to QPixmap
+            qimage = ImageQt.ImageQt(pil_image)
+            pixmap = QPixmap.fromImage(qimage)
+            
+            return pixmap
+        except Exception as e:
+            print(f"Error loading image {frame_path}: {str(e)}")
+            # Return a blank or error pixmap
+            return QPixmap(target_size)
+
+    def format_metadata(self, metadata):
+        """Format metadata for display."""
+        if isinstance(metadata, dict):
+            # Format dictionary metadata
+            formatted = []
+            for key, value in metadata.items():
+                if isinstance(value, (list, tuple)):
+                    value = ', '.join(map(str, value))
+                formatted.append(f"{key}: {value}")
+            return '\n'.join(formatted)
+        elif isinstance(metadata, (list, tuple)):
+            # Format list metadata
+            return '\n'.join(map(str, metadata))
+        else:
+            # Format string or other type
+            return str(metadata)
+
+    def handle_query_error(self, error_message):
+        print(f"Error running query: {error_message}")
+        self.show_loading('query', False)
+
+    def closeEvent(self, event):
+        """Handle application close event."""
+        # Stop any running workers
+        if hasattr(self, 'video_info_worker') and self.video_info_worker.isRunning():
+            self.video_info_worker.terminate()
+        if hasattr(self, 'processing_worker') and self.processing_worker.isRunning():
+            self.processing_worker.terminate()
+        if hasattr(self, 'query_worker') and self.query_worker.isRunning():
+            self.query_worker.terminate()
+        
+        event.accept()
