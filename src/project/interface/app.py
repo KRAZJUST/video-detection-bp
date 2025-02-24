@@ -6,9 +6,11 @@ import traceback
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QCheckBox, QFileDialog, QProgressBar,
-                            QScrollArea, QGridLayout, QGroupBox, QFrame)
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
+                            QScrollArea, QGridLayout, QGroupBox, QFrame, QSlider)
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer
 from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtMultimedia import QMediaPlayer
+from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PIL import Image, ImageQt
 from processors.video_processor import VideoProcessor
 from parsers.detection_parser import DetectionParser
@@ -62,7 +64,7 @@ class VideoProcessingWorker(QThread):
             # Store results in the main app
             if self.tracker == "-":
                 self.app.log_results = processor.initial_yolo_results_log
-            elif self.tracker in ["bytetrack", "deepsort"]:
+            elif self.tracker in ["bytetrack"]:
                 self.app.log_results = processor.log_entries
             elif self.tracker == "xclip":
                 self.app.temp_embeddings = processor.temp_embeddings
@@ -82,7 +84,7 @@ class QueryWorker(QThread):
 
     def run(self):
         try:
-            if self.app.tracker_combo.currentText() in ["-", "bytetrack", "deepsort"]:
+            if self.app.tracker_combo.currentText() in ["-", "bytetrack"]:
                 log_parser = DetectionParser(
                     log_entries=self.app.log_results,
                     query=self.query,
@@ -104,6 +106,194 @@ class QueryWorker(QThread):
                 self.finished.emit(xclip_parser.top_frames)
         except Exception as e:
             self.error.emit(str(e))
+
+class FrameSlideshow(QMainWindow):
+    def __init__(self, parent, starting_frame_path, frame_dir, interval=500):
+        super().__init__()
+        self.parent = parent
+        self.frame_dir = frame_dir
+        self.interval = interval  # milliseconds between frames
+        
+        self.setWindowTitle("Frame Slideshow")
+        self.resize(800, 600)
+        
+        # Create main container and layout
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
+        main_layout = QVBoxLayout(main_widget)
+        
+        # Create image display
+        self.image_label = QLabel()
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(self.image_label)
+        
+        # Create slider
+        slider_layout = QHBoxLayout()
+        
+        self.frame_slider = QSlider(Qt.Orientation.Horizontal)
+        self.frame_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.frame_slider.valueChanged.connect(self.show_frame_at_index)
+        slider_layout.addWidget(self.frame_slider)
+        
+        self.frame_label = QLabel("Frame: 0")
+        slider_layout.addWidget(self.frame_label)
+        
+        main_layout.addLayout(slider_layout)
+        
+        # Create controls
+        controls_layout = QHBoxLayout()
+        
+        self.play_button = QPushButton("Play")
+        self.play_button.clicked.connect(self.toggle_slideshow)
+        controls_layout.addWidget(self.play_button)
+        
+        speed_label = QLabel("Speed:")
+        controls_layout.addWidget(speed_label)
+        
+        self.speed_combo = QComboBox()
+        self.speed_combo.addItems(["Slow (1 fps)", "Medium (2 fps)", "Fast (5 fps)"])
+        # default speed to medium
+        self.speed_combo.setCurrentIndex(1)
+        self.speed_combo.currentIndexChanged.connect(self.update_speed)
+        controls_layout.addWidget(self.speed_combo)
+        
+        # Export button
+        export_button = QPushButton("Export Frame")
+        export_button.clicked.connect(self.export_current_frame)
+        controls_layout.addWidget(export_button)
+        
+        main_layout.addLayout(controls_layout)
+        
+        # Set up timer for slideshow
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.next_frame)
+        
+        # Find all frames in directory
+        self.find_frames()
+        
+        # Load starting frame
+        self.current_frame_index = self.find_starting_index(starting_frame_path)
+        self.show_frame_at_index(self.current_frame_index)
+        
+        # Update speed from combo box
+        self.update_speed()
+    
+    def find_frames(self):
+        """Find all frame images in the directory and sort them"""
+        self.frame_paths = []
+        
+        # Get all jpg/png files in the directory
+        if os.path.exists(self.frame_dir):
+            for filename in sorted(os.listdir(self.frame_dir)):
+                if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    self.frame_paths.append(os.path.join(self.frame_dir, filename))
+        
+        # Set slider range
+        self.frame_slider.setRange(0, len(self.frame_paths) - 1)
+        self.frame_slider.setSingleStep(1)
+        self.frame_slider.setPageStep(5)
+    
+    def find_starting_index(self, starting_frame_path):
+        """Find the index of the starting frame in our frame list"""
+        if starting_frame_path in self.frame_paths:
+            return self.frame_paths.index(starting_frame_path)
+        else:
+            # If not found, try to find the frame number from the filename
+            try:
+                frame_num = int(os.path.basename(starting_frame_path).split('_')[1])
+                
+                # Look for a frame with similar number
+                for i, path in enumerate(self.frame_paths):
+                    if f"_{frame_num:04d}" in path or f"_{frame_num}" in path:
+                        return i
+            except (ValueError, IndexError):
+                pass
+            
+            # If still not found, start at beginning
+            return 0
+    
+    def show_frame_at_index(self, index):
+        """Display the frame at the given index"""
+        if 0 <= index < len(self.frame_paths):
+            self.current_frame_index = index
+            frame_path = self.frame_paths[index]
+            
+            # Load and display image
+            pixmap = QPixmap(frame_path)
+            
+            # Scale pixmap to fit the label while preserving aspect ratio
+            scaled_pixmap = pixmap.scaled(
+                self.image_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+            
+            self.image_label.setPixmap(scaled_pixmap)
+            
+            # Update frame label and slider
+            self.frame_label.setText(f"Frame: {index + 1}/{len(self.frame_paths)}")
+            
+            # Block signals to prevent recursive calls
+            self.frame_slider.blockSignals(True)
+            self.frame_slider.setValue(index)
+            self.frame_slider.blockSignals(False)
+    
+    def next_frame(self):
+        """Show the next frame in the sequence"""
+        next_index = (self.current_frame_index + 1) % len(self.frame_paths)
+        self.show_frame_at_index(next_index)
+    
+    def toggle_slideshow(self):
+        """Start or stop the slideshow"""
+        if self.timer.isActive():
+            self.timer.stop()
+            self.play_button.setText("Play")
+        else:
+            self.timer.start(self.interval)
+            self.play_button.setText("Pause")
+    
+    def update_speed(self):
+        """Update the slideshow speed based on combo box selection"""
+        index = self.speed_combo.currentIndex()
+        
+        if index == 0:  # Slow
+            self.interval = 1000  # 1 fps
+        elif index == 1:  # Medium
+            self.interval = 500   # 2 fps
+        elif index == 2:  # Fast
+            self.interval = 200   # 5 fps
+        
+        # If timer is active, restart with new interval
+        if self.timer.isActive():
+            self.timer.stop()
+            self.timer.start(self.interval)
+    
+    def export_current_frame(self):
+        """Export the current frame to a user-selected location"""
+        if 0 <= self.current_frame_index < len(self.frame_paths):
+            source_path = self.frame_paths[self.current_frame_index]
+            
+            # Get save location from user
+            file_path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Export Frame",
+                os.path.expanduser("~/Desktop/frame.jpg"),
+                "Image files (*.jpg *.png)"
+            )
+            
+            if file_path:
+                # Copy the frame to the selected location
+                import shutil
+                shutil.copy2(source_path, file_path)
+                print(f"Exported frame to {file_path}")
+    
+    def resizeEvent(self, event):
+        """Handle resize events to scale the image appropriately"""
+        super().resizeEvent(event)
+        
+        # If we have an image, rescale it
+        if self.image_label.pixmap() and not self.image_label.pixmap().isNull():
+            self.show_frame_at_index(self.current_frame_index)
 
 class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
@@ -426,11 +616,15 @@ class VideoProcessingApp(QMainWindow):
         if pixmap.isNull():
             print(f"Error: Pixmap is null for {frame_path}")
         image_label = QLabel()
-        # Create a copy of the pixmap to prevent memory issues and overwrites
+        # Create a copy of the pixmap to prevent memory issues and overwrites - if not copied, all previous images will be overwritten by the last one
         image_label.setPixmap(pixmap.copy())
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(image_label)
+        
+         # Make the image clickable
+        image_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        image_label.mousePressEvent = lambda event: self.open_video_at_frame(frame_path, metadata)
 
+        layout.addWidget(image_label)
         return frame_container
 
     def load_frame_image(self, frame_path, target_width):
@@ -466,22 +660,18 @@ class VideoProcessingApp(QMainWindow):
             # Return a blank or error pixmap
             return QPixmap((target_width), target_height)
 
-    def format_metadata(self, metadata):
-        """Format metadata for display."""
-        if isinstance(metadata, dict):
-            # Format dictionary metadata
-            formatted = []
-            for key, value in metadata.items():
-                if isinstance(value, (list, tuple)):
-                    value = ', '.join(map(str, value))
-                formatted.append(f"{key}: {value}")
-            return '\n'.join(formatted)
-        elif isinstance(metadata, (list, tuple)):
-            # Format list metadata
-            return '\n'.join(map(str, metadata))
-        else:
-            # Format string or other type
-            return str(metadata)
+    def open_video_at_frame(self, frame_path, metadata):
+        """Open frame slideshow starting from the selected frame"""
+        # Determine the directory containing the frames
+        frame_dir = os.path.dirname(frame_path)
+        
+        # If frame_dir is empty, use the default found_frames directory
+        if not frame_dir:
+            frame_dir = self.found_frames_dir
+        
+        # Create and show slideshow window
+        self.slideshow_window = FrameSlideshow(self, frame_path, frame_dir)
+        self.slideshow_window.show()
 
     def handle_query_error(self, error_message):
         print(f"Error running query: {error_message}")
