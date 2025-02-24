@@ -383,22 +383,25 @@ class VideoProcessingApp(QMainWindow):
             if item.widget():
                 item.widget().deleteLater()
 
+        # Get availible width for columns
+        max_cols = 2
+        availible_width = self.results_widget.width()
+        target_width = int(availible_width / max_cols)
+
         # Display new results
         row = 0
         col = 0
-        max_cols = 4
 
         for frame_path, metadata in results.items():
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
                 print(frame_path)  # Debug print
-                print(metadata)  # Debug print
                 # Convert frame number to actual path if needed
                 frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:04d}_annotated.jpg")
                         
             if os.path.exists(frame_path):
                 try:
-                    frame_widget = self.create_frame_widget(frame_path, metadata)
+                    frame_widget = self.create_frame_widget(frame_path, metadata, target_width)
                     self.results_layout.addWidget(frame_widget, row, col)
                     
                     col += 1
@@ -412,22 +415,25 @@ class VideoProcessingApp(QMainWindow):
 
         self.show_loading('query', False)
 
-    def create_frame_widget(self, frame_path, metadata):
+    def create_frame_widget(self, frame_path, metadata, target_width):
         # Create a frame container
         frame_container = QFrame()
         frame_container.setFrameStyle(QFrame.Shape.Box)
         layout = QVBoxLayout(frame_container)
 
         # Load and display the image
-        pixmap = self.load_frame_image(frame_path)
+        pixmap = self.load_frame_image(frame_path, target_width)
+        if pixmap.isNull():
+            print(f"Error: Pixmap is null for {frame_path}")
         image_label = QLabel()
-        image_label.setPixmap(pixmap)
+        # Create a copy of the pixmap to prevent memory issues and overwrites
+        image_label.setPixmap(pixmap.copy())
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(image_label)
 
         return frame_container
 
-    def load_frame_image(self, frame_path, target_size=QSize(300, 200)):
+    def load_frame_image(self, frame_path, target_width):
         try:
             # Ensure frame_path is a string
             if not isinstance(frame_path, str):
@@ -444,15 +450,11 @@ class VideoProcessingApp(QMainWindow):
             
             # Calculate aspect ratio preserving resize dimensions
             aspect_ratio = pil_image.width / pil_image.height
-            if aspect_ratio > (target_size.width() / target_size.height()):
-                new_width = target_size.width()
-                new_height = int(target_size.width() / aspect_ratio)
-            else:
-                new_height = target_size.height()
-                new_width = int(target_size.height() * aspect_ratio)
+            # Adjust height based on aspect ratio
+            target_height = int(target_width / aspect_ratio)
 
             # Resize image
-            pil_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            pil_image = pil_image.resize((target_width, target_height), Image.Resampling.LANCZOS)
             
             # Convert PIL image to QPixmap
             qimage = ImageQt.ImageQt(pil_image)
@@ -462,7 +464,7 @@ class VideoProcessingApp(QMainWindow):
         except Exception as e:
             print(f"Error loading image {frame_path}: {str(e)}")
             # Return a blank or error pixmap
-            return QPixmap(target_size)
+            return QPixmap((target_width), target_height)
 
     def format_metadata(self, metadata):
         """Format metadata for display."""
