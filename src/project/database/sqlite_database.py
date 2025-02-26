@@ -214,7 +214,7 @@ class Database:
         where_clause = f" AND ".join(where_clauses) if where_clauses else "1=1"
 
         query = f"""
-        SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence
+        SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence, track_id
         FROM {table_name}
         WHERE {where_clause}
         """
@@ -229,12 +229,13 @@ class Database:
         # Group detections by frame_number
         frames = {}
         for row in rows:
-            frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence = row
+            frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence, track_id = row
             detection = {
                 'class_name': class_name,
                 'dominant_color': dominant_color,
                 'bbox': (xmin, ymin, xmax, ymax),
-                'confidence': confidence
+                'confidence': confidence,
+                'track_id': track_id
             }
             if frame_number not in frames:
                 frames[frame_number] = {'frame_number': frame_number, 'detections': []}

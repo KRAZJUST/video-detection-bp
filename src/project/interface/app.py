@@ -25,6 +25,7 @@ class VideoProcessingApp(QMainWindow):
         self.query = ""
         self.log_results = []
         self.found_frames_dir = ""
+        self.extracted_frames_dir = ""
         self.found_log_entries = {}
         self.temp_embeddings = None
         self.video_info = None
@@ -227,6 +228,7 @@ class VideoProcessingApp(QMainWindow):
         if dir_path:
             self.output_dir = dir_path
             self.found_frames_dir = os.path.join(self.output_dir, "found_frames")
+            self.extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames")
             self.relative_output_dir = os.path.relpath(dir_path)
             if self.relative_output_dir:
                 self.output_dir_entry.setText(self.relative_output_dir)
@@ -400,7 +402,9 @@ class VideoProcessingApp(QMainWindow):
             frame_dir = self.found_frames_dir
         
         # Create and show slideshow window
-        self.slideshow_window = FrameSlideshow(self, frame_path, frame_dir)
+        self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
+                                               frame_dir=frame_dir, extracted_frames_dir=self.extracted_frames_dir, 
+                                               context_frames=20)
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):

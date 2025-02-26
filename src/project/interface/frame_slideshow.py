@@ -6,10 +6,12 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
 
 class FrameSlideshow(QMainWindow):
-    def __init__(self, parent, starting_frame_path, frame_dir, interval=500):
+    def __init__(self, parent, starting_frame_path, frame_dir, extracted_frames_dir, context_frames=5, interval=500):
         super().__init__()
         self.parent = parent
-        self.frame_dir = frame_dir
+        self.frame_dir = frame_dir  # Directory with annotated frames (found_frames)
+        self.extracted_frames_dir = extracted_frames_dir  # Directory with all frames
+        self.context_frames = context_frames  # Number of frames to show before/after
         self.interval = interval  # milliseconds between frames
         
         self.setWindowTitle("Frame Slideshow")
@@ -55,6 +57,16 @@ class FrameSlideshow(QMainWindow):
         self.speed_combo.currentIndexChanged.connect(self.update_speed)
         controls_layout.addWidget(self.speed_combo)
         
+        # Context frames control
+        context_label = QLabel("Context Frames:")
+        controls_layout.addWidget(context_label)
+        
+        self.context_combo = QComboBox()
+        self.context_combo.addItems(["1", "3", "5", "10", "15"])
+        self.context_combo.setCurrentText(str(self.context_frames))
+        self.context_combo.currentTextChanged.connect(self.update_context_frames)
+        controls_layout.addWidget(self.context_combo)
+        
         # Export button
         export_button = QPushButton("Export Frame")
         export_button.clicked.connect(self.export_current_frame)
@@ -66,70 +78,127 @@ class FrameSlideshow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_frame)
         
-        # Find all frames in directory
+        # Find all frames in directories
         self.find_frames()
         
         # Load starting frame
-        self.current_frame_index = self.find_starting_index(starting_frame_path)
-        self.show_frame_at_index(self.current_frame_index)
+        self.selected_frame_index = self.find_starting_index(starting_frame_path)
+        self.update_visible_frames()
         
         # Update speed from combo box
         self.update_speed()
     
     def find_frames(self):
-        """Find all frame images in the directory and sort them"""
-        self.frame_paths = []
+        """Find all frames in both directories and organize them"""
+        # Dictionary to store all available frames by frame number
+        self.all_frames = {}
+        self.annotated_frames = {}
         
-        # Get all jpg/png files in the directory
+        # Get all frames from the extracted frames directory
+        if os.path.exists(self.extracted_frames_dir):
+            for filename in sorted(os.listdir(self.extracted_frames_dir)):
+                if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    # Extract frame number using regex
+                    match = re.search(r'(\d+)', filename)
+                    if match:
+                        frame_num = int(match.group(1))
+                        self.all_frames[frame_num] = os.path.join(self.extracted_frames_dir, filename)
+        
+        # Get all annotated frames from the frame directory
         if os.path.exists(self.frame_dir):
             for filename in sorted(os.listdir(self.frame_dir)):
                 if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
-                    self.frame_paths.append(os.path.join(self.frame_dir, filename))
+                    # Extract frame number using regex
+                    match = re.search(r'(\d+)', filename)
+                    if match:
+                        frame_num = int(match.group(1))
+                        self.annotated_frames[frame_num] = os.path.join(self.frame_dir, filename)
+                        # Also add to all_frames so we don't miss any frames
+                        self.all_frames[frame_num] = os.path.join(self.frame_dir, filename)
+        
+        # Create sorted list of all frame numbers
+        self.frame_numbers = sorted(self.all_frames.keys())
         
         # Set slider range
-        self.frame_slider.setRange(0, len(self.frame_paths) - 1)
-        self.frame_slider.setSingleStep(1)
-        self.frame_slider.setPageStep(5)
+        if self.frame_numbers:
+            self.frame_slider.setRange(0, len(self.frame_numbers) - 1)
+            self.frame_slider.setSingleStep(1)
+            self.frame_slider.setPageStep(5)
     
     def find_starting_index(self, starting_frame_path):
         """Find the index of the starting frame in our frame list"""
-        if starting_frame_path in self.frame_paths:
-            return self.frame_paths.index(starting_frame_path)
-        else:
-            # If not found, try to find the frame number from the filename
-            try:
-                frame_num = int(os.path.basename(starting_frame_path).split('_')[1])
-                
-                # Look for a frame with similar number
-                for i, path in enumerate(self.frame_paths):
-                    if f"_{frame_num:04d}" in path or f"_{frame_num}" in path:
-                        return i
-            except (ValueError, IndexError):
-                pass
-            
-            # If still not found, start at beginning
-            return 0
+        # Extract frame number from starting_frame_path
+        match = re.search(r'(\d+)', os.path.basename(starting_frame_path))
+        if match:
+            frame_num = int(match.group(1))
+            if frame_num in self.frame_numbers:
+                return self.frame_numbers.index(frame_num)
+        
+        # If not found, start at beginning
+        return 0
+    
+    def update_visible_frames(self):
+        """Update the list of frames visible in the slideshow based on context"""
+        if not self.frame_numbers:
+            return
+        
+        selected_frame_num = self.frame_numbers[self.selected_frame_index]
+        
+        # Get range of frame numbers to show
+        start_idx = max(0, self.frame_numbers.index(selected_frame_num) - self.context_frames)
+        end_idx = min(len(self.frame_numbers) - 1, self.frame_numbers.index(selected_frame_num) + self.context_frames)
+        
+        # Create list of visible frame numbers
+        self.visible_frame_numbers = self.frame_numbers[start_idx:end_idx + 1]
+        
+        # Update current index in visible frames
+        self.current_frame_index = self.visible_frame_numbers.index(selected_frame_num)
+        
+        # Update visible frames paths
+        self.visible_frame_paths = []
+        for frame_num in self.visible_frame_numbers:
+            # Check if we have an annotated version first
+            if frame_num in self.annotated_frames:
+                self.visible_frame_paths.append(self.annotated_frames[frame_num])
+            else:
+                self.visible_frame_paths.append(self.all_frames[frame_num])
+        
+        # Show current frame
+        self.show_frame_at_visible_index(self.current_frame_index)
+    
+    def show_frame_at_visible_index(self, index):
+        """Display the frame at the given visible index"""
+        if not self.visible_frame_paths or index < 0 or index >= len(self.visible_frame_paths):
+            return
+        
+        self.current_frame_index = index
+        frame_path = self.visible_frame_paths[index]
+        frame_num = self.visible_frame_numbers[index]
+        
+        # Load and display image
+        pixmap = QPixmap(frame_path)
+        
+        # Scale pixmap to fit the label while preserving aspect ratio
+        scaled_pixmap = pixmap.scaled(
+            self.image_label.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        )
+        
+        self.image_label.setPixmap(scaled_pixmap)
+        
+        # Update frame label and indicate if this is an annotated frame
+        is_annotated = frame_num in self.annotated_frames
+        annotation_status = " (Annotated)" if is_annotated else ""
+        
+        # Show frame info - current/total and frame number
+        self.frame_label.setText(f"Frame: {index + 1}/{len(self.visible_frame_paths)} - #{frame_num}{annotation_status}")
     
     def show_frame_at_index(self, index):
-        """Display the frame at the given index"""
-        if 0 <= index < len(self.frame_paths):
-            self.current_frame_index = index
-            frame_path = self.frame_paths[index]
-            
-            # Load and display image
-            pixmap = QPixmap(frame_path)
-            
-            # Scale pixmap to fit the label while preserving aspect ratio
-            scaled_pixmap = pixmap.scaled(
-                self.image_label.size(),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            )
-            
-            self.image_label.setPixmap(scaled_pixmap)
-            
-            # Update frame label and slider
-            self.frame_label.setText(f"Frame: {index + 1}/{len(self.frame_paths)}")
+        """Handle when user changes the main slider"""
+        if 0 <= index < len(self.frame_numbers):
+            self.selected_frame_index = index
+            self.update_visible_frames()
             
             # Block signals to prevent recursive calls
             self.frame_slider.blockSignals(True)
@@ -137,9 +206,9 @@ class FrameSlideshow(QMainWindow):
             self.frame_slider.blockSignals(False)
     
     def next_frame(self):
-        """Show the next frame in the sequence"""
-        next_index = (self.current_frame_index + 1) % len(self.frame_paths)
-        self.show_frame_at_index(next_index)
+        """Show the next frame in the visible sequence"""
+        next_index = (self.current_frame_index + 1) % len(self.visible_frame_paths)
+        self.show_frame_at_visible_index(next_index)
     
     def toggle_slideshow(self):
         """Start or stop the slideshow"""
@@ -166,10 +235,18 @@ class FrameSlideshow(QMainWindow):
             self.timer.stop()
             self.timer.start(self.interval)
     
+    def update_context_frames(self, value):
+        """Update the number of context frames to show"""
+        try:
+            self.context_frames = int(value)
+            self.update_visible_frames()
+        except ValueError:
+            pass
+    
     def export_current_frame(self):
         """Export the current frame to a user-selected location"""
-        if 0 <= self.current_frame_index < len(self.frame_paths):
-            source_path = self.frame_paths[self.current_frame_index]
+        if 0 <= self.current_frame_index < len(self.visible_frame_paths):
+            source_path = self.visible_frame_paths[self.current_frame_index]
             
             # Get save location from user
             file_path, _ = QFileDialog.getSaveFileName(
@@ -191,4 +268,4 @@ class FrameSlideshow(QMainWindow):
         
         # If we have an image, rescale it
         if self.image_label.pixmap() and not self.image_label.pixmap().isNull():
-            self.show_frame_at_index(self.current_frame_index)
+            self.show_frame_at_visible_index(self.current_frame_index)

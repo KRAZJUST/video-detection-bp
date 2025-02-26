@@ -50,60 +50,71 @@ class QueryWorker(QThread):
             self.error.emit(str(e))
 
     def deduplicate_tracker_results(self, results):
-        """Deduplicate results based on tracked object IDs and classes"""
+        """Deduplicate results based on tracked object IDs and classes, but keep frames with new objects"""
         unique_results = {}
-        previous_object_set = None
-        
+        # Objects seen so far, stored as (track_id, class_name) tuples
+        seen_objects = set() 
+
         # Sort frames by timestamp/frame number to process in order
         sorted_items = sorted(results.items(), 
-                              key=lambda x: x[1].get('frame_number', 0) 
-                                  if isinstance(x[1], dict) else 0)
+                            key=lambda x: int(x[0].split('_')[-1].split('.')[0]) 
+                                if isinstance(x[0], str) else 0)
         
-        for frame_path, metadata in sorted_items:
-            # Extract object IDs and classes from metadata
-            current_objects = set()
+        for frame_path, detection_list in sorted_items:
+            new_objects_found = False
+            print(detection_list)
             
-            if 'detections' in metadata:
-                for detection in metadata['detections']:
-                    # If we have tracking IDs
-                    if 'id' in detection and 'class' in detection:
-                        # Using tuple of (id, class) as the identifier
-                        current_objects.add((detection['id'], detection['class']))
-                    # Fall back to just using class and bounding box if no tracking ID
-                    elif 'class' in detection and 'bbox' in detection:
-                        bbox = tuple(detection['bbox'])  # Convert list to tuple for hashability
-                        current_objects.add((detection['class'], bbox))
-            
-            # Only include this frame if the object set differs from previous
-            if previous_object_set is None or current_objects != previous_object_set:
-                unique_results[frame_path] = metadata
-                previous_object_set = current_objects
-                
+            # Go through each detection in the frame
+            for detection in detection_list:
+                # Check if this detection has a track ID and class name
+                if 'track_id' in detection and 'class_name' in detection:
+                    # Create a unique identifier for this object
+                    obj_identifier = (detection['track_id'], detection['class_name'])
+                    
+                    # Check if this is a new object we haven't seen before
+                    if obj_identifier not in seen_objects:
+                        new_objects_found = True
+                        seen_objects.add(obj_identifier)
+                        print(f"New object found: {obj_identifier} in frame {frame_path}")
+                    
+            # Include this frame if it contains any new objects
+            if new_objects_found:
+                unique_results[frame_path] = detection_list
+                print(f"Added frame {frame_path} to results")
+        
+        print(f"Total unique frames: {len(unique_results)}")
         return unique_results
-    
+
     def deduplicate_yolo_results(self, results):
-        """Deduplicate results based just on object classes and counts"""
+        """Deduplicate results based on object classes, keeping frames with new classes
+        TODO: Implement a more sophisticated deduplication strategy for YOLO results
+        """
         unique_results = {}
-        previous_class_counts = None
+        # Classes seen so far
+        seen_classes = set()
         
-        # Sort frames by timestamp/frame number
+        # Sort frames by frame number if possible
         sorted_items = sorted(results.items(), 
-                              key=lambda x: x[1].get('frame_number', 0) 
-                                  if isinstance(x[1], dict) else 0)
+                            key=lambda x: int(x[0].split('_')[-1].split('.')[0]) 
+                                if isinstance(x[0], str) else 0)
         
-        for frame_path, metadata in sorted_items:
-            # Count occurrences of each class
-            current_class_counts = {}
+        for frame_path, detection_list in sorted_items:
+            new_classes_found = False
             
-            if 'detections' in metadata:
-                for detection in metadata['detections']:
-                    if 'class' in detection:
-                        cls = detection['class']
-                        current_class_counts[cls] = current_class_counts.get(cls, 0) + 1
+            for detection in detection_list:
+                if 'class_name' in detection:
+                    class_name = detection['class_name']
+                    
+                    # Check if this is a new class we haven't seen before
+                    if class_name not in seen_classes:
+                        new_classes_found = True
+                        seen_classes.add(class_name)
+                        print(f"New class found: {class_name} in frame {frame_path}")
             
-            # Only include this frame if the class counts differ from previous
-            if previous_class_counts is None or current_class_counts != previous_class_counts:
-                unique_results[frame_path] = metadata
-                previous_class_counts = current_class_counts
-                
+            # Include this frame if it contains any new classes
+            if new_classes_found:
+                unique_results[frame_path] = detection_list
+                print(f"Added frame {frame_path} to results")
+        
+        print(f"Total unique frames: {len(unique_results)}")
         return unique_results
