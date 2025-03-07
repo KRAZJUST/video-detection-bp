@@ -14,6 +14,7 @@ from .video_info_worker import VideoInfoWorker
 from .video_processing_worker import VideoProcessingWorker
 from .query_worker import QueryWorker
 from .frame_slideshow import FrameSlideshow
+from .area_selector import AreaSelector
 
 class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
@@ -130,7 +131,7 @@ class VideoProcessingApp(QMainWindow):
         self.interval_entry = QLineEdit()
         self.interval_entry.setText("30")
         layout.addWidget(self.interval_entry)
-        
+ 
         # Process button
         self.process_button = QPushButton("Process Video")
         self.process_button.clicked.connect(self.start_video_processing)
@@ -151,6 +152,21 @@ class VideoProcessingApp(QMainWindow):
         self.video_info_label = QLabel("Video Information:\n")
         layout.addWidget(self.video_info_label)
         
+         # AoI selection
+        self.area_selector_button = QPushButton("Select Area of Interest")
+        self.area_selector_button.clicked.connect(self.select_area_of_interest)
+        # Disable the button until a video is selected
+        self.area_selector_button.setEnabled(False)
+        layout.addWidget(self.area_selector_button)
+        # Label to display the selected area
+        self.area_label = QLabel("Area of Interest: Not Selected")
+        layout.addWidget(self.area_label)
+        # Reset button to clear the selected area
+        self.reset_area_button = QPushButton("Reset Area")
+        self.reset_area_button.clicked.connect(self.reset_area_of_interest)
+        self.reset_area_button.setEnabled(False)
+        layout.addWidget(self.reset_area_button)
+
         self.video_info_progress = QProgressBar()
         self.video_info_progress.setVisible(False)
         layout.addWidget(self.video_info_progress)
@@ -213,6 +229,63 @@ class VideoProcessingApp(QMainWindow):
         
         self.video_info_label.setText(info_text)
         self.show_loading('video_info', False)
+
+        # Store the video metadata for later use
+        self.video_info = metadata
+        # Enable the AoI selection button
+        self.area_selector_button.setEnabled(True)
+        # Extract first frame of the video for AoI selection
+        self.extract_first_frame()
+
+    def extract_first_frame(self):
+        """Get the first frame of the video for Area of Interest selection"""
+        import cv2
+
+        try:
+            # Check if the output directory exists
+            os.makedirs(self.output_dir, exist_ok=True)
+            # Extract the first frame of the video
+            self.first_frame_path = os.path.join(self.output_dir, "first_frame.jpg")
+            cap = cv2.VideoCapture(self.video_path)
+            ret, frame = cap.read()
+            if ret:
+                cv2.imwrite(self.first_frame_path, frame)
+            else:
+                print("Error extracting first frame")
+                return
+            cap.release()
+
+        except Exception as e:
+            print(f"Error extracting first frame: {str(e)}")
+
+    def select_area_of_interest(self):
+        """ Open the area selector dialog to select an area of interest """
+        if not hasattr(self, 'first_frame_path') or not os.path.exists(self.first_frame_path):
+            self.extract_first_frame()
+        if not hasattr(self, 'first_frame_path') or not os.path.exists(self.first_frame_path):
+            print("Error: First frame not found")
+            return
+        
+        self.area_selector = AreaSelector(self, self.first_frame_path)
+        self.area_selector.area_selected.connect(self.on_area_selected)
+        self.area_selector.exec()
+        
+    def on_area_selected(self, area):
+        """ Handle the area selected by the user"""
+        # Store the selected area
+        self.aoi = area
+        # Update the area label
+        self.area_label.setText(f"Area of Interest: ({area.x()}, {area.y()}, "
+                                f"{area.width()}, {area.height()})")
+        # Enable the reset button
+        self.reset_area_button.setEnabled(True)
+
+    def reset_area_of_interest(self):
+        """ Reset the selected area of interest """
+        if hasattr(self, 'aoi'):
+            delattr(self, 'aoi')
+        self.area_label.setText("Area of Interest: Not Selected")
+        self.reset_area_button.setEnabled(False)
 
     def handle_video_info_error(self, error_message):
         self.video_info_label.setText(f"Error: {error_message}")
