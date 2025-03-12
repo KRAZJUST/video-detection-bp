@@ -1,73 +1,79 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout
-from PyQt6.QtCore import Qt, QRect, pyqtSignal
-from PyQt6.QtGui import QPainter, QColor, QPen
-from PyQt6.QtWidgets import QLabel, QPushButton
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton    # type: ignore
+from PyQt6.QtCore import Qt, QRect, pyqtSignal                           # type: ignore
+from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QRegion         # type: ignore
 import os
 
 class AreaSelector(QDialog):
     # Signal to emit when selection is confirmed
     area_selected = pyqtSignal(QRect)
     
-    def __init__(self, parent=None, image_path=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Select Area of Interest")
         self.setMinimumSize(800, 600)
         
         self.layout = QVBoxLayout(self)
-        
-        # Load the first frame
-        self.image_path = image_path
+
+        # Instructions label at the top
+        self.instructions = QLabel("Click and drag to select an area of interest in the video")
+        self.layout.addWidget(self.instructions)
+
+        # Space for the image
+        self.layout.addStretch(1)
+
+        # Confirm button at the bottom
+        self.confirm_button = QPushButton("Confirm Selection")
+        self.confirm_button.clicked.connect(self.confirm_selection)
+        self.confirm_button.setEnabled(False)
+        self.layout.addWidget(self.confirm_button)
+
+        # Initialize pixmap to None
         self.pixmap = None
-        if image_path and os.path.exists(image_path):
-            self.pixmap = QPixmap(image_path)
-        
+
         # Selection variables
         self.start_point = None
         self.end_point = None
         self.is_selecting = False
         self.selection = QRect()
-        
-        # Confirm button
-        self.confirm_button = QPushButton("Confirm Selection")
-        self.confirm_button.clicked.connect(self.confirm_selection)
-        self.confirm_button.setEnabled(False)
-        self.layout.addWidget(self.confirm_button)
-        
-        # Instructions label
-        self.instructions = QLabel("Click and drag to select an area of interest in the video")
-        self.layout.addWidget(self.instructions)
-    
+
+    def set_pixmap(self, pixmap):
+        """Set the pixmap from a QPixmap object"""
+        self.pixmap = pixmap
+
     def paintEvent(self, event):
         super().paintEvent(event)
-        
+    
         if not self.pixmap:
             return
             
         painter = QPainter(self)
         
-        # Calculate scaled dimensions to fit the window while preserving aspect ratio
+        # Reserve space for UI elements at the bottom
+        ui_reserved_height = 100 
+        
+        # Calculate available space
+        available_width = self.width()
+        available_height = self.height() - ui_reserved_height
+        
+        # Calculate scaled dimensions
         scaled_pixmap = self.pixmap.scaled(
-            self.width(), 
-            self.height() - self.confirm_button.height() - self.instructions.height(),
+            available_width,
+            available_height,
             Qt.AspectRatioMode.KeepAspectRatio
         )
         
+        # Center the image in the available space
+        x = (available_width - scaled_pixmap.width()) // 2
+        y = (available_height - scaled_pixmap.height()) // 2
+        
         # Draw the image
-        x = (self.width() - scaled_pixmap.width()) // 2
-        y = (self.height() - scaled_pixmap.height() - 
-             self.confirm_button.height() - self.instructions.height()) // 2
         painter.drawPixmap(x, y, scaled_pixmap)
         
         # Store image position and scale for coordinate translation
         self.image_rect = QRect(x, y, scaled_pixmap.width(), scaled_pixmap.height())
         
         # Draw selection rectangle if the user is selecting
-        if not self.selection.isEmpty():
-            # Draw semi-transparent overlay
-            overlay = QColor(0, 0, 0, 100)
-            painter.fillRect(self.image_rect, overlay)
-            
+        if not self.selection.isEmpty():         
             # Calculate the selection rectangle in window coordinates
             rel_x = self.selection.x() / self.pixmap.width() * scaled_pixmap.width()
             rel_y = self.selection.y() / self.pixmap.height() * scaled_pixmap.height()
@@ -80,12 +86,20 @@ class AreaSelector(QDialog):
                 int(rel_w),
                 int(rel_h)
             )
-            
-            # Clear the selection area
-            painter.eraseRect(window_selection)
-            
+
+            image_region = QRegion(self.image_rect)
+            selection_region = QRegion(window_selection)
+            # Region for the area outside the selection
+            outside_selection = image_region.subtracted(selection_region)
+                        
+            # Draw semi-transparent overlay to everything except selected area
+            painter.setClipRegion(outside_selection)
+            overlay = QColor(0, 0, 0, 120)  # Semi-transparent black
+            painter.fillRect(self.image_rect, overlay)
+            painter.setClipping(False)  # Disable clipping
+
             # Draw selection border
-            pen = QPen(QColor(255, 0, 0))
+            pen = QPen(QColor(0, 0, 0, 64))
             pen.setWidth(2)
             painter.setPen(pen)
             painter.drawRect(window_selection)

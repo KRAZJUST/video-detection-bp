@@ -1,14 +1,12 @@
-import sys
 import os
-import threading
-import time
-import traceback
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+import cv2
+import numpy as np
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  # type: ignore
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QCheckBox, QFileDialog, QProgressBar,
                             QScrollArea, QGridLayout, QGroupBox, QFrame, )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QImage
 from PIL import Image, ImageQt
 from .video_info_worker import VideoInfoWorker
 from .video_processing_worker import VideoProcessingWorker
@@ -239,34 +237,44 @@ class VideoProcessingApp(QMainWindow):
 
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""
-        import cv2
-
         try:
-            # Check if the output directory exists
-            os.makedirs(self.output_dir, exist_ok=True)
             # Extract the first frame of the video
-            self.first_frame_path = os.path.join(self.output_dir, "first_frame.jpg")
             cap = cv2.VideoCapture(self.video_path)
             ret, frame = cap.read()
+            cap.release()
+            
             if ret:
-                cv2.imwrite(self.first_frame_path, frame)
+                # Store the frame in memory
+                self.first_frame = frame
+                return True
             else:
                 print("Error extracting first frame")
-                return
-            cap.release()
-
+                return False
         except Exception as e:
             print(f"Error extracting first frame: {str(e)}")
-
+            return False
+    
     def select_area_of_interest(self):
         """ Open the area selector dialog to select an area of interest """
-        if not hasattr(self, 'first_frame_path') or not os.path.exists(self.first_frame_path):
-            self.extract_first_frame()
-        if not hasattr(self, 'first_frame_path') or not os.path.exists(self.first_frame_path):
-            print("Error: First frame not found")
-            return
+        if not hasattr(self, 'first_frame'):
+            if not self.extract_first_frame():
+                print("Error: Could not extract first frame")
+                return
+                        
+        # Convert BGR to RGB for display
+        rgb_frame = cv2.cvtColor(self.first_frame, cv2.COLOR_BGR2RGB)
         
-        self.area_selector = AreaSelector(self, self.first_frame_path)
+        # Create QImage from numpy array
+        height, width, channels = rgb_frame.shape
+        bytes_per_line = channels * width
+        q_image = QImage(rgb_frame.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
+        
+        # Create QPixmap from QImage
+        pixmap = QPixmap.fromImage(q_image)
+        
+        # Pass pixmap directly to AreaSelector
+        self.area_selector = AreaSelector(self)
+        self.area_selector.set_pixmap(pixmap)
         self.area_selector.area_selected.connect(self.on_area_selected)
         self.area_selector.exec()
         
