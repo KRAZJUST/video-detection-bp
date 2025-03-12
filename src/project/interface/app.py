@@ -347,6 +347,7 @@ class VideoProcessingApp(QMainWindow):
             button.setEnabled(not show)
 
     def start_video_processing(self):
+        # TODO: Need to pass the resized video to the processing worker
         self.show_loading('video_processing', True)
         
         # Start processing worker
