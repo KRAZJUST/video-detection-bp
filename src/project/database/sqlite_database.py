@@ -186,10 +186,21 @@ class Database:
         self.connection.commit()
         print("Database reset complete.")
 
-    def get_frames_with_detections(self, table_name: str, filter_objects, filter_colors=None, filter_directions=None):
+    def get_frames_with_detections(self, table_name: str, filter_objects, filter_colors=None,
+                                   filter_directions=None, area_filter=None):
         """
         Fetch unique frames with matching detections from the database.
-        Allows conditional filtering based on object type, color, direction, and logic.
+        Allows conditional filtering based on object type, color, direction, logic and area.
+        
+        Args:
+            table_name (str): Name of the table to query.
+            filter_objects (list): List of object classes to filter by.
+            filter_colors (list, optional): List of colors to filter by. Defaults to None.
+            filter_directions (list, optional): List of directions to filter by. Defaults to None.
+            area_filter (tuple, optional): (x1, y1, x2, y2, margin) defining area of interest. Defaults to None.
+            
+        Returns:
+            frames: Dictionary containing frame number and detections.
         """
         where_clauses = []
         params = []
@@ -209,6 +220,19 @@ class Database:
             direction_placeholders = ', '.join(['?'] * len(filter_directions))
             where_clauses.append(f"direction IN ({direction_placeholders})")
             params.extend(filter_directions)
+
+        if area_filter:
+            print(f'Area Filter: {area_filter}')
+            area_x1, area_y1, area_x2, area_y2, margin = area_filter
+            # Expand area by margin
+            area_x1 -= margin
+            area_y1 -= margin
+            area_x2 += margin
+            area_y2 += margin
+            # Filter based on centroid being within the area
+            # centroid - (xmin + xmax)/2, (ymin + ymax)/2
+            where_clauses.append(f"((xmin + xmax)/2 BETWEEN ? AND ?) AND ((ymin + ymax)/2 BETWEEN ? AND ?)")
+            params.extend([area_x1, area_x2, area_y1, area_y2])
 
         # Join the clauses
         where_clause = f" AND ".join(where_clauses) if where_clauses else "1=1"

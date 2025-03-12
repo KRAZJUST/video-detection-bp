@@ -294,6 +294,7 @@ class VideoProcessingApp(QMainWindow):
             delattr(self, 'aoi')
         self.area_label.setText("Area of Interest: Not Selected")
         self.reset_area_button.setEnabled(False)
+        self.aoi = None
 
     def handle_video_info_error(self, error_message):
         self.video_info_label.setText(f"Error: {error_message}")
@@ -347,17 +348,16 @@ class VideoProcessingApp(QMainWindow):
             button.setEnabled(not show)
 
     def start_video_processing(self):
-        # TODO: Need to pass the resized video to the processing worker
         self.show_loading('video_processing', True)
-        
+    
         # Start processing worker
         self.processing_worker = VideoProcessingWorker(
             self,
-            self.video_path,
-            self.database_path,
-            self.output_dir,
-            int(self.interval_entry.text()),
-            self.tracker_combo.currentText()
+            video_path=self.video_path,
+            database_path=self.database_path,
+            output_dir=self.output_dir,
+            interval=int(self.interval_entry.text()),
+            tracker=self.tracker_combo.currentText()
         )
         self.processing_worker.finished.connect(
             lambda: self.show_loading('video_processing', False)
@@ -371,9 +371,16 @@ class VideoProcessingApp(QMainWindow):
 
     def start_query(self):
         self.show_loading('query', True)
+
+        # Convert the area of interest to a tuple and add margin to it
+        if hasattr(self, 'aoi') and self.aoi:
+            # Margin 20 pixels TODO: Make this configurable
+            aoi = (self.aoi.x(), self.aoi.y(), self.aoi.width(), self.aoi.height(), 20)
+        else:
+            aoi = None
         
         # Start query worker
-        self.query_worker = QueryWorker(self, self.query_entry.text())
+        self.query_worker = QueryWorker(self, query=self.query_entry.text(), area_of_interest=aoi)
         self.query_worker.finished.connect(self.display_query_results)
         self.query_worker.error.connect(self.handle_query_error)
         # Pass deduplication option to the query worker

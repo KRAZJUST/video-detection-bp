@@ -6,11 +6,12 @@ class QueryWorker(QThread):
     finished = pyqtSignal(dict)
     error = pyqtSignal(str)
 
-    def __init__(self, app, query):
+    def __init__(self, app, query, area_of_interest=None):
         super().__init__()
         self.app = app
         self.query = query
         self.deduplicate = True
+        self.area_of_interest = area_of_interest
 
     def run(self):
         try:
@@ -21,7 +22,8 @@ class QueryWorker(QThread):
                     output_dir=self.app.output_dir,
                     database_path=self.app.database_path,
                     tracker=self.app.tracker_combo.currentText(),
-                    use_segmentation=self.app.use_segmentation.isChecked()
+                    use_segmentation=self.app.use_segmentation.isChecked(),
+                    area_of_interest=self.area_of_interest,
                 )
                 log_parser.parse_detections()
 
