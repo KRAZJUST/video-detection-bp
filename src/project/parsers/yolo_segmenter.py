@@ -12,7 +12,8 @@ class YOLOSegmenter:
             model_path: Path to the YOLO model with segmentation capabilities.
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = YOLO(model_path).to(self.device)  # Load YOLO model with segmentation head
+        # Load YOLO model with segmentation head
+        self.model = YOLO(model_path).to(self.device)
 
     def annotate_image(self, image, detections):
         """

@@ -120,7 +120,7 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["-", "bytetrack", "deepsort", "xclip"])
+        self.tracker_combo.addItems(["-", "bytetrack", "xclip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
@@ -322,7 +322,7 @@ class VideoProcessingApp(QMainWindow):
             self.interval_entry.setText("10")
         
         # Update segmentation checkbox visibility
-        self.use_segmentation.setVisible(tracker in ["-", "bytetrack", "deepsort"])
+        self.use_segmentation.setVisible(tracker in ["-", "bytetrack"])
 
     def show_loading(self, section, show):
         progress_bar = None
@@ -406,7 +406,6 @@ class VideoProcessingApp(QMainWindow):
         for frame_path, metadata in results.items():
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
-                print(f'frame path: {frame_path}')  # Debug print
                 # Convert frame number to actual path if needed
                 frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:04d}_annotated.jpg")
                         
