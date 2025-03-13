@@ -96,6 +96,8 @@ class XClipParser:
 
         # Track copied files to avoid duplicates
         copied_files = set()
+         # Dictionary to store results (path → empty list)
+        frame_results = {}
 
         # Iterate through metadata to copy frames
         for meta in metadata:
@@ -117,8 +119,10 @@ class XClipParser:
                         import shutil
                         shutil.copy2(frame_path, dest_path)
                         copied_files.add(frame_filename)
+                        # Add frame path to results with empty list to match other parsers
+                        frame_results[frame_path] = []
                         print(f"Copied {frame_filename} to {found_frames_dir}")
                     except Exception as e:
                         print(f"Error copying {frame_path}: {e}")
 
-        return found_frames_dir
+        return frame_results

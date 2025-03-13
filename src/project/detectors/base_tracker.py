@@ -9,7 +9,7 @@ from .color_filter import ColorFilter
 from constants.constants import COLOR_MAP
 
 class BaseTracker(ABC):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 374):
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 360):
         self.output_dir = output_dir
         self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
         self.track_history = {}
@@ -191,7 +191,7 @@ class BaseTracker(ABC):
         
         # Define direction ranges with centers
         directions = [
-            ("east", 0, 22.5, 337.5),
+            ("east", 0, 337.5, 22.5),
             ("north-east", 45, 22.5, 67.5),
             ("north", 90, 67.5, 112.5),
             ("north-west", 135, 112.5, 157.5),
@@ -202,19 +202,24 @@ class BaseTracker(ABC):
         ]
         
         # Find the matching direction
-        for name, center, lower, upper in directions:
-            if (lower <= angle < upper) or \
-               (name == "east" and (angle >= 337.5 or angle < 22.5)):
-                # Calculate confidence based on how close to center
-                if name == "east" and angle >= 337.5:
-                    angle_diff = min(abs(angle - 360), abs(angle - center))
-                else:
+        for name, center, start, end in directions:
+            if name == "east":
+                # Special handling for east beucase it wraps around 360
+                if angle >= start or angle < end:
+                    # Calculate angle difference considering wrap-around
+                    if angle >= start:
+                        angle_diff = min(abs(angle - 360), abs(angle - center))
+                    else:
+                        angle_diff = abs(angle - center)
+                    direction_confidence = 1.0 - (angle_diff / 22.5)  # 22.5 is max possible difference
+                    return name, direction_confidence * confidence
+            else:
+                # Normal range check for other directions
+                if start <= angle < end:
                     angle_diff = abs(angle - center)
-                
-                # Reduce confidence if near boundary
-                direction_confidence = 1.0 - (angle_diff / 22.5)  # 22.5 is max possible difference
-                return name, direction_confidence * confidence
-                
+                    direction_confidence = 1.0 - (angle_diff / 22.5)
+                    return name, direction_confidence * confidence
+
         return "unknown", 0.0
 
     def is_leaving_frame(self, centroid: Tuple[float, float], bbox: List[float]) -> bool:

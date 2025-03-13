@@ -10,7 +10,7 @@ from .yolo_segmenter import YOLOSegmenter
 
 class DetectionParser:
     def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
-                 frame_width: int = 640, frame_height: int = 327):
+                 frame_width: int = 640, frame_height: int = 360, area_of_interest: tuple = None):
         self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)
@@ -22,6 +22,7 @@ class DetectionParser:
         self.found_log_entries = {}
         self.frame_width = frame_width
         self.frame_height = frame_height
+        self.area_of_interest = area_of_interest
 
         self.output_dir = output_dir
         
@@ -146,8 +147,6 @@ class DetectionParser:
                     self.filter_interactions.append(value)
                 elif label == 'quadrant':
                     self.filter_quadrants.append(value)
-                else:
-                    self.unknown_conditions.append(value)
 
         print(f"Unknown conditions: {self.unknown_conditions}")
         # If multiple objects or colors are provided and interaction filter is set, add 'and' logic by default
@@ -182,7 +181,8 @@ class DetectionParser:
             'detections' if self.tracker == '-' else 'refined_detections',
             self.filter_objects, 
             self.filter_colors, 
-            self.filter_directions
+            self.filter_directions,
+            self.area_of_interest
         )
         print(f"Number of frames with detections: {len(frames)}")
         

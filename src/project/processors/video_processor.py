@@ -16,7 +16,12 @@ from database.vector_database import VectorDatabaseManager
 
 
 class VideoProcessor:
-    def __init__(self, video_path: str, output_dir: str, database_path: str, interval: int = 30, tracker_arg: str = 'bytetrack'):
+    def __init__(self, video_path: str, 
+                 output_dir: str, 
+                 database_path: str,  
+                 interval: int = 30, 
+                 tracker_arg: str = 'bytetrack'):
+
         self.video_path = video_path
         self.output_dir = output_dir
         self.frames_output_dir = os.path.join(self.output_dir, "extracted_frames")
@@ -31,7 +36,7 @@ class VideoProcessor:
         self.detector = YOLODetector()
         
         if tracker_arg == 'bytetrack':
-            self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=374)
+            self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
         elif tracker_arg == 'deepsort':
             self.tracker = DeepSortTracker(output_dir)
         
@@ -45,7 +50,10 @@ class VideoProcessor:
         self.temp_embeddings = []
 
     def get_video_info(self) -> Dict[str, Any]:
-        """ Function to extract video information using FFmpeg. """
+        """ 
+        Function to extract video informations. 
+        TODO: Remove this later and pass the video info as an argument from the interface.
+        """
 
         # ffprobe command to extract video information in JSON format
         ffprobe_command = [
@@ -113,8 +121,12 @@ class VideoProcessor:
             print("Frames are already extracted. Skipping extraction.")
             return
 
-        ffmpeg_command = [
-            'ffmpeg', '-fflags', '+genpts', '-i', self.video_path,
+        use_cuda = torch.cuda.is_available()        
+        # Prepare base FFmpeg command
+        base_command = [
+            'ffmpeg', 
+            '-fflags', '+genpts', 
+            '-i', self.video_path,
             '-vf', f"scale=640:-2, select='not(mod(n\\,{self.interval}))', format=yuvj420p",
             '-fps_mode', 'vfr',
             # Set higher quality for better object detection
@@ -126,8 +138,28 @@ class VideoProcessor:
             # Output frame path
             f'{self.frames_output_dir}/frame_%04d.jpg'
         ]
+        
+        # Run with CUDA acceleration if available
+        if use_cuda:
+            ffmpeg_command = [
+                'ffmpeg', 
+                # Enable CUDA hardware acceleration
+                '-hwaccel', 'cuda',
+                '-fflags', '+genpts', 
+                '-i', self.video_path,
+                '-vf', f"scale=640:-2, select='not(mod(n\\,{self.interval}))', format=yuvj420p",
+                '-fps_mode', 'vfr',
+                '-q:v', '2',
+                '-pix_fmt', 'yuvj420p',
+                '-to', str(self.video_info['duration']),
+                '-start_number', '0',
+                f'{self.frames_output_dir}/frame_%04d.jpg'
+            ]
+            print("Extracting frames with FFmpeg CUDA acceleration...")
+        else:
+            ffmpeg_command = base_command
+            print("Extracting frames with FFmpeg (CPU)...")
 
-        print("Extracting frames with FFmpeg...")
         subprocess.run(ffmpeg_command, check=True)
         print("Frame extraction complete.")
 

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ml-app:
+    build: .
+    runtime: nvidia  # This will be ignored if nvidia-container-toolkit is not installed
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: /bin/bash  # Interactive shell for development

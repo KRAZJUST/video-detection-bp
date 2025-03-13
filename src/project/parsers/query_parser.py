@@ -3,10 +3,11 @@ from transformers import pipeline
 from constants.constants import COLORS, OBJECTS, DIRECTIONS, QUADRANTS, INTERACTIONS
 
 class QueryParser:
-    
     def __init__(self, query):
         self.raw_query = query
         self.siglip_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        self.used_words = set()
+        self.query_words = set(self.raw_query.lower().split())
         self.parsed_queries = self.parse_with_siglip(query)
 
     def parse_with_siglip(self, query):
@@ -43,7 +44,16 @@ class QueryParser:
         interaction_score = 0.0
         
         for label, score in zip(result['labels'], result['scores']):
-            if score >= threshold: 
+            if score >= threshold:
+                label_lower = label.lower()
+                # Check if this exact label appears in the query
+                if label_lower in self.query_words:
+                    self.used_words.add(label_lower)
+                # Check for compound words (e.g., "north-east")
+                if '-' in label_lower:
+                    parts = label_lower.split('-')
+                    self.used_words.update(parts)
+
                 if label in DIRECTIONS.values():
                     conditions.append({'direction': label})
                 elif label in COLORS:
@@ -66,12 +76,20 @@ class QueryParser:
         # Append only the logic operator with highest probability score and if it exists
         if logic_operator:
             conditions.append({'logic': logic_operator})
+            self.used_words.add(logic_operator.lower())
         # Append only the interaction with highest probability score and if it exists
         if interaction:
             conditions.append({'interaction': interaction})
+            self.used_words.add(interaction.lower())
         
         return conditions
 
     def get_parsed_queries(self):
         """Return the parsed query structure."""
+        unused_words = self.query_words - self.used_words
+        # Convert back to list and maintain original order
+        unused = [word for word in self.raw_query.split() 
+                 if word.lower() in unused_words]
+        print(unused)
+
         return self.parsed_queries
