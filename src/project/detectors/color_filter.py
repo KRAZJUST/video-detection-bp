@@ -22,6 +22,8 @@ class ColorFilter:
             'purple': [((140, 50, 50), (160, 255, 255))],
             'brown': [((10, 50, 50), (20, 200, 200))],
             'black': [((0, 0, 0), (180, 255, 30))],
+            'pink': [((140, 50, 200), (170, 255, 255))],
+            'beige': [((15, 30, 150), (25, 100, 255))],
             # Catchall for grays and uncertain colors limited to low saturation areas
             'gray': [((0, 0, 40), (180, 18, 230))]
         }
