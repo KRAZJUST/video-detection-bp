@@ -45,6 +45,8 @@ class QueryWorker(QThread):
                 )
                 similarities, metadata = xclip_parser.search_embeddings(top_k=5)
                 results = xclip_parser.top_frames
+                print(type(results))
+                print(f"Top frames: {results}")
                 
             self.finished.emit(results)
             
