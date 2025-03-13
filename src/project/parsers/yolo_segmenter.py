@@ -34,7 +34,6 @@ class YOLOSegmenter:
         annotated_image = image.copy()
 
         for detection in detections:
-            print(detection)
             # Get bounding box coordinates and class
             xmin, ymin, xmax, ymax = detection['bbox']
             class_name = detection.get('class_name', 'unknown')
@@ -49,7 +48,6 @@ class YOLOSegmenter:
             if best_mask is not None:
                 # Create colored overlay
                 color = COLOR_MAP.get(dominant_color, (0, 255, 0))
-                print(color)
                 colored_mask = np.zeros_like(image)
                 for c in range(3):
                     colored_mask[:, :, c] = (best_mask / 255) * color[c]
