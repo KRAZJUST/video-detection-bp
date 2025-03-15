@@ -418,5 +418,5 @@ class DetectionParser:
             return
 
         # Save the annotated image
-        output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}_annotated.jpg")
+        output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}.jpg")
         cv2.imwrite(output_path, annotated_frame)
