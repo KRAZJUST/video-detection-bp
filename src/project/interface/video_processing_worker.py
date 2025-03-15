@@ -1,4 +1,4 @@
-import time
+from profiling_utils.profiling_utils import profile_time_usage
 from PyQt6.QtCore import QThread, pyqtSignal
 from processors.video_processor import VideoProcessor
 
@@ -15,9 +15,9 @@ class VideoProcessingWorker(QThread):
         self.interval = interval
         self.tracker = tracker
 
+    @profile_time_usage
     def run(self):
         try:
-            start_time = time.time()
             processor = VideoProcessor(
                 video_path=self.video_path,
                 database_path=self.database_path,
@@ -26,7 +26,6 @@ class VideoProcessingWorker(QThread):
                 tracker_arg=self.tracker
             )
             processor.process_video()
-            print(f'Time taken to process video: {time.time() - start_time}')
             
             # Store results in the main app
             if self.tracker == "-":
