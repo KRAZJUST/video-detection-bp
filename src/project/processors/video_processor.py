@@ -137,7 +137,7 @@ class VideoProcessor:
             '-to', str(self.video_info['duration']),
             '-start_number', '0',
             # Output frame path
-            f'{self.frames_output_dir}/frame_%04d.jpg'
+            f'{self.frames_output_dir}/frame_%05d.jpg'
         ]
         
         # Run with CUDA acceleration if available
@@ -154,7 +154,7 @@ class VideoProcessor:
                 '-pix_fmt', 'yuvj420p',
                 '-to', str(self.video_info['duration']),
                 '-start_number', '0',
-                f'{self.frames_output_dir}/frame_%04d.jpg'
+                f'{self.frames_output_dir}/frame_%05d.jpg'
             ]
             print("Extracting frames with FFmpeg CUDA acceleration...")
         else:
@@ -186,7 +186,7 @@ class VideoProcessor:
         YOLO and ByteTrack/DeepSORT processing method
         """
         for frame_number, frame_file in enumerate(frame_files):
-            print(f"Processing frame {frame_file}")
+            #print(f"Processing frame {frame_file}")
             
             # Calculate timestamp
             timestamp = frame_number * (self.interval / self.video_info['fps'])

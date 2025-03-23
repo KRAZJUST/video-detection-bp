@@ -413,7 +413,7 @@ class VideoProcessingApp(QMainWindow):
         return super().eventFilter(obj, event)
 
     def adjust_image_sizes(self):
-        # TODO: check for Pixmap is a null pixmap and handle it might not be here
+        # TODO: check for Pixmap is a null pixmap error and handle it might not be here
         # Calculate new target width
         available_width = self.scroll_area.viewport().width()
         effective_width = available_width - 30
@@ -481,7 +481,7 @@ class VideoProcessingApp(QMainWindow):
         max_cols = 2
         available_width = self.scroll_area.viewport().width()
         # Subtract the margin from the width
-        effective_width = available_width - 30
+        effective_width = available_width - 40
         target_width = int(effective_width / max_cols)
         
         # Get the starting and ending indices for this batch
@@ -502,7 +502,7 @@ class VideoProcessingApp(QMainWindow):
             
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
-                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:04d}.jpg")
+                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:05d}.jpg")
             
             if os.path.exists(frame_path):
                 try:

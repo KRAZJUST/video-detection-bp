@@ -354,7 +354,7 @@ class DetectionParser:
         """
         Save annotated frame with detections.
         """
-        frame_file_name = f'frame_{frame_num:04d}.jpg'
+        frame_file_name = f'frame_{frame_num:05d}.jpg'
         frame_file_path = os.path.join(self.output_dir, 'extracted_frames', frame_file_name)
 
         if os.path.exists(frame_file_path):
@@ -405,10 +405,11 @@ class DetectionParser:
                 cv2.rectangle(annotated_frame, (xmin, ymin), (xmax, ymax), color, 2)
                 # Draw label background
                 label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+                color_with_opacity = tuple(list(color) + [100])
                 cv2.rectangle(annotated_frame, 
                             (int(xmin), int(ymin) - 20),
                             (int(xmin) + label_size[0], int(ymin)),
-                            color, -1)
+                            color_with_opacity, -1)
                 # Draw label text
                 cv2.putText(annotated_frame, label,
                         (int(xmin), int(ymin) - 5),
@@ -418,5 +419,5 @@ class DetectionParser:
             return
 
         # Save the annotated image
-        output_path = os.path.join(self.found_dir, f"frame_{frame_num:04d}.jpg")
+        output_path = os.path.join(self.found_dir, f"frame_{frame_num:05d}.jpg")
         cv2.imwrite(output_path, annotated_frame)

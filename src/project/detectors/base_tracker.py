@@ -378,7 +378,7 @@ class BaseTracker(ABC):
     def save_annotated_frame(self, frame: np.ndarray, detections: List[Dict[str, Any]], frame_number: int):
         """Save annotated frame to disk."""
         annotated_frame = self.annotate_frame(frame, detections)
-        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:04d}.jpg")
+        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:05d}.jpg")
         cv2.imwrite(output_path, annotated_frame)
 
     @abstractmethod
