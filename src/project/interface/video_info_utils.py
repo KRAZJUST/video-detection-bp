@@ -118,7 +118,7 @@ class VideoInfoUtils:
             if fps_str and '/' in fps_str:
                 try:
                     num, den = map(int, fps_str.split('/'))
-                    fps = round(num / den, 2) if den != 0 else 'unknown'
+                    fps = round(float(num / den), 2) if den != 0 else 'unknown'
                 except (ValueError, ZeroDivisionError):
                     fps = 'unknown'
             elif fps_str:
@@ -142,7 +142,7 @@ class VideoInfoUtils:
                 
             return VideoMetadata(
                 duration=round(float(duration), 2),
-                fps=round(fps, 2),
+                fps= 'unknown' if fps == 'unknown' else round(float(fps), 2),
                 frame_count=frame_count,
                 width=int(video_stream.get('width', 0)),
                 height=int(video_stream.get('height', 0)),

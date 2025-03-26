@@ -1,11 +1,12 @@
 import os
 import cv2
 import numpy as np
+import time
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  # type: ignore
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QCheckBox, QFileDialog, QProgressBar,
-                            QScrollArea, QGridLayout, QGroupBox, QFrame, )
-from PyQt6.QtCore import Qt
+                            QScrollArea, QGridLayout, QGroupBox, QFrame)
+from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtGui import QPixmap, QImage
 from PIL import Image, ImageQt
 from .video_info_worker import VideoInfoWorker
@@ -120,7 +121,7 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["-", "bytetrack", "deepsort", "xclip"])
+        self.tracker_combo.addItems(["-", "bytetrack", "xclip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
@@ -174,15 +175,30 @@ class VideoProcessingApp(QMainWindow):
 
     def setup_results_section(self, parent_layout):
         # Create scroll area for results
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
         
         # Create widget to hold the grid of results
         self.results_widget = QWidget()
         self.results_layout = QGridLayout(self.results_widget)
+        self.results_layout.setSpacing(10)  # Add some spacing between items
         
-        scroll_area.setWidget(self.results_widget)
-        parent_layout.addWidget(scroll_area)
+        # Set column stretch to make them equal width
+        self.results_layout.setColumnStretch(0, 1)
+        self.results_layout.setColumnStretch(1, 1)
+        
+        self.scroll_area.setWidget(self.results_widget)
+        parent_layout.addWidget(self.scroll_area)
+        
+        # Connect resize event to handle responsive layout
+        self.scroll_area.viewport().installEventFilter(self)
+        
+        # For dynamic loading
+        self.loaded_images = []
+        self.all_results = {}
+        # For batch loading - 10 rows at a time
+        self.batch_size = 10
+        self.current_batch = 0
 
     def select_video(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -322,7 +338,7 @@ class VideoProcessingApp(QMainWindow):
             self.interval_entry.setText("10")
         
         # Update segmentation checkbox visibility
-        self.use_segmentation.setVisible(tracker in ["-", "bytetrack", "deepsort"])
+        self.use_segmentation.setVisible(tracker in ["-", "bytetrack"])
 
     def show_loading(self, section, show):
         progress_bar = None
@@ -369,6 +385,49 @@ class VideoProcessingApp(QMainWindow):
         print(f"Error processing video: {error_message}")
         self.show_loading('video_processing', False)
 
+    def eventFilter(self, obj, event):
+        # Respond to resize events
+        if obj == self.scroll_area.viewport() and event.type() == QEvent.Type.Resize:
+            self.adjust_image_sizes()
+            return False
+        
+        # For dynamic loading - detect when scrolling nears the bottom
+        elif obj == self.scroll_area.viewport() and event.type() == QEvent.Type.Wheel:
+            # Check if we're near the bottom of the scroll area
+            scrollbar = self.scroll_area.verticalScrollBar()
+            
+            # Only trigger load if we're near the bottom AND we have more to load
+            more_to_load = self.current_batch * self.batch_size < len(self.all_results)
+            near_bottom = scrollbar.value() > scrollbar.maximum() - 200
+            
+            if more_to_load and near_bottom:
+                # Throttle loading to prevent multiple calls
+                current_time = time.time()
+                if not hasattr(self, '_last_load_time') or current_time - self._last_load_time > 0.5:
+                    self._last_load_time = current_time
+                    print(f"Near bottom, loading next batch. Scrollbar: {scrollbar.value()}/{scrollbar.maximum()}")
+                    self.load_next_batch()
+            
+            return False
+        
+        return super().eventFilter(obj, event)
+
+    def adjust_image_sizes(self):
+        # TODO: check for Pixmap is a null pixmap error and handle it might not be here
+        # Calculate new target width
+        available_width = self.scroll_area.viewport().width()
+        effective_width = available_width - 30
+        target_width = int(effective_width / 2)
+        
+        # Resize all currently displayed images
+        for frame_path, metadata, frame_container in self.loaded_images:
+            # Find the image label in the container
+            for child in frame_container.children():
+                if isinstance(child, QLabel) and hasattr(child, 'pixmap') and child.pixmap() is not None:
+                    pixmap = self.load_frame_image(frame_path, target_width)
+                    child.setPixmap(pixmap.copy())
+                    break
+
     def start_query(self):
         self.show_loading('query', True)
 
@@ -388,43 +447,80 @@ class VideoProcessingApp(QMainWindow):
         self.query_worker.start()
 
     def display_query_results(self, results):
+        print(f"Displaying {len(results)} results")
+        
+        # Store all results
+        self.all_results = list(results.items())
+        self.loaded_images = []
+        self.current_batch = 0
+        
+        # Clear existing results first
+        self.clear_results_layout()
+        
+        # Only load the first batch initially
+        self.load_next_batch()
+        
+        self.show_loading('query', False)
+
+    def clear_results_layout(self):
         # Clear existing results
         while self.results_layout.count():
             item = self.results_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
 
-        # Get availible width for columns
+    def load_next_batch(self):
+        # If no more results to load, return
+        if self.current_batch * self.batch_size >= len(self.all_results):
+            print(f"All batches loaded. Current batch: {self.current_batch}, Total items: {len(self.all_results)}")
+            return
+        
+        print(f"Loading batch {self.current_batch}")
+        
+        # Calculate available width for columns
         max_cols = 2
-        availible_width = self.results_widget.width()
-        target_width = int(availible_width / max_cols)
-
-        # Display new results
-        row = 0
-        col = 0
-
-        for frame_path, metadata in results.items():
+        available_width = self.scroll_area.viewport().width()
+        # Subtract the margin from the width
+        effective_width = available_width - 40
+        target_width = int(effective_width / max_cols)
+        
+        # Get the starting and ending indices for this batch
+        start_idx = self.current_batch * self.batch_size
+        end_idx = min(start_idx + self.batch_size, len(self.all_results))
+        
+        # Get items to process in this batch
+        batch_items = self.all_results[start_idx:end_idx]
+        
+        # Process each item in the batch
+        for i, (frame_path, metadata) in enumerate(batch_items):
+            # Calculate position
+            absolute_idx = start_idx + i
+            row = absolute_idx // max_cols
+            col = absolute_idx % max_cols
+            
+            print(f"Adding image at position ({row}, {col}): {frame_path}")
+            
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
-                print(f'frame path: {frame_path}')  # Debug print
-                # Convert frame number to actual path if needed
-                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:04d}_annotated.jpg")
-                        
+                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:05d}.jpg")
+            
             if os.path.exists(frame_path):
                 try:
+                    # Create widget for this frame
                     frame_widget = self.create_frame_widget(frame_path, metadata, target_width)
+                    
+                    # Add to grid layout at the calculated position
                     self.results_layout.addWidget(frame_widget, row, col)
                     
-                    col += 1
-                    if col >= max_cols:
-                        col = 0
-                        row += 1
+                    # Store reference for resizing
+                    self.loaded_images.append((frame_path, metadata, frame_widget))
                 except Exception as e:
                     print(f"Error creating widget for {frame_path}: {str(e)}")
             else:
                 print(f"Frame not found: {frame_path}")
-
-        self.show_loading('query', False)
+        
+        # Increment batch counter
+        self.current_batch += 1
 
     def create_frame_widget(self, frame_path, metadata, target_width):
         # Create a frame container
@@ -436,12 +532,16 @@ class VideoProcessingApp(QMainWindow):
         pixmap = self.load_frame_image(frame_path, target_width)
         if pixmap.isNull():
             print(f"Error: Pixmap is null for {frame_path}")
+            return frame_container
+
         image_label = QLabel()
         # Create a copy of the pixmap to prevent memory issues and overwrites - if not copied, all previous images will be overwritten by the last one
         image_label.setPixmap(pixmap.copy())
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-         # Make the image clickable
+        # Don't scale contents automatically
+        image_label.setScaledContents(False)
+
+        # Make the image clickable
         image_label.setCursor(Qt.CursorShape.PointingHandCursor)
         image_label.mousePressEvent = lambda event: self.open_video_at_frame(frame_path, metadata)
 
@@ -478,8 +578,8 @@ class VideoProcessingApp(QMainWindow):
             return pixmap
         except Exception as e:
             print(f"Error loading image {frame_path}: {str(e)}")
-            # Return a blank or error pixmap
-            return QPixmap((target_width), target_height)
+            # Return a blank or error pixmap with fixed height
+            return QPixmap((target_width), 100)
 
     def open_video_at_frame(self, frame_path, metadata):
         """Open frame slideshow starting from the selected frame"""

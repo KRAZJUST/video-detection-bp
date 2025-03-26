@@ -6,13 +6,14 @@ import glob
 from PIL import Image
 from typing import Any, Dict, List
 import cv2
-import time
 from detectors.yolo_detector import YOLODetector
 from detectors.byte_track_tracker import ByteTrackTracker
 from detectors.deep_sort_tracker import DeepSortTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
+from profiling_utils.profiling_utils import profile_time_usage
+from interface.video_info_utils import VideoInfoUtils
 
 
 class VideoProcessor:
@@ -34,7 +35,6 @@ class VideoProcessor:
             reset_database=True
         )
         self.detector = YOLODetector()
-        
         if tracker_arg == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
         elif tracker_arg == 'deepsort':
@@ -43,60 +43,30 @@ class VideoProcessor:
         self.xclip = XClipModel()
         self.log_entries = {}
         self.initial_yolo_results_log = {}
-        self.video_info = self.get_video_info()
         self.interval = interval
         self.tracker_arg = tracker_arg
         self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack', 'deepsort'] else 2
         self.temp_embeddings = []
 
-    def get_video_info(self) -> Dict[str, Any]:
-        """ 
-        Function to extract video informations. 
-        TODO: Remove this later and pass the video info as an argument from the interface.
-        """
-
-        # ffprobe command to extract video information in JSON format
-        ffprobe_command = [
-            'ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
-            'stream=width,height,avg_frame_rate,nb_frames,duration', '-of', 'json', self.video_path
-        ]
-        
-        # Executes the ffprobe command
-        result = subprocess.run(ffprobe_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Parse the result as JSON
-        video_info = json.loads(result.stdout)
-        
-        # Extracts required information
-        if 'streams' in video_info and len(video_info['streams']) > 0:
-            stream_info = video_info['streams'][0]
-            width = stream_info.get('width', 'Unknown')
-            height = stream_info.get('height', 'Unknown')
-            duration = stream_info.get('duration', 'Unknown')
-            nb_frames = stream_info.get('nb_frames', 'Unknown')
-            avg_frame_rate = stream_info.get('avg_frame_rate', 'Unknown')
-            
-            # Parses frame rate (if it's available as a fraction)
-            fps = eval(avg_frame_rate) if '/' in avg_frame_rate else avg_frame_rate
-            
-            return {
-                'width': width,
-                'height': height,
-                'duration': float(duration),
-                'nb_frames': int(nb_frames),
-                'fps': fps
-            }
-        
-        return None
-    
+        # Get the video informations
+        video_metadata = VideoInfoUtils.get_video_info(video_path)
+        # Convert the video metadata to a dictionary
+        self.video_info = vars(video_metadata) if video_metadata else {
+            'width': None,
+            'height': None,
+            'duration': None,
+            'frame_count': None,
+            'fps': None
+        }
+        print(f"Video Info: {self.video_info}")
 
     def calculate_expected_frames(self) -> int:
         """Calculate the expected number of frames to be extracted."""
-
-        total_frames = self.video_info['nb_frames']
+        if self.video_info.get('frame_count') is None:
+            return None
+        total_frames = self.video_info['frame_count']
         return total_frames // self.interval
     
-
     def frames_already_extracted(self) -> bool:
         """Check if the required number of frames has already been extracted."""
 
@@ -112,64 +82,81 @@ class VideoProcessor:
         # Return True if the expected frames are already extracted, False otherwise
         return existing_frames_count + 3 >= expected_frames_count and existing_frames_count - 3 <= expected_frames_count
 
+    @profile_time_usage
     def extract_frames(self):
-        """ Function to extract frames from a video using FFmpeg. """
-        print(self.video_info)
-
-        # Check if frames already extracted
+        # Check if frames are already extracted
         if self.frames_already_extracted():
-            print("Frames are already extracted. Skipping extraction.")
-            return
+            print("Frames already extracted")
+            return True
+        # Check if the CUDA is available
+        use_cuda = torch.cuda.is_available()
 
-        use_cuda = torch.cuda.is_available()        
+        # Validate video information
+        if not self.video_info['duration']:
+            print("Could not determine video duration")
+            return False
+        
         # Prepare base FFmpeg command
         base_command = [
-            'ffmpeg', 
-            '-fflags', '+genpts', 
+            'ffmpeg',
+            '-fflags', '+genpts',
             '-i', self.video_path,
             '-vf', f"scale=640:-2, select='not(mod(n\\,{self.interval}))', format=yuvj420p",
             '-fps_mode', 'vfr',
-            # Set higher quality for better object detection
             '-q:v', '2',
-            # Sets pixel format to yuvj420p for better accuracy in object detection
             '-pix_fmt', 'yuvj420p',
-            '-to', str(self.video_info['duration']),
-            '-start_number', '0',
-            # Output frame path
-            f'{self.frames_output_dir}/frame_%04d.jpg'
         ]
         
-        # Run with CUDA acceleration if available
+        # Add duration only if available as it can cause issues if not set properly
+        if self.video_info['duration']:
+            base_command.extend(['-to', str(self.video_info['duration'])])
+        
+        # Add output path
+        base_command.extend([
+            '-start_number', '0',
+            f'{self.frames_output_dir}/frame_%05d.jpg'
+        ])
+        
+        # CUDA acceleration command
         if use_cuda:
-            ffmpeg_command = [
-                'ffmpeg', 
-                # Enable CUDA hardware acceleration
+            cuda_command = [
+                'ffmpeg',
                 '-hwaccel', 'cuda',
-                '-fflags', '+genpts', 
-                '-i', self.video_path,
-                '-vf', f"scale=640:-2, select='not(mod(n\\,{self.interval}))', format=yuvj420p",
-                '-fps_mode', 'vfr',
-                '-q:v', '2',
-                '-pix_fmt', 'yuvj420p',
-                '-to', str(self.video_info['duration']),
-                '-start_number', '0',
-                f'{self.frames_output_dir}/frame_%04d.jpg'
-            ]
-            print("Extracting frames with FFmpeg CUDA acceleration...")
+            ] + base_command[1:]
+            ffmpeg_command = cuda_command
         else:
             ffmpeg_command = base_command
-            print("Extracting frames with FFmpeg (CPU)...")
+        
+        # Print debug information
+        print("FFmpeg Command:", " ".join(ffmpeg_command))
+        
+        try:
+            # Execute FFmpeg command
+            result = subprocess.run(
+                ffmpeg_command,  
+                text=True,
+                check=True
+            )
+            
+            # Check for errors
+            if result.returncode != 0:
+                print("FFmpeg Error Output:", result.stderr)
+                return False
+            
+            print("Frames extracted successfully")
+            return True
+        
+        except Exception as e:
+            print(f"Execution error: {e}")
+            return False
 
-        subprocess.run(ffmpeg_command, check=True)
-        print("Frame extraction complete.")
-
+    @profile_time_usage
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
 
         # Run FFmpeg extraction before processing frames
         self.extract_frames()
 
-        start_time = time.time()
         # Load frames generated by FFmpeg
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
         
@@ -180,18 +167,20 @@ class VideoProcessor:
         else:
             raise ValueError("Invalid tracker argument. Please use either '-', 'bytetrack' or 'xclip'.")
 
-        print(f"Processing complete. Total time taken: {time.time() - start_time:.2f} seconds.")
-
     def _process_video_yolo(self, frame_files):
         """
         YOLO and ByteTrack/DeepSORT processing method
         """
         for frame_number, frame_file in enumerate(frame_files):
-            print(f"Processing frame {frame_file}")
+            #print(f"Processing frame {frame_file}")
             
-            # Calculate timestamp
-            timestamp = frame_number * (self.interval / self.video_info['fps'])
-            
+            # Check if the fps is set as it can be 'unknown' in some cases and cause division by zero
+            if self.video_info['fps'] != 'unknown':
+                timestamp = frame_number * (self.interval / self.video_info['fps'])
+            else:
+                # If the fps is unknown, use the frame number as the timestamp
+                timestamp = frame_number * self.interval
+
             # Insert frame into the database
             self.db.insert_frame(frame_number, timestamp)
             

@@ -236,6 +236,7 @@ class Database:
 
         # Join the clauses
         where_clause = f" AND ".join(where_clauses) if where_clauses else "1=1"
+        print(f"Where Clause: {where_clause}")
 
         query = f"""
         SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence, track_id

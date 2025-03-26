@@ -63,7 +63,7 @@ class QueryParser:
                 elif label in QUADRANTS:
                     conditions.append({'quadrant': label})
                 elif label in INTERACTIONS:
-                    if score > interaction_score and score > 0.25:
+                    if score > interaction_score and score > 0.20:
                         interaction = label
                         interaction_score = score
                 elif label in ['and', 'or']:
