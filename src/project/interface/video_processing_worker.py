@@ -37,4 +37,7 @@ class VideoProcessingWorker(QThread):
                 
             self.finished.emit()
         except Exception as e:
+            import traceback
+            traceback.print_exc()
+
             self.error.emit(str(e))
