@@ -130,7 +130,7 @@ class VideoProcessingApp(QMainWindow):
         # Interval
         layout.addWidget(QLabel("Frame Interval:"))
         self.interval_entry = QLineEdit()
-        self.interval_entry.setText("30")
+        self.interval_entry.setText("-")
         layout.addWidget(self.interval_entry)
  
         # Process button
@@ -246,6 +246,8 @@ class VideoProcessingApp(QMainWindow):
         self.video_info_label.setText(info_text)
         self.show_loading('video_info', False)
 
+        # Update the interval entry based on the video FPS
+        self.interval_entry.setText(str(int(metadata['fps'])))
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
@@ -335,7 +337,7 @@ class VideoProcessingApp(QMainWindow):
 
     def update_interval_entry(self, tracker):
         if tracker == "-" or tracker == "xclip":
-            self.interval_entry.setText("30")
+            self.interval_entry.setText(str(int(self.video_info['fps'])))
         else:
             self.interval_entry.setText("10")
         
