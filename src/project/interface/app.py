@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  #
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QCheckBox, QFileDialog, QProgressBar,
                             QScrollArea, QGridLayout, QGroupBox, QFrame)
-from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtCore import Qt, QEvent, QMetaObject, Q_ARG
 from PyQt6.QtGui import QPixmap, QImage
 from PIL import Image, ImageQt
 from .video_info_worker import VideoInfoWorker
@@ -80,14 +80,12 @@ class VideoProcessingApp(QMainWindow):
     def setup_query_section(self, parent_layout):
         query_group = QGroupBox("Query Builder")
         layout = QVBoxLayout()
-        
         layout.addWidget(QLabel("Query:"))
         self.query_entry = QLineEdit()
         layout.addWidget(self.query_entry)
         
         # Query controls layout
         controls_layout = QHBoxLayout()
-        
         self.query_button = QPushButton("Search Query")
         self.query_button.clicked.connect(self.start_query)
         controls_layout.addWidget(self.query_button)
@@ -110,6 +108,10 @@ class VideoProcessingApp(QMainWindow):
         self.query_progress = QProgressBar()
         self.query_progress.setVisible(False)
         layout.addWidget(self.query_progress)
+
+        # Results count label
+        self.results_count_label = QLabel("Number of frames: -")
+        layout.addWidget(self.results_count_label)
         
         query_group.setLayout(layout)
         parent_layout.addWidget(query_group)
@@ -448,6 +450,15 @@ class VideoProcessingApp(QMainWindow):
 
     def display_query_results(self, results):
         print(f"Displaying {len(results)} results")
+
+        # Ensure results is not None and has a valid length
+        result_count = len(results) if results else 0
+        print(f"Results count: {result_count}")
+        # Qt GUI updates must be done in the main thread
+        # otherwise the text won't update properly
+        QMetaObject.invokeMethod(self.results_count_label, "setText", 
+                                Qt.ConnectionType.QueuedConnection, 
+                                Q_ARG(str, f"Number of frames: {result_count}"))
         
         # Store all results
         self.all_results = list(results.items())
