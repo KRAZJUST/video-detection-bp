@@ -390,30 +390,48 @@ class DetectionParser:
             for detection in detections:
                 # Get bounding box coordinates and class
                 xmin, ymin, xmax, ymax = detection['bbox']
+                # Get dominant color
+                dominant_color = detection.get('dominant_color')
                 
                 # Create a label for the object with known properties
                 label_parts = [detection['class_name']]
                 
-                if detection.get('dominant_color'):
-                    color = COLOR_MAP.get(detection['dominant_color'], (255, 255, 255))
-                    label_parts.append(detection['dominant_color'])
+                if dominant_color:
+                    color = COLOR_MAP.get(dominant_color, (255, 255, 255))
+                    label_parts.append(dominant_color)
                 #if detection.get('direction'):
                     #label_parts.append(detection['direction'])
                 # Combine the label parts
                 label = ' '.join(label_parts)
+
                 # Draw the bounding box
                 cv2.rectangle(annotated_frame, (xmin, ymin), (xmax, ymax), color, 2)
-                # Draw label background
+
+                # Draw transparent label background
                 label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
-                color_with_opacity = tuple(list(color) + [100])
-                cv2.rectangle(annotated_frame, 
-                            (int(xmin), int(ymin) - 20),
-                            (int(xmin) + label_size[0], int(ymin)),
-                            color_with_opacity, -1)
-                # Draw label text
-                cv2.putText(annotated_frame, label,
+                # semi-transparent rectangle
+                sub_image = annotated_frame[ymin - 20:ymin, xmin:xmin + label_size[0]]
+
+                # Solid color with alpha channel
+                rect_color = list(color)
+                rect_color.append(0.5)
+                
+                # Blend the color with the existing background
+                for c in range(0, 3):
+                    sub_image[:,:,c] = sub_image[:,:,c] * 0.5 + rect_color[c] * 0.5
+                
+                # Put the modified sub-image back
+                annotated_frame[int(ymin)-20:int(ymin), int(xmin):int(xmin)+label_size[0]] = sub_image
+
+                # Draw label text, white for black objects and black for others
+                if dominant_color == 'black' or dominant_color == 'blue':
+                    cv2.putText(annotated_frame, label,
                         (int(xmin), int(ymin) - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                else:
+                    cv2.putText(annotated_frame, label,
+                            (int(xmin), int(ymin) - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         else:
             print("Invalid segmentation flag value. Please use True or False.")
             return
