@@ -23,7 +23,6 @@ class VideoProcessingApp(QMainWindow):
         self.output_dir = os.getcwd()
         self.interval = 30
         self.query = ""
-        self.log_results = []
         self.found_frames_dir = ""
         self.extracted_frames_dir = ""
         self.found_log_entries = {}
@@ -93,13 +92,17 @@ class VideoProcessingApp(QMainWindow):
         # Segmentation option checkbox
         self.use_segmentation = QCheckBox("Use Segmentation")
         self.use_segmentation.setChecked(True)
-        self.use_segmentation.setToolTip("Use segmentation masks for object detection")
+        self.use_segmentation.setToolTip("Use segmentation masks for object detection. \n"
+                                         "This feature will not make the search more precise \n"
+                                         "but will display the found objects more accurately \n"
+                                         "at the cost of performance.")
         controls_layout.addWidget(self.use_segmentation)
 
         # Deduplication option checkbox
         self.deduplicate_frames = QCheckBox("Deduplicate Frames")
         self.deduplicate_frames.setChecked(True)
-        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects")
+        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects so that \n"
+                                           "it is easier to navigate through the results.")
         controls_layout.addWidget(self.deduplicate_frames)
 
         layout.addLayout(controls_layout)
