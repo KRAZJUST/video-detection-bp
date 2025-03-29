@@ -9,9 +9,8 @@ from .yolo_segmenter import YOLOSegmenter
 
 
 class DetectionParser:
-    def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
+    def __init__(self, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
                  frame_width: int = 640, frame_height: int = 360, area_of_interest: tuple = None):
-        self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.tracker = tracker
@@ -199,13 +198,25 @@ class DetectionParser:
             frames = self.filter_detections_in_frames(frames, logic_operator=self.filter_logic[0], expected_conditions=parsed_elements)
         print(f"Number of frames after logic filter: {len(frames)}")
         
+        ### Save the filtered frames ###
+        # Clear the found frames directory
+        if os.path.exists(self.found_dir):
+            shutil.rmtree(self.found_dir)
+        os.makedirs(self.found_dir, exist_ok=True)
+
+        # Determine the directory for saving frames based on the tracker type
+        if self.tracker == 'bytetrack':
+            frame_file_dir = os.path.join(self.output_dir, 'extracted_frames_b')
+        else:
+            frame_file_dir = os.path.join(self.output_dir, 'extracted_frames_yx')
+
         # Loop through each frame and its detections
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
             self.found_log_entries[frame_number] = detections
-            self.save_frame(frame_number, detections)
+            self.save_frame(frame_number, detections, frame_file_dir)
 
-        self.save_found_log()
+        #self.save_found_log()
 
     def apply_spatial_filters(self, frames) -> dict:
         """
@@ -350,13 +361,14 @@ class DetectionParser:
         
         return True
 
-    def save_frame(self, frame_num, detections):
+    def save_frame(self, frame_num, detections, frame_file_dir):
         """
         Save annotated frame with detections.
         """
         frame_file_name = f'frame_{frame_num:05d}.jpg'
-        frame_file_path = os.path.join(self.output_dir, 'extracted_frames', frame_file_name)
+        frame_file_path = os.path.join(frame_file_dir, frame_file_name)
 
+        # Check if the frame file exists in the specified directory
         if os.path.exists(frame_file_path):
             self.annotate_image(frame_file_path, detections, frame_num)
         else:

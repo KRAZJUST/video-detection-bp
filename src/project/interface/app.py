@@ -602,10 +602,15 @@ class VideoProcessingApp(QMainWindow):
         # If frame_dir is empty, use the default found_frames directory
         if not frame_dir:
             frame_dir = self.found_frames_dir
+
+        if self.tracker_combo.currentText() == "bytetrack":
+            extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames_b") 
+        else:
+            extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames_yx")
         
         # Create and show slideshow window
         self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
-                                               frame_dir=frame_dir, extracted_frames_dir=self.extracted_frames_dir, 
+                                               frame_dir=frame_dir, extracted_frames_dir=extracted_frames_dir, 
                                                context_frames=20)
         self.slideshow_window.show()
 

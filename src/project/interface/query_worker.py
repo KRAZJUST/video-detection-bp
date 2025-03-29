@@ -17,7 +17,6 @@ class QueryWorker(QThread):
         try:
             if self.app.tracker_combo.currentText() in ["-", "bytetrack"]:
                 log_parser = DetectionParser(
-                    log_entries=self.app.log_results,
                     query=self.query,
                     output_dir=self.app.output_dir,
                     database_path=self.app.database_path,

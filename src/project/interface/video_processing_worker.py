@@ -27,15 +27,9 @@ class VideoProcessingWorker(QThread):
             )
             processor.process_video()
             
-            # Store results in the main app
-            if self.tracker == "-":
-                self.app.log_results = processor.initial_yolo_results_log
-            elif self.tracker in ["bytetrack"]:
-                self.app.log_results = processor.log_entries
-            elif self.tracker == "xclip":
-                self.app.temp_embeddings = processor.temp_embeddings
-                
+            # Emit finished signal
             self.finished.emit()
+            
         except Exception as e:
             import traceback
             traceback.print_exc()

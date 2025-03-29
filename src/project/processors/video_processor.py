@@ -8,7 +8,6 @@ from typing import Any, Dict, List
 import cv2
 from detectors.yolo_detector import YOLODetector
 from detectors.byte_track_tracker import ByteTrackTracker
-from detectors.deep_sort_tracker import DeepSortTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
@@ -25,8 +24,13 @@ class VideoProcessor:
 
         self.video_path = video_path
         self.output_dir = output_dir
-        self.frames_output_dir = os.path.join(self.output_dir, "extracted_frames")
-        os.makedirs(self.frames_output_dir, exist_ok=True)
+        self.frames_output_dir_yx = os.path.join(self.output_dir, "extracted_frames_yx")
+        self.frames_output_dir_b = os.path.join(self.output_dir, "extracted_frames_b")
+        self.frames_output_dir = self.frames_output_dir_b if tracker_arg == 'bytetrack' else self.frames_output_dir_yx
+        # Create output directories if they do not exist
+        os.makedirs(self.frames_output_dir_yx, exist_ok=True)
+        os.makedirs(self.frames_output_dir_b, exist_ok=True)
+
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.vector_db = VectorDatabaseManager(
@@ -37,15 +41,13 @@ class VideoProcessor:
         self.detector = YOLODetector()
         if tracker_arg == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
-        elif tracker_arg == 'deepsort':
-            self.tracker = DeepSortTracker(output_dir)
         
         self.xclip = XClipModel()
         self.log_entries = {}
         self.initial_yolo_results_log = {}
         self.interval = interval
         self.tracker_arg = tracker_arg
-        self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack', 'deepsort'] else 2
+        self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack'] else 2
         self.temp_embeddings = []
 
         # Get the video informations
@@ -88,9 +90,13 @@ class VideoProcessor:
         if self.frames_already_extracted():
             print("Frames already extracted")
             return True
+        # Delete existing frames
+        for f in os.listdir(self.frames_output_dir):
+            if f.startswith("frame_") and f.endswith(".jpg"):
+                os.remove(os.path.join(self.frames_output_dir, f))
+        
         # Check if the CUDA is available
         use_cuda = torch.cuda.is_available()
-
         # Validate video information
         if not self.video_info['duration']:
             print("Could not determine video duration")
@@ -111,7 +117,7 @@ class VideoProcessor:
         if self.video_info['duration']:
             base_command.extend(['-to', str(self.video_info['duration'])])
         
-        # Add output path
+        # Add output pat
         base_command.extend([
             '-start_number', '0',
             f'{self.frames_output_dir}/frame_%05d.jpg'
@@ -169,7 +175,7 @@ class VideoProcessor:
 
     def _process_video_yolo(self, frame_files):
         """
-        YOLO and ByteTrack/DeepSORT processing method
+        YOLO and ByteTrack processing method
         """
         for frame_number, frame_file in enumerate(frame_files):
             #print(f"Processing frame {frame_file}")
@@ -199,8 +205,8 @@ class VideoProcessor:
                 self.log_entries[frame_number] = tracked_detections
                 self.add_detections_in_db(tracked_detections, tracker=self.tracker_arg, frame_number=frame_number)
 
-        self.save_log(self.initial_yolo_results_log, name='initial_yolo_results_log')
-        self.save_log(self.log_entries)
+        #self.save_log(self.initial_yolo_results_log, name='initial_yolo_results_log')
+        #self.save_log(self.log_entries)
 
     def _process_video_xclip(self, frame_files):
         """
@@ -265,13 +271,6 @@ class VideoProcessor:
             self.db.bulk_insert_detections(bulk_detections)
         elif tracker == 'bytetrack':
             self.db.bulk_insert_refined_detections(bulk_detections)
-
-    def save_log(self, log, name: str = 'detection_log'):
-        log_file_path = os.path.join(self.output_dir, f"{name}.json")
-        with open(log_file_path, 'w') as log_file:
-            json.dump(log, log_file, indent=4)
-        print(f"Log saved to '{log_file_path}'.")
-
 
     def create_frame_batches(self, frame_files, batch_size):
         """
