@@ -41,12 +41,14 @@ class VideoProcessor:
         self.detector = YOLODetector()
         if tracker_arg == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
-        
-        self.xclip = XClipModel()
+        self.tracker_arg = tracker_arg
+
+        if tracker_arg == 'xclip-32' or tracker_arg == 'xclip-16':
+            self.xclip = XClipModel(self.tracker_arg)
         self.log_entries = {}
         self.initial_yolo_results_log = {}
         self.interval = interval
-        self.tracker_arg = tracker_arg
+        
         self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack'] else 2
         self.temp_embeddings = []
 

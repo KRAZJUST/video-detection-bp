@@ -36,7 +36,7 @@ class QueryWorker(QThread):
                 else:
                     results = log_parser.found_log_entries
                 
-            elif self.app.tracker_combo.currentText() == "xclip":
+            elif self.app.tracker_combo.currentText() == "xclip-32" or self.app.tracker_combo.currentText() == "xclip-16":
                 xclip_parser = XClipParser(
                     video_path=self.app.video_path,
                     query=self.query,

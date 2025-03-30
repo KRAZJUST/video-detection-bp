@@ -126,7 +126,7 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["-", "bytetrack", "xclip"])
+        self.tracker_combo.addItems(["-", "bytetrack", "xclip-32", "xclip-16"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
@@ -219,6 +219,9 @@ class VideoProcessingApp(QMainWindow):
             if self.relative_video_path.startswith('..'):
                 self.video_path_entry.setText(self.relative_video_path)
             
+            # Clear previous results
+            self.clear_results_layout()
+
             # Start video info worker
             self.show_loading('video_info', True)
             self.video_info_worker = VideoInfoWorker(file_path)
@@ -339,7 +342,7 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
-        if tracker == "-" or tracker == "xclip":
+        if tracker == "-" or tracker == "xclip-32" or tracker == "xclip-16":
             self.interval_entry.setText(str(int(self.video_info['fps'])))
         else:
             self.interval_entry.setText("10")
@@ -425,6 +428,15 @@ class VideoProcessingApp(QMainWindow):
         available_width = self.scroll_area.viewport().width()
         effective_width = available_width - 30
         target_width = int(effective_width / 2)
+
+        # Check if there are any loaded images
+        if not hasattr(self, 'loaded_images') or self.loaded_images is None or len(self.loaded_images) == 0:
+            print("No loaded images to resize.")
+            return
+        # Check if target width is valid
+        if target_width <= 0:
+            print("Invalid target width for resizing.")
+            return
         
         # Resize all currently displayed images
         for frame_path, metadata, frame_container in self.loaded_images:
