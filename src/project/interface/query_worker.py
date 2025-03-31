@@ -15,7 +15,7 @@ class QueryWorker(QThread):
 
     def run(self):
         try:
-            if self.app.tracker_combo.currentText() in ["-", "bytetrack"]:
+            if self.app.tracker_combo.currentText() in ["yolo", "bytetrack"]:
                 log_parser = DetectionParser(
                     query=self.query,
                     output_dir=self.app.output_dir,
@@ -31,7 +31,7 @@ class QueryWorker(QThread):
                     if self.app.tracker_combo.currentText() == "bytetrack":
                         results = self.deduplicate_tracker_results(log_parser.found_log_entries)
                     # Deduplicate results based just on object classes and counts
-                    elif self.app.tracker_combo.currentText() == "-":
+                    elif self.app.tracker_combo.currentText() == "yolo":
                         results = self.deduplicate_yolo_results(log_parser.found_log_entries)
                 else:
                     results = log_parser.found_log_entries

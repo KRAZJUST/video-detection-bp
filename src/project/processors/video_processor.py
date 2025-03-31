@@ -49,7 +49,7 @@ class VideoProcessor:
         self.initial_yolo_results_log = {}
         self.interval = interval
         
-        self.processing_level = 1 if self.tracker_arg in ['-', 'bytetrack'] else 2
+        self.processing_level = 1 if self.tracker_arg in ['yolo', 'bytetrack'] else 2
         self.temp_embeddings = []
 
         # Get the video informations
@@ -173,7 +173,7 @@ class VideoProcessor:
         elif self.processing_level == 2:
             self._process_video_xclip(frame_files)
         else:
-            raise ValueError("Invalid tracker argument. Please use either '-', 'bytetrack' or 'xclip'.")
+            raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
 
     def _process_video_yolo(self, frame_files):
         """
@@ -200,7 +200,7 @@ class VideoProcessor:
             self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
             
             # Handle tracking
-            if self.tracker_arg == '-':
+            if self.tracker_arg == 'yolo':
                 self.add_detections_in_db(detections, tracker=self.tracker_arg, frame_number=frame_number)
             else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
@@ -269,7 +269,7 @@ class VideoProcessor:
 
         # Insert all detections for this frame in bulk to the database
         # Choose the table based on the tracker argument
-        if tracker == '-':
+        if tracker == 'yolo':
             self.db.bulk_insert_detections(bulk_detections)
         elif tracker == 'bytetrack':
             self.db.bulk_insert_refined_detections(bulk_detections)

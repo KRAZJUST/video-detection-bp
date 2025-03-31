@@ -91,7 +91,7 @@ class VideoProcessingApp(QMainWindow):
         
         # Segmentation option checkbox
         self.use_segmentation = QCheckBox("Use Segmentation")
-        self.use_segmentation.setChecked(True)
+        self.use_segmentation.setChecked(False)
         self.use_segmentation.setToolTip("Use segmentation masks for object detection. \n"
                                          "This feature will not make the search more precise \n"
                                          "but will display the found objects more accurately \n"
@@ -126,14 +126,14 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["-", "bytetrack", "xclip-32", "xclip-16"])
+        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
         # Interval
         layout.addWidget(QLabel("Frame Interval:"))
         self.interval_entry = QLineEdit()
-        self.interval_entry.setText("-")
+        self.interval_entry.setText("yolo")
         layout.addWidget(self.interval_entry)
  
         # Process button
@@ -342,13 +342,13 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
-        if tracker == "-" or tracker == "xclip-32" or tracker == "xclip-16":
+        if tracker == "yolo" or tracker == "xclip-32" or tracker == "xclip-16":
             self.interval_entry.setText(str(int(self.video_info['fps'])))
         else:
             self.interval_entry.setText("10")
         
         # Update segmentation checkbox visibility
-        self.use_segmentation.setVisible(tracker in ["-", "bytetrack"])
+        self.use_segmentation.setVisible(tracker in ["yolo", "bytetrack"])
 
     def show_loading(self, section, show):
         progress_bar = None

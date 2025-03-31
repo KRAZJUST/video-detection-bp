@@ -177,7 +177,7 @@ class DetectionParser:
     
         # Get initial frames based on basic filters (objects/colors/directions), choose detections or refined detections based on the level of processing
         frames = self.db.get_frames_with_detections(
-            'detections' if self.tracker == '-' else 'refined_detections',
+            'detections' if self.tracker == 'yolo' else 'refined_detections',
             self.filter_objects, 
             self.filter_colors, 
             self.filter_directions,
