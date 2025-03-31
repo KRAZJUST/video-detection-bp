@@ -206,6 +206,10 @@ class VideoProcessingApp(QMainWindow):
         self.current_batch = 0
 
     def select_video(self):
+
+        # Clear previous results
+        self.clear_results_layout()
+        
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Video File",
@@ -219,16 +223,13 @@ class VideoProcessingApp(QMainWindow):
             if self.relative_video_path.startswith('..'):
                 self.video_path_entry.setText(self.relative_video_path)
             
-            # Clear previous results
-            self.clear_results_layout()
-
             # Start video info worker
             self.show_loading('video_info', True)
             self.video_info_worker = VideoInfoWorker(file_path)
             self.video_info_worker.finished.connect(self.update_video_info)
             self.video_info_worker.error.connect(self.handle_video_info_error)
             self.video_info_worker.start()
-
+        
     def update_video_info(self, metadata):
         minutes = int(metadata['duration'] // 60)
         seconds = int(metadata['duration'] % 60)
@@ -398,7 +399,13 @@ class VideoProcessingApp(QMainWindow):
     def eventFilter(self, obj, event):
         # Respond to resize events
         if obj == self.scroll_area.viewport() and event.type() == QEvent.Type.Resize:
-            self.adjust_image_sizes()
+            # Do not resize previous results while the new video is being selected
+            # This is necessary to avoid resizing issues when the video is being loaded
+            # as the previous results are being cleared
+            if not hasattr(self, 'is_changing_video') or not self.is_changing_video:
+                # safety check to make sure frame containers exist
+                if self.findChildren(QFrame, "result_frame"):
+                    self.adjust_image_sizes()
             return False
         
         # For dynamic loading - detect when scrolling nears the bottom
