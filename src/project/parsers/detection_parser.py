@@ -235,7 +235,6 @@ class DetectionParser:
 
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
-            print(f"Detections in frame {frame_number}: {detections}")
 
             # Quadrant filtering remains the same
             if self.filter_quadrants:

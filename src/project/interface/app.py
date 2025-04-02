@@ -53,7 +53,7 @@ class VideoProcessingApp(QMainWindow):
         self.setup_results_section(main_layout)
 
     def setup_io_section(self, parent_layout):
-        io_group = QGroupBox("Input & Output")
+        io_group = QGroupBox("Input and Output")
         layout = QVBoxLayout()
         
         # Video Path
