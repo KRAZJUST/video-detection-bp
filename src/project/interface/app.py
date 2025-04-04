@@ -620,6 +620,7 @@ class VideoProcessingApp(QMainWindow):
         """Open frame slideshow starting from the selected frame"""
         # Determine the directory containing the frames
         frame_dir = os.path.dirname(frame_path)
+        print(metadata)
         
         # If frame_dir is empty, use the default found_frames directory
         if not frame_dir:
@@ -633,7 +634,8 @@ class VideoProcessingApp(QMainWindow):
         # Create and show slideshow window
         self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
                                                frame_dir=frame_dir, extracted_frames_dir=extracted_frames_dir, 
-                                               context_frames=20)
+                                               context_frames=15, forward_frames=30, interval=500, 
+                                               fps=int(self.video_info['fps']), frame_interval=self.interval_entry.text())
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):
