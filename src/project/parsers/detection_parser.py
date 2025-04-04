@@ -59,7 +59,6 @@ class DetectionParser:
               and make the thresholds configurable.
               REFACTOR THIS!
         """
-        print(f"Calculating interaction between {bbox1} and {bbox2}")
         x1_1, y1_1, x2_1, y2_1 = bbox1
         x1_2, y1_2, x2_2, y2_2 = bbox2
         
@@ -320,7 +319,6 @@ class DetectionParser:
         """
 
         filtered_frames = {}
-        print(f"Filtering frames based on logic: {logic_operator} and conditions: {expected_conditions}")
 
         # Loop through each frame
         for frame_number, frame_data in frames.items():
@@ -444,7 +442,7 @@ class DetectionParser:
                             (int(xmin), int(ymin) - 5),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         else:
-            print("Invalid segmentation flag value. Please use True or False.")
+            print("Error: No segmentation or bounding box method specified.")
             return
 
         # Save the annotated image
