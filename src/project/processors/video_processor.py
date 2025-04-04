@@ -161,6 +161,8 @@ class VideoProcessor:
     @profile_time_usage
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
+        # Add video information to the database
+        self.db.add_video(self.video_path)
 
         # Run FFmpeg extraction before processing frames
         self.extract_frames()
@@ -190,7 +192,7 @@ class VideoProcessor:
                 timestamp = frame_number * self.interval
 
             # Insert frame into the database
-            self.db.insert_frame(frame_number, timestamp)
+            self.db.insert_frame(self.video_path, frame_number, timestamp)
             
             # Read frame
             frame = cv2.imread(frame_file)
@@ -270,9 +272,9 @@ class VideoProcessor:
         # Insert all detections for this frame in bulk to the database
         # Choose the table based on the tracker argument
         if tracker == 'yolo':
-            self.db.bulk_insert_detections(bulk_detections)
+            self.db.bulk_insert_detections(self.video_path, bulk_detections)
         elif tracker == 'bytetrack':
-            self.db.bulk_insert_refined_detections(bulk_detections)
+            self.db.bulk_insert_refined_detections(self.video_path, bulk_detections)
 
     def create_frame_batches(self, frame_files, batch_size):
         """

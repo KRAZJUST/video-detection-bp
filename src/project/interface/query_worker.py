@@ -18,6 +18,7 @@ class QueryWorker(QThread):
             if self.app.tracker_combo.currentText() in ["yolo", "bytetrack"]:
                 log_parser = DetectionParser(
                     query=self.query,
+                    input_video=self.app.video_path,
                     output_dir=self.app.output_dir,
                     database_path=self.app.database_path,
                     tracker=self.app.tracker_combo.currentText(),

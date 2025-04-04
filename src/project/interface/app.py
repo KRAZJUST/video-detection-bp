@@ -468,7 +468,9 @@ class VideoProcessingApp(QMainWindow):
             aoi = None
         
         # Start query worker
-        self.query_worker = QueryWorker(self, query=self.query_entry.text(), area_of_interest=aoi)
+        self.query_worker = QueryWorker(self, 
+                                        query=self.query_entry.text(), 
+                                        area_of_interest=aoi)
         self.query_worker.finished.connect(self.display_query_results)
         self.query_worker.error.connect(self.handle_query_error)
         # Pass deduplication option to the query worker

@@ -9,8 +9,16 @@ from .yolo_segmenter import YOLOSegmenter
 
 
 class DetectionParser:
-    def __init__(self, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
-                 frame_width: int = 640, frame_height: int = 360, area_of_interest: tuple = None):
+    def __init__(self, 
+                 query: str,
+                 input_video: str,
+                 output_dir: str, 
+                 tracker: str, 
+                 database_path: str, 
+                 use_segmentation: bool = True,
+                 frame_width: int = 640, 
+                 frame_height: int = 360, 
+                 area_of_interest: tuple = None):
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.tracker = tracker
@@ -24,6 +32,7 @@ class DetectionParser:
         self.area_of_interest = area_of_interest
 
         self.output_dir = output_dir
+        self.input_video = input_video
         
         # Create or clear the found frames directory
         self.found_dir = os.path.join(output_dir, 'found_frames')
@@ -176,6 +185,7 @@ class DetectionParser:
     
         # Get initial frames based on basic filters (objects/colors/directions), choose detections or refined detections based on the level of processing
         frames = self.db.get_frames_with_detections(
+            self.input_video,
             'detections' if self.tracker == 'yolo' else 'refined_detections',
             self.filter_objects, 
             self.filter_colors, 
