@@ -104,8 +104,9 @@ class Database:
     def bulk_insert_detections(self, detections: List[dict]):
         """Bulk insert detections for a specific frame."""
         data = [
-            (det['frame_number'], det['class_name'], det['confidence'], det['bbox'][0], det['bbox'][1], det['bbox'][2], det['bbox'][3], det['dominant_color'], det['track_id'], 
-             det['direction'])
+            (det['frame_number'], det['class_name'], det['confidence'], det['bbox'][0], 
+             det['bbox'][1], det['bbox'][2], det['bbox'][3], det['dominant_color'], 
+             det['track_id'], det['direction'])
             for det in detections
         ]
         self.cursor.executemany("""

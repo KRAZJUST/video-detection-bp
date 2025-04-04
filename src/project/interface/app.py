@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  #
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QCheckBox, QFileDialog, QProgressBar,
                             QScrollArea, QGridLayout, QGroupBox, QFrame)
-from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtCore import Qt, QEvent, QMetaObject, Q_ARG
 from PyQt6.QtGui import QPixmap, QImage
 from PIL import Image, ImageQt
 from .video_info_worker import VideoInfoWorker
@@ -23,7 +23,6 @@ class VideoProcessingApp(QMainWindow):
         self.output_dir = os.getcwd()
         self.interval = 30
         self.query = ""
-        self.log_results = []
         self.found_frames_dir = ""
         self.extracted_frames_dir = ""
         self.found_log_entries = {}
@@ -54,7 +53,7 @@ class VideoProcessingApp(QMainWindow):
         self.setup_results_section(main_layout)
 
     def setup_io_section(self, parent_layout):
-        io_group = QGroupBox("Input & Output")
+        io_group = QGroupBox("Input and Output")
         layout = QVBoxLayout()
         
         # Video Path
@@ -80,28 +79,30 @@ class VideoProcessingApp(QMainWindow):
     def setup_query_section(self, parent_layout):
         query_group = QGroupBox("Query Builder")
         layout = QVBoxLayout()
-        
         layout.addWidget(QLabel("Query:"))
         self.query_entry = QLineEdit()
         layout.addWidget(self.query_entry)
         
         # Query controls layout
         controls_layout = QHBoxLayout()
-        
         self.query_button = QPushButton("Search Query")
         self.query_button.clicked.connect(self.start_query)
         controls_layout.addWidget(self.query_button)
         
         # Segmentation option checkbox
         self.use_segmentation = QCheckBox("Use Segmentation")
-        self.use_segmentation.setChecked(True)
-        self.use_segmentation.setToolTip("Use segmentation masks for object detection")
+        self.use_segmentation.setChecked(False)
+        self.use_segmentation.setToolTip("Use segmentation masks for object detection. \n"
+                                         "This feature will not make the search more precise \n"
+                                         "but will display the found objects more accurately \n"
+                                         "at the cost of performance.")
         controls_layout.addWidget(self.use_segmentation)
 
         # Deduplication option checkbox
         self.deduplicate_frames = QCheckBox("Deduplicate Frames")
         self.deduplicate_frames.setChecked(True)
-        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects")
+        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects so that \n"
+                                           "it is easier to navigate through the results.")
         controls_layout.addWidget(self.deduplicate_frames)
 
         layout.addLayout(controls_layout)
@@ -110,6 +111,10 @@ class VideoProcessingApp(QMainWindow):
         self.query_progress = QProgressBar()
         self.query_progress.setVisible(False)
         layout.addWidget(self.query_progress)
+
+        # Results count label
+        self.results_count_label = QLabel("Number of frames: -")
+        layout.addWidget(self.results_count_label)
         
         query_group.setLayout(layout)
         parent_layout.addWidget(query_group)
@@ -121,14 +126,14 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["-", "bytetrack", "xclip"])
+        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
         # Interval
         layout.addWidget(QLabel("Frame Interval:"))
         self.interval_entry = QLineEdit()
-        self.interval_entry.setText("30")
+        self.interval_entry.setText("yolo")
         layout.addWidget(self.interval_entry)
  
         # Process button
@@ -201,6 +206,10 @@ class VideoProcessingApp(QMainWindow):
         self.current_batch = 0
 
     def select_video(self):
+
+        # Clear previous results
+        self.clear_results_layout()
+        
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Video File",
@@ -220,7 +229,7 @@ class VideoProcessingApp(QMainWindow):
             self.video_info_worker.finished.connect(self.update_video_info)
             self.video_info_worker.error.connect(self.handle_video_info_error)
             self.video_info_worker.start()
-
+        
     def update_video_info(self, metadata):
         minutes = int(metadata['duration'] // 60)
         seconds = int(metadata['duration'] % 60)
@@ -244,6 +253,11 @@ class VideoProcessingApp(QMainWindow):
         self.video_info_label.setText(info_text)
         self.show_loading('video_info', False)
 
+        # Update the interval entry based on the video FPS
+        if metadata['fps'] != "unknown":
+            self.interval_entry.setText(str(int(metadata['fps'])))
+        else:
+            self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
@@ -332,13 +346,13 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
-        if tracker == "-" or tracker == "xclip":
-            self.interval_entry.setText("30")
+        if tracker == "yolo" or tracker == "xclip-32" or tracker == "xclip-16":
+            self.interval_entry.setText(str(int(self.video_info['fps'])))
         else:
             self.interval_entry.setText("10")
         
         # Update segmentation checkbox visibility
-        self.use_segmentation.setVisible(tracker in ["-", "bytetrack"])
+        self.use_segmentation.setVisible(tracker in ["yolo", "bytetrack"])
 
     def show_loading(self, section, show):
         progress_bar = None
@@ -388,7 +402,13 @@ class VideoProcessingApp(QMainWindow):
     def eventFilter(self, obj, event):
         # Respond to resize events
         if obj == self.scroll_area.viewport() and event.type() == QEvent.Type.Resize:
-            self.adjust_image_sizes()
+            # Do not resize previous results while the new video is being selected
+            # This is necessary to avoid resizing issues when the video is being loaded
+            # as the previous results are being cleared
+            if not hasattr(self, 'is_changing_video') or not self.is_changing_video:
+                # safety check to make sure frame containers exist
+                if self.findChildren(QFrame, "result_frame"):
+                    self.adjust_image_sizes()
             return False
         
         # For dynamic loading - detect when scrolling nears the bottom
@@ -418,6 +438,15 @@ class VideoProcessingApp(QMainWindow):
         available_width = self.scroll_area.viewport().width()
         effective_width = available_width - 30
         target_width = int(effective_width / 2)
+
+        # Check if there are any loaded images
+        if not hasattr(self, 'loaded_images') or self.loaded_images is None or len(self.loaded_images) == 0:
+            print("No loaded images to resize.")
+            return
+        # Check if target width is valid
+        if target_width <= 0:
+            print("Invalid target width for resizing.")
+            return
         
         # Resize all currently displayed images
         for frame_path, metadata, frame_container in self.loaded_images:
@@ -448,6 +477,15 @@ class VideoProcessingApp(QMainWindow):
 
     def display_query_results(self, results):
         print(f"Displaying {len(results)} results")
+
+        # Ensure results is not None and has a valid length
+        result_count = len(results) if results else 0
+        print(f"Results count: {result_count}")
+        # Qt GUI updates must be done in the main thread
+        # otherwise the text won't update properly
+        QMetaObject.invokeMethod(self.results_count_label, "setText", 
+                                Qt.ConnectionType.QueuedConnection, 
+                                Q_ARG(str, f"Number of frames: {result_count}"))
         
         # Store all results
         self.all_results = list(results.items())
@@ -589,11 +627,18 @@ class VideoProcessingApp(QMainWindow):
         # If frame_dir is empty, use the default found_frames directory
         if not frame_dir:
             frame_dir = self.found_frames_dir
+
+        if self.tracker_combo.currentText() == "bytetrack":
+            extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames_b") 
+        else:
+            extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames_yx")
         
         # Create and show slideshow window
         self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
-                                               frame_dir=frame_dir, extracted_frames_dir=self.extracted_frames_dir, 
-                                               context_frames=20)
+                                               frame_dir=frame_dir, extracted_frames_dir=extracted_frames_dir, 
+                                               context_frames=15, forward_frames=30, interval=500, 
+                                               fps=int(self.video_info['fps']), frame_interval=self.interval_entry.text(),
+                                               input_video_path=self.video_path)
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):

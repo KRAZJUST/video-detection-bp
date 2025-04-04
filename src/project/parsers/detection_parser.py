@@ -9,9 +9,8 @@ from .yolo_segmenter import YOLOSegmenter
 
 
 class DetectionParser:
-    def __init__(self, log_entries, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
+    def __init__(self, query, output_dir, tracker: str, database_path: str, use_segmentation: bool = True,
                  frame_width: int = 640, frame_height: int = 360, area_of_interest: tuple = None):
-        self.log_entries = log_entries
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.tracker = tracker
@@ -60,7 +59,6 @@ class DetectionParser:
               and make the thresholds configurable.
               REFACTOR THIS!
         """
-        print(f"Calculating interaction between {bbox1} and {bbox2}")
         x1_1, y1_1, x2_1, y2_1 = bbox1
         x1_2, y1_2, x2_2, y2_2 = bbox2
         
@@ -178,7 +176,7 @@ class DetectionParser:
     
         # Get initial frames based on basic filters (objects/colors/directions), choose detections or refined detections based on the level of processing
         frames = self.db.get_frames_with_detections(
-            'detections' if self.tracker == '-' else 'refined_detections',
+            'detections' if self.tracker == 'yolo' else 'refined_detections',
             self.filter_objects, 
             self.filter_colors, 
             self.filter_directions,
@@ -199,13 +197,25 @@ class DetectionParser:
             frames = self.filter_detections_in_frames(frames, logic_operator=self.filter_logic[0], expected_conditions=parsed_elements)
         print(f"Number of frames after logic filter: {len(frames)}")
         
+        ### Save the filtered frames ###
+        # Clear the found frames directory
+        if os.path.exists(self.found_dir):
+            shutil.rmtree(self.found_dir)
+        os.makedirs(self.found_dir, exist_ok=True)
+
+        # Determine the directory for saving frames based on the tracker type
+        if self.tracker == 'bytetrack':
+            frame_file_dir = os.path.join(self.output_dir, 'extracted_frames_b')
+        else:
+            frame_file_dir = os.path.join(self.output_dir, 'extracted_frames_yx')
+
         # Loop through each frame and its detections
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
             self.found_log_entries[frame_number] = detections
-            self.save_frame(frame_number, detections)
+            self.save_frame(frame_number, detections, frame_file_dir)
 
-        self.save_found_log()
+        #self.save_found_log()
 
     def apply_spatial_filters(self, frames) -> dict:
         """
@@ -224,7 +234,6 @@ class DetectionParser:
 
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
-            print(f"Detections in frame {frame_number}: {detections}")
 
             # Quadrant filtering remains the same
             if self.filter_quadrants:
@@ -310,7 +319,6 @@ class DetectionParser:
         """
 
         filtered_frames = {}
-        print(f"Filtering frames based on logic: {logic_operator} and conditions: {expected_conditions}")
 
         # Loop through each frame
         for frame_number, frame_data in frames.items():
@@ -350,13 +358,14 @@ class DetectionParser:
         
         return True
 
-    def save_frame(self, frame_num, detections):
+    def save_frame(self, frame_num, detections, frame_file_dir):
         """
         Save annotated frame with detections.
         """
         frame_file_name = f'frame_{frame_num:05d}.jpg'
-        frame_file_path = os.path.join(self.output_dir, 'extracted_frames', frame_file_name)
+        frame_file_path = os.path.join(frame_file_dir, frame_file_name)
 
+        # Check if the frame file exists in the specified directory
         if os.path.exists(frame_file_path):
             self.annotate_image(frame_file_path, detections, frame_num)
         else:
@@ -390,32 +399,50 @@ class DetectionParser:
             for detection in detections:
                 # Get bounding box coordinates and class
                 xmin, ymin, xmax, ymax = detection['bbox']
+                # Get dominant color
+                dominant_color = detection.get('dominant_color')
                 
                 # Create a label for the object with known properties
                 label_parts = [detection['class_name']]
                 
-                if detection.get('dominant_color'):
-                    color = COLOR_MAP.get(detection['dominant_color'], (255, 255, 255))
-                    label_parts.append(detection['dominant_color'])
+                if dominant_color:
+                    color = COLOR_MAP.get(dominant_color, (255, 255, 255))
+                    label_parts.append(dominant_color)
                 #if detection.get('direction'):
                     #label_parts.append(detection['direction'])
                 # Combine the label parts
                 label = ' '.join(label_parts)
+
                 # Draw the bounding box
                 cv2.rectangle(annotated_frame, (xmin, ymin), (xmax, ymax), color, 2)
-                # Draw label background
+
+                # Draw transparent label background
                 label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
-                color_with_opacity = tuple(list(color) + [100])
-                cv2.rectangle(annotated_frame, 
-                            (int(xmin), int(ymin) - 20),
-                            (int(xmin) + label_size[0], int(ymin)),
-                            color_with_opacity, -1)
-                # Draw label text
-                cv2.putText(annotated_frame, label,
+                # semi-transparent rectangle
+                sub_image = annotated_frame[ymin - 20:ymin, xmin:xmin + label_size[0]]
+
+                # Solid color with alpha channel
+                rect_color = list(color)
+                rect_color.append(0.5)
+                
+                # Blend the color with the existing background
+                for c in range(0, 3):
+                    sub_image[:,:,c] = sub_image[:,:,c] * 0.5 + rect_color[c] * 0.5
+                
+                # Put the modified sub-image back
+                annotated_frame[int(ymin)-20:int(ymin), int(xmin):int(xmin)+label_size[0]] = sub_image
+
+                # Draw label text, white for black objects and black for others
+                if dominant_color == 'black' or dominant_color == 'blue':
+                    cv2.putText(annotated_frame, label,
                         (int(xmin), int(ymin) - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                else:
+                    cv2.putText(annotated_frame, label,
+                            (int(xmin), int(ymin) - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         else:
-            print("Invalid segmentation flag value. Please use True or False.")
+            print("Error: No segmentation or bounding box method specified.")
             return
 
         # Save the annotated image

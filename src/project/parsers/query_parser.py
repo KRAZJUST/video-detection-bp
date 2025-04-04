@@ -33,54 +33,93 @@ class QueryParser:
         Extract what to search for from SigLIP results.
         """
         conditions = []
+        threshold = 0.020
         
-        # Filter out labels with low confidence
-        threshold = 0.02
-        # Placeholder for the logic operator
-        logic_operator = None
-        logic_score = 0.0
-        # Placeholder for the interaction
-        interaction = None
-        interaction_score = 0.0
+        # Store by category
+        logic_operators = []
+        interactions = []
+        directions = []
+        colors = []
+        objects = []
+        quadrants = []
+        unknowns = []
         
+        # Process and categorize all labels
         for label, score in zip(result['labels'], result['scores']):
             if score >= threshold:
                 label_lower = label.lower()
-                # Check if this exact label appears in the query
                 if label_lower in self.query_words:
                     self.used_words.add(label_lower)
-                # Check for compound words (e.g., "north-east")
+                
                 if '-' in label_lower:
                     parts = label_lower.split('-')
                     self.used_words.update(parts)
-
+                    
                 if label in DIRECTIONS.values():
-                    conditions.append({'direction': label})
+                    if score > 0.20:
+                        directions.append((label, score))
                 elif label in COLORS:
-                    conditions.append({'color': label})
+                    colors.append(({'color': label}, score))
                 elif label in OBJECTS:
-                    conditions.append({'object': label})
+                    objects.append(({'object': label}, score))
                 elif label in QUADRANTS:
-                    conditions.append({'quadrant': label})
+                    if score > 0.25:
+                        quadrants.append(({'quadrant': label}, score))
                 elif label in INTERACTIONS:
-                    if score > interaction_score and score > 0.20:
-                        interaction = label
-                        interaction_score = score
+                    if score > 0.20:
+                        interactions.append((label, score))
                 elif label in ['and', 'or']:
-                    if score > logic_score and score > 0.13:
-                        logic_operator = label
-                        logic_score = score
+                    if score > 0.13:
+                        logic_operators.append((label, score))
                 else:
-                    conditions.append({'Unknown': label})
+                    unknowns.append(({'Unknown': label}, score))
+        
+        # Sort logic operators and filter to same type
+        logic_operators.sort(key=lambda x: x[1], reverse=True)
+        if logic_operators:
+            highest_operator_type = logic_operators[0][0]
+            logic_operators = [(op, score) for op, score in logic_operators 
+                            if op == highest_operator_type]
+        
+        # If there is interaction, but no logic operators, add 'and'
+        # so it can filter correctly
+        has_interaction = len(interactions) > 0
+        if has_interaction and not logic_operators:
+            # 'and' with score 1.0 so it is always selected
+            logic_operators.append(('and', 1.0))
 
-        # Append only the logic operator with highest probability score and if it exists
-        if logic_operator:
-            conditions.append({'logic': logic_operator})
-            self.used_words.add(logic_operator.lower())
-        # Append only the interaction with highest probability score and if it exists
-        if interaction:
-            conditions.append({'interaction': interaction})
-            self.used_words.add(interaction.lower())
+        # Determine how many items to select from each category
+        items_per_category = 1
+        if logic_operators:
+            items_per_category = len(logic_operators) + 1
+        
+        # Sort each category by score
+        colors.sort(key=lambda x: x[1], reverse=True)
+        objects.sort(key=lambda x: x[1], reverse=True)
+        quadrants.sort(key=lambda x: x[1], reverse=True)
+        unknowns.sort(key=lambda x: x[1], reverse=True)
+        
+        # Add top items from each category
+        for category in [colors, objects, quadrants, unknowns]:
+            for condition, _ in category[:items_per_category]:
+                conditions.append(condition)
+        
+        # Add logic operators
+        for logic_op, _ in logic_operators:
+            conditions.append({'logic': logic_op})
+            self.used_words.add(logic_op.lower())
+        
+        # Add top interaction if exists
+        interactions.sort(key=lambda x: x[1], reverse=True)
+        if interactions:
+            conditions.append({'interaction': interactions[0][0]})
+            self.used_words.add(interactions[0][0].lower())
+        
+        # Add top direction if exists
+        directions.sort(key=lambda x: x[1], reverse=True)
+        if directions:
+            conditions.append({'direction': directions[0][0]})
+            self.used_words.add(directions[0][0].lower())
         
         return conditions
 

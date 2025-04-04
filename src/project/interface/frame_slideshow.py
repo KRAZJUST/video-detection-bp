@@ -6,16 +6,29 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
 
 class FrameSlideshow(QMainWindow):
-    def __init__(self, parent, starting_frame_path, frame_dir, extracted_frames_dir, context_frames=5, interval=500):
+    def __init__(self, parent, starting_frame_path, frame_dir, extracted_frames_dir, 
+                 context_frames=10, forward_frames=30, interval=500, fps=24,
+                 frame_interval=30, input_video_path=None):
         super().__init__()
         self.parent = parent
-        self.frame_dir = frame_dir  # Directory with annotated frames (found_frames)
-        self.extracted_frames_dir = extracted_frames_dir  # Directory with all frames
-        self.context_frames = context_frames  # Number of frames to show before/after
-        self.interval = interval  # milliseconds between frames
+        self.frame_dir = frame_dir
+        self.extracted_frames_dir = extracted_frames_dir
+        # Number of frames to show before the current frame
+        self.context_frames = context_frames
+        # Number of frames to show after the current frame
+        self.forward_frames = forward_frames
+        # milliseconds between frames in slideshow
+        self.interval = interval
+        # Path to the input video file
+        self.input_video_path = input_video_path
+        
+        # Frame rate and extraction interval for timestamp calculation
+        # in .webm files, fps is unknown so to avoid type errors, set to 24
+        self.fps = fps if fps != "unknown" else 24
+        self.frame_interval = frame_interval 
         
         self.setWindowTitle("Frame Slideshow")
-        self.resize(800, 600)
+        self.resize(700, 600)
         
         # Create main container and layout
         main_widget = QWidget()
@@ -26,53 +39,66 @@ class FrameSlideshow(QMainWindow):
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(self.image_label)
+        main_layout.addSpacing(5)
         
         # Create slider
         slider_layout = QHBoxLayout()
-        
         self.frame_slider = QSlider(Qt.Orientation.Horizontal)
         self.frame_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.frame_slider.valueChanged.connect(self.show_frame_at_index)
         slider_layout.addWidget(self.frame_slider)
-        
         self.frame_label = QLabel("Frame: 0")
         slider_layout.addWidget(self.frame_label)
-        
+        # Add slider layout to main layout
         main_layout.addLayout(slider_layout)
         
         # Create controls
         controls_layout = QHBoxLayout()
-        
         self.play_button = QPushButton("Play")
         self.play_button.clicked.connect(self.toggle_slideshow)
         controls_layout.addWidget(self.play_button)
-        
-        speed_label = QLabel("Speed:")
-        controls_layout.addWidget(speed_label)
-        
         self.speed_combo = QComboBox()
+        self.speed_combo.setToolTip("Select slideshow speed")
         self.speed_combo.addItems(["Slow (1 fps)", "Medium (2 fps)", "Fast (5 fps)"])
         # default speed to medium
         self.speed_combo.setCurrentIndex(1)
         self.speed_combo.currentIndexChanged.connect(self.update_speed)
         controls_layout.addWidget(self.speed_combo)
-        
-        # Context frames control
+        # Add controls to main layout
+        main_layout.addLayout(controls_layout)
+
+        # Create context and forward frames controls
+        context_layout = QHBoxLayout()
         context_label = QLabel("Context Frames:")
-        controls_layout.addWidget(context_label)
-        
+        context_layout.addWidget(context_label)
         self.context_combo = QComboBox()
-        self.context_combo.addItems(["1", "3", "5", "10", "15"])
+        self.context_combo.setToolTip("Number of frames to show before the current frame")
+        self.context_combo.addItems(["1", "3", "5", "10", "15", "30", "50"])
         self.context_combo.setCurrentText(str(self.context_frames))
         self.context_combo.currentTextChanged.connect(self.update_context_frames)
-        controls_layout.addWidget(self.context_combo)
+        context_layout.addWidget(self.context_combo)
+
+        forward_label = QLabel("Forward Frames:")
+        context_layout.addWidget(forward_label)
+        self.forward_combo = QComboBox()
+        self.forward_combo.setToolTip("Number of frames to show after the current frame")
+        self.forward_combo.addItems(["15", "30", "50"])
+        self.forward_combo.setCurrentText(str(self.forward_frames))
+        self.forward_combo.currentTextChanged.connect(self.update_forward_frames)
+        context_layout.addWidget(self.forward_combo)
+        # Add context and forward frames controls to main layout
+        main_layout.addLayout(context_layout)
         
-        # Export button
-        export_button = QPushButton("Export Frame")
+        # Create action buttons layout
+        actions_layout = QHBoxLayout()
+        export_button = QPushButton('Export Frame')
         export_button.clicked.connect(self.export_current_frame)
-        controls_layout.addWidget(export_button)
-        
-        main_layout.addLayout(controls_layout)
+        actions_layout.addWidget(export_button)
+        open_button = QPushButton('Open in System Player')
+        open_button.clicked.connect(self.open_in_system_player)
+        actions_layout.addWidget(open_button)
+        # Add action buttons to main layout
+        main_layout.addLayout(actions_layout)
         
         # Set up timer for slideshow
         self.timer = QTimer(self)
@@ -88,6 +114,21 @@ class FrameSlideshow(QMainWindow):
         # Update speed from combo box
         self.update_speed()
     
+    def get_frame_timestamp(self, frame_num):
+        """Calculate timestamp based on frame number and constant extraction rate"""
+        # timestamp = (frame_num * interval) / fps
+        # this gives us the time in seconds
+        # only works with constant frame intervals, so if adding the dynamic 
+        # frame extraction interval, refactor this to fetch timestamps from database
+        seconds = (float(frame_num) * float(self.frame_interval)) / float(self.fps)
+        return seconds
+    
+    def format_timestamp(self, seconds):
+        """Format seconds into MM:SS.mmm"""
+        minutes = int(seconds // 60)
+        remaining_seconds = seconds % 60
+        return f"{minutes:02d}:{remaining_seconds:06.3f}"
+    
     def find_frames(self):
         """Find all frames in both directories and organize them"""
         # Dictionary to store all available frames by frame number
@@ -98,8 +139,8 @@ class FrameSlideshow(QMainWindow):
         if os.path.exists(self.extracted_frames_dir):
             for filename in sorted(os.listdir(self.extracted_frames_dir)):
                 if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
-                    # Extract frame number using regex
-                    match = re.search(r'(\d+)', filename)
+                    # Extract frame number using regex for frame_%5d.jpg format
+                    match = re.search(r'frame_(\d+)', filename)
                     if match:
                         frame_num = int(match.group(1))
                         self.all_frames[frame_num] = os.path.join(self.extracted_frames_dir, filename)
@@ -109,7 +150,7 @@ class FrameSlideshow(QMainWindow):
             for filename in sorted(os.listdir(self.frame_dir)):
                 if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
                     # Extract frame number using regex
-                    match = re.search(r'(\d+)', filename)
+                    match = re.search(r'frame_(\d+)', filename)
                     if match:
                         frame_num = int(match.group(1))
                         self.annotated_frames[frame_num] = os.path.join(self.frame_dir, filename)
@@ -118,17 +159,11 @@ class FrameSlideshow(QMainWindow):
         
         # Create sorted list of all frame numbers
         self.frame_numbers = sorted(self.all_frames.keys())
-        
-        # Set slider range
-        if self.frame_numbers:
-            self.frame_slider.setRange(0, len(self.frame_numbers) - 1)
-            self.frame_slider.setSingleStep(1)
-            self.frame_slider.setPageStep(5)
     
     def find_starting_index(self, starting_frame_path):
         """Find the index of the starting frame in our frame list"""
-        # Extract frame number from starting_frame_path
-        match = re.search(r'(\d+)', os.path.basename(starting_frame_path))
+        # Extract frame number from starting_frame_path using the frame_%5d.jpg format
+        match = re.search(r'frame_(\d+)', os.path.basename(starting_frame_path))
         if match:
             frame_num = int(match.group(1))
             if frame_num in self.frame_numbers:
@@ -146,7 +181,8 @@ class FrameSlideshow(QMainWindow):
         
         # Get range of frame numbers to show
         start_idx = max(0, self.frame_numbers.index(selected_frame_num) - self.context_frames)
-        end_idx = min(len(self.frame_numbers) - 1, self.frame_numbers.index(selected_frame_num) + self.context_frames)
+        end_idx = min(len(self.frame_numbers) - 1, 
+                      self.frame_numbers.index(selected_frame_num) + self.forward_frames)
         
         # Create list of visible frame numbers
         self.visible_frame_numbers = self.frame_numbers[start_idx:end_idx + 1]
@@ -162,6 +198,12 @@ class FrameSlideshow(QMainWindow):
                 self.visible_frame_paths.append(self.annotated_frames[frame_num])
             else:
                 self.visible_frame_paths.append(self.all_frames[frame_num])
+        
+        # Update slider to show only visible frames
+        self.frame_slider.blockSignals(True)
+        self.frame_slider.setRange(0, len(self.visible_frame_paths) - 1)
+        self.frame_slider.setValue(self.current_frame_index)
+        self.frame_slider.blockSignals(False)
         
         # Show current frame
         self.show_frame_at_visible_index(self.current_frame_index)
@@ -187,28 +229,41 @@ class FrameSlideshow(QMainWindow):
         
         self.image_label.setPixmap(scaled_pixmap)
         
+        # Get timestamp for this frame using the constant interval calculation
+        timestamp = self.get_frame_timestamp(frame_num)
+        formatted_time = self.format_timestamp(timestamp)
+        
         # Update frame label and indicate if this is an annotated frame
         is_annotated = frame_num in self.annotated_frames
         annotation_status = " (Annotated)" if is_annotated else ""
         
-        # Show frame info - current/total and frame number
-        self.frame_label.setText(f"Frame: {index + 1}/{len(self.visible_frame_paths)} - #{frame_num}{annotation_status}")
+        # Show frame info - current/total, frame number and timestamp
+        self.frame_label.setText(
+            f"Frame: {index + 1}/{len(self.visible_frame_paths)} - " + 
+            f"#{frame_num}{annotation_status} - Time: {formatted_time}"
+        )
     
     def show_frame_at_index(self, index):
-        """Handle when user changes the main slider"""
-        if 0 <= index < len(self.frame_numbers):
-            self.selected_frame_index = index
-            self.update_visible_frames()
-            
-            # Block signals to prevent recursive calls
-            self.frame_slider.blockSignals(True)
-            self.frame_slider.setValue(index)
-            self.frame_slider.blockSignals(False)
+        """Handle when user changes the slider"""
+        if 0 <= index < len(self.visible_frame_paths):
+            self.current_frame_index = index
+            # Show the frame
+            self.show_frame_at_visible_index(index)
     
     def next_frame(self):
         """Show the next frame in the visible sequence"""
         next_index = (self.current_frame_index + 1) % len(self.visible_frame_paths)
         self.show_frame_at_visible_index(next_index)
+        
+        # update to get the next chunk when we reach the end of the visible frames
+        #if next_index == len(self.visible_frame_paths) - 1:
+        #    current_frame_num = self.visible_frame_numbers[next_index]
+        #    if current_frame_num < self.frame_numbers[-1]:
+        #        # Get the next frame's index in the full list
+        #        next_full_index = self.frame_numbers.index(current_frame_num) + 1
+        #        if next_full_index < len(self.frame_numbers):
+        #            self.selected_frame_index = next_full_index
+        #            self.update_visible_frames()
     
     def toggle_slideshow(self):
         """Start or stop the slideshow"""
@@ -242,17 +297,30 @@ class FrameSlideshow(QMainWindow):
             self.update_visible_frames()
         except ValueError:
             pass
+
+    def update_forward_frames(self, value):
+        """Update the number of forward frames to show"""
+        try:
+            self.forward_frames = int(value)
+            self.update_visible_frames()
+        except ValueError:
+            pass
     
     def export_current_frame(self):
         """Export the current frame to a user-selected location"""
         if 0 <= self.current_frame_index < len(self.visible_frame_paths):
             source_path = self.visible_frame_paths[self.current_frame_index]
+            frame_num = self.visible_frame_numbers[self.current_frame_index]
+            timestamp = self.get_frame_timestamp(frame_num)
+            formatted_time = self.format_timestamp(timestamp).replace(":", "_")
             
-            # Get save location from user
+            # Get save location from user with suggested filename including timestamp
+            suggested_name = f"frame_{frame_num:05d}_{formatted_time}.jpg"
+            
             file_path, _ = QFileDialog.getSaveFileName(
                 self,
                 "Export Frame",
-                os.path.expanduser("~/Desktop/frame.jpg"),
+                os.path.expanduser(f"~/Desktop/{suggested_name}"),
                 "Image files (*.jpg *.png)"
             )
             
@@ -266,6 +334,17 @@ class FrameSlideshow(QMainWindow):
         """Handle resize events to scale the image appropriately"""
         super().resizeEvent(event)
         
-        # If we have an image, rescale it
-        if self.image_label.pixmap() and not self.image_label.pixmap().isNull():
+        # Update the displayed image to fit the new size
+        if self.image_label.pixmap():
             self.show_frame_at_visible_index(self.current_frame_index)
+
+    def open_in_system_player(self):
+        """Opne the video at the current frame in the system's default video player"""
+        if 0 <= self.current_frame_index < len(self.visible_frame_paths):
+            if os.path.exists(self.input_video_path):
+                os.startfile(self.input_video_path)
+            else:
+                print(f"Video file not found: {self.input_video_path}")
+        else:
+            print("No valid frame selected to open in system player.")
+        # Note: This method is a placeholder and may need to be implemented
