@@ -12,7 +12,7 @@ def main():
     # Set up database
     db_path = "detections.db"
     db = Database(db_path)
-    db.reset_database()
+    #db.drop_tables()
     db.close()
 
     # Create QApplication instance

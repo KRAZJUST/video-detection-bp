@@ -51,7 +51,7 @@ class VideoProcessor:
         
         self.processing_level = 1 if self.tracker_arg in ['yolo', 'bytetrack'] else 2
         self.temp_embeddings = []
-
+        
         # Get the video informations
         video_metadata = VideoInfoUtils.get_video_info(video_path)
         # Convert the video metadata to a dictionary
@@ -63,6 +63,9 @@ class VideoProcessor:
             'fps': None
         }
         print(f"Video Info: {self.video_info}")
+
+        # Calculate the expected number of frames
+        self.expected_frames_count = self.calculate_expected_frames()
 
     def calculate_expected_frames(self) -> int:
         """Calculate the expected number of frames to be extracted."""
@@ -80,11 +83,9 @@ class VideoProcessor:
             if f.startswith("frame_") and f.endswith(".jpg")
         ])
         
-        # Calculate the expected number of frames
-        expected_frames_count = self.calculate_expected_frames()
-        
         # Return True if the expected frames are already extracted, False otherwise
-        return existing_frames_count + 3 >= expected_frames_count and existing_frames_count - 3 <= expected_frames_count
+        return existing_frames_count + 3 >= self.expected_frames_count and \
+            existing_frames_count - 3 <= self.expected_frames_count
 
     @profile_time_usage
     def extract_frames(self):
@@ -161,6 +162,18 @@ class VideoProcessor:
     @profile_time_usage
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
+        # Check if the video is already processed and the frames are already extracted
+        # if the extraction interval is different from the one used in the database
+        # so the number of frames is different, delete the frames before reprocessing
+        if self.tracker_arg == 'yolo' and \
+           self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
+            self.db.reset_video_yolo(self.video_path)
+        elif self.tracker_arg == 'bytetrack' and \
+             self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
+            self.db.reset_video_bytetrack(self.video_path)
+        
+        # Add video information to the database
+        self.db.add_video(self.video_path)
 
         # Run FFmpeg extraction before processing frames
         self.extract_frames()
@@ -190,7 +203,10 @@ class VideoProcessor:
                 timestamp = frame_number * self.interval
 
             # Insert frame into the database
-            self.db.insert_frame(frame_number, timestamp)
+            if self.tracker_arg == 'yolo':
+                self.db.insert_yolo_frame(self.video_path, frame_number, timestamp)
+            elif self.tracker_arg == 'bytetrack':
+                self.db.insert_bytetrack_frame(self.video_path, frame_number, timestamp)
             
             # Read frame
             frame = cv2.imread(frame_file)
@@ -270,9 +286,9 @@ class VideoProcessor:
         # Insert all detections for this frame in bulk to the database
         # Choose the table based on the tracker argument
         if tracker == 'yolo':
-            self.db.bulk_insert_detections(bulk_detections)
+            self.db.bulk_insert_detections(self.video_path, bulk_detections)
         elif tracker == 'bytetrack':
-            self.db.bulk_insert_refined_detections(bulk_detections)
+            self.db.bulk_insert_refined_detections(self.video_path, bulk_detections)
 
     def create_frame_batches(self, frame_files, batch_size):
         """

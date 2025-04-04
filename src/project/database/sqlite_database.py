@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Dict, Optional
 from detectors.detection import Detection
 
 class Database:
@@ -23,18 +23,48 @@ class Database:
 
     def create_tables(self):
         """Create the necessary tables in the database."""
-
+        # Videos table
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS frames (
-                frame_number INTEGER PRIMARY KEY NOT NULL,
-                timestamp REAL
+            CREATE TABLE IF NOT EXISTS videos (
+                video_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_name TEXT NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
 
+        # Create two tables for frames so it can store them
+        # separately for YOLO and ByteTrack as they use different
+        # interval and the frame numbers would be different
+        # and needed to be overwritten
+        # YOLO frames table
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS yolo_frames (
+                frame_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_id INTEGER NOT NULL,
+                frame_number INTEGER NOT NULL,
+                timestamp REAL,
+                FOREIGN KEY (video_id) REFERENCES videos (video_id),
+                UNIQUE (video_id, frame_number)
+            );
+        """)
+
+        # ByteTrack frames table
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS bytetrack_frames (
+                frame_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_id INTEGER NOT NULL,
+                frame_number INTEGER NOT NULL,
+                timestamp REAL,
+                FOREIGN KEY (video_id) REFERENCES videos (video_id),
+                UNIQUE (video_id, frame_number)
+            );
+        """)
+
+        # Detections table (linked to YOLO frames)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS detections (
                 detection_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                frame_number INTEGER,
+                frame_id INTEGER,
                 class_name TEXT,
                 confidence REAL,
                 xmin INTEGER,
@@ -44,14 +74,15 @@ class Database:
                 dominant_color TEXT,
                 track_id INTEGER DEFAULT NULL,
                 direction TEXT DEFAULT NULL,
-                FOREIGN KEY (frame_number) REFERENCES frames (frame_number)
+                FOREIGN KEY (frame_id) REFERENCES yolo_frames (frame_id)
             );
         """)
 
+        # Refined detections table (linked to ByteTrack frames)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS refined_detections (
                 detection_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                frame_number INTEGER,
+                frame_id INTEGER,
                 track_id INTEGER,
                 class_name TEXT,
                 confidence REAL,
@@ -61,165 +92,252 @@ class Database:
                 ymax INTEGER,
                 dominant_color TEXT,
                 direction TEXT,
-                FOREIGN KEY (frame_number) REFERENCES frames (frame_number)
+                FOREIGN KEY (frame_id) REFERENCES bytetrack_frames (frame_id)
             );
         """)
 
         self.connection.commit()
 
-    def insert_frame(self, frame_number: int, timestamp: float) -> int:
+    def add_video(self, video_name: str) -> int:
         """
-        If the frame does not exist, insert it into the database.
-        If it already exists, remove the frame and re-insert it.
+        Add a new video to the database or get the ID if it already exists.
+        Returns the video_id.
         """
-        existing_frame = self.get_frame_number(frame_number)
-        if existing_frame:
-            # Remove the frame if it already exists and re-insert it
-            self.cursor.execute("DELETE FROM frames WHERE frame_number = ?", (frame_number,))
+        try:
+            self.cursor.execute("""
+                INSERT INTO videos (video_name) VALUES (?)
+            """, (video_name,))
             self.connection.commit()
+            return self.cursor.lastrowid
+        except sqlite3.IntegrityError:
+            # Video already exists, get its ID
+            self.cursor.execute("""
+                SELECT video_id FROM videos WHERE video_name = ?
+            """, (video_name,))
+            return self.cursor.fetchone()[0]
 
+    def get_video_id(self, video_name: str) -> Optional[int]:
+        """Get video_id by video_name."""
         self.cursor.execute("""
-            INSERT INTO frames (frame_number, timestamp)
-            VALUES (?, ?)
-        """, (frame_number, timestamp))
+            SELECT video_id FROM videos WHERE video_name = ?
+        """, (video_name,))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+
+    # YOLO frame methods
+    def insert_yolo_frame(self, video_name: str, frame_number: int, timestamp: float) -> int:
+        """
+        Insert a frame for YOLO detection processing.
+        """
+        # Ensure the video exists
+        video_id = self.add_video(video_name)
+        
+        # Check if frame already exists
+        frame_id = self.get_yolo_frame_id(video_id, frame_number)
+        
+        if frame_id:
+            # Remove the frame before inserting it again
+            self.cursor.execute("""
+                DELETE FROM yolo_frames WHERE frame_id = ?
+            """, (frame_id,))
+            self.connection.commit()
+        
+        # Insert the new frame
+        self.cursor.execute("""
+            INSERT INTO yolo_frames (video_id, frame_number, timestamp)
+            VALUES (?, ?, ?)
+        """, (video_id, frame_number, timestamp))
         self.connection.commit()
+        
         return self.cursor.lastrowid
 
-    def insert_detection(self, frame_number: int, detection: Detection):
-        """Insert detection for a specific frame."""
-        self.cursor.execute("""
-            INSERT INTO detections (frame_number, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, track_id, direction)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            frame_number,
-            detection.class_name,
-            detection.confidence,
-            detection.bbox[0], detection.bbox[1], detection.bbox[2], detection.bbox[3],
-            detection.dominant_color,
-            None,
-            None
-        ))
-        self.connection.commit()
-
-    def bulk_insert_detections(self, detections: List[dict]):
-        """Bulk insert detections for a specific frame."""
-        data = [
-            (det['frame_number'], det['class_name'], det['confidence'], det['bbox'][0], 
-             det['bbox'][1], det['bbox'][2], det['bbox'][3], det['dominant_color'], 
-             det['track_id'], det['direction'])
-            for det in detections
-        ]
-        self.cursor.executemany("""
-            INSERT INTO detections (frame_number, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, track_id, direction)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, data)
-
-        self.connection.commit()
-
-    def bulk_insert_refined_detections(self, detections: List[dict]):
+    def get_yolo_frame_id(self, video_id: int, frame_number: int) -> Optional[int]:
         """
-        Bulk insert refined detections from tracker.
-        Args:
-            detections: List of dictionaries with detection data.
-        """
-        data = [
-            (det['frame_number'], det['track_id'], det['class_name'], det['confidence'],
-            det['bbox'][0], det['bbox'][1], det['bbox'][2], det['bbox'][3],
-            det['dominant_color'], det['direction'])
-            for det in detections
-        ]
-        self.cursor.executemany("""
-            INSERT INTO refined_detections (frame_number, track_id, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, direction)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, data)
-        self.connection.commit()
-
-
-    def update_detection(self, detection_id: int, track_id: int, direction: str):
-        """Update the track ID and direction for a specific detection."""
-        self.cursor.execute("""
-            UPDATE detections SET track_id = ?, direction = ? WHERE detection_id = ?
-        """, (track_id, direction, detection_id))
-        self.connection.commit()
-
-    def get_bbox(self, detection_id: int) -> Tuple[int]:
-        """Retrieve the bounding box for a specific detection."""
-        self.cursor.execute("""
-            SELECT xmin, ymin, xmax, ymax FROM detections WHERE detection_id = ?
-        """, (detection_id,))
-        return self.cursor.fetchone()
-
-    def get_frame_number(self, frame_number: int):
-        """
-        Check if a frame number exists in the database.
-        Returns the frame ID and number if it exists, or None otherwise.
+        Get the frame_id for a YOLO frame.
         """
         self.cursor.execute("""
-            SELECT frame_number FROM frames WHERE frame_number = ?
-        """, (frame_number,))
-        return self.cursor.fetchone()
+            SELECT frame_id FROM yolo_frames 
+            WHERE video_id = ? AND frame_number = ?
+        """, (video_id, frame_number))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
 
-
-    def get_detections_by_frame(self, frame_number: int) -> List[Tuple[Any]]:
-        """Retrieve detections for a specific frame."""
-        self.cursor.execute("""
-            SELECT d.class_name, d.confidence, d.xmin, d.ymin, d.xmax, d.ymax, d.dominant_color
-            FROM detections d
-            JOIN frames f ON d.frame_number = f.frame_number
-            WHERE f.frame_number = ?
-        """, (frame_number,))
-        return self.cursor.fetchall()
-
-    def get_refined_detections_by_frame(self, frame_number: int) -> List[Tuple[Any]]:
-        """Retrieve refined (tracked) detections for a specific frame."""
-        self.cursor.execute("""
-            SELECT class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, track_id, direction
-            FROM refined_detections
-            WHERE frame_number = ?
-        """, (frame_number,))
-        return self.cursor.fetchall()
-
-    def reset_database(self):
-        """ Function to clear previous detections from the database. """
-        self.cursor.execute("DELETE FROM detections")
-        self.cursor.execute("DELETE FROM refined_detections")
-        self.cursor.execute("DELETE FROM frames")
-        self.connection.commit()
-        print("Database reset complete.")
-
-    def get_frames_with_detections(self, table_name: str, filter_objects, filter_colors=None,
-                                   filter_directions=None, area_filter=None):
+    # ByteTrack frame methods
+    def insert_bytetrack_frame(self, video_name: str, frame_number: int, timestamp: float) -> int:
         """
-        Fetch unique frames with matching detections from the database.
-        Allows conditional filtering based on object type, color, direction, logic and area.
+        Insert a frame for ByteTrack refinement processing.
+        """
+        # Ensure the video exists
+        video_id = self.add_video(video_name)
         
-        Args:
-            table_name (str): Name of the table to query.
-            filter_objects (list): List of object classes to filter by.
-            filter_colors (list, optional): List of colors to filter by. Defaults to None.
-            filter_directions (list, optional): List of directions to filter by. Defaults to None.
-            area_filter (tuple, optional): (x1, y1, x2, y2, margin) defining area of interest. Defaults to None.
-            
-        Returns:
-            frames: Dictionary containing frame number and detections.
+        # Check if frame already exists
+        frame_id = self.get_bytetrack_frame_id(video_id, frame_number)
+        
+        if frame_id:
+            # Remove the frame before inserting it again
+            self.cursor.execute("""
+                DELETE FROM bytetrack_frames WHERE frame_id = ?
+            """, (frame_id,))
+            self.connection.commit()
+        
+        # Insert the new frame
+        self.cursor.execute("""
+            INSERT INTO bytetrack_frames (video_id, frame_number, timestamp)
+            VALUES (?, ?, ?)
+        """, (video_id, frame_number, timestamp))
+        self.connection.commit()
+        
+        return self.cursor.lastrowid
+
+    def get_bytetrack_frame_id(self, video_id: int, frame_number: int) -> Optional[int]:
         """
-        where_clauses = []
-        params = []
+        Get the frame_id for a ByteTrack frame.
+        """
+        self.cursor.execute("""
+            SELECT frame_id FROM bytetrack_frames 
+            WHERE video_id = ? AND frame_number = ?
+        """, (video_id, frame_number))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+
+    def bulk_insert_detections(self, video_name: str, detections: List[dict]):
+        """Bulk insert detections for YOLO frames."""
+        # Get video_id
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            raise ValueError(f"Video '{video_name}' not found in database")
+            
+        # Prepare data with frame_id
+        processed_data = []
+        for det in detections:
+            frame_id = self.get_yolo_frame_id(video_id, det['frame_number'])
+            if not frame_id:
+                # Automatically create the frame if it doesn't exist
+                frame_id = self.insert_yolo_frame(video_name, det['frame_number'], 0)
+                
+            processed_data.append(
+                (frame_id, det['class_name'], det['confidence'], det['bbox'][0], 
+                det['bbox'][1], det['bbox'][2], det['bbox'][3], det['dominant_color'], 
+                det['track_id'], det['direction'])
+            )
+            
+        self.cursor.executemany("""
+            INSERT INTO detections (frame_id, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, track_id, direction)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, processed_data)
+
+        self.connection.commit()
+
+    def bulk_insert_refined_detections(self, video_name: str, detections: List[dict]):
+        """
+        Bulk insert refined detections from ByteTrack.
+        """
+        # Get video_id
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            raise ValueError(f"Video '{video_name}' not found in database")
+            
+        # Prepare data with frame_id
+        processed_data = []
+        for det in detections:
+            frame_id = self.get_bytetrack_frame_id(video_id, det['frame_number'])
+            if not frame_id:
+                # Automatically create the frame if it doesn't exist
+                frame_id = self.insert_bytetrack_frame(video_name, det['frame_number'], 0)
+                
+            processed_data.append(
+                (frame_id, det['track_id'], det['class_name'], det['confidence'],
+                det['bbox'][0], det['bbox'][1], det['bbox'][2], det['bbox'][3],
+                det['dominant_color'], det['direction'])
+            )
+            
+        self.cursor.executemany("""
+            INSERT INTO refined_detections (frame_id, track_id, class_name, confidence, xmin, ymin, xmax, ymax, dominant_color, direction)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, processed_data)
+        self.connection.commit()
+
+    def reset_video_yolo(self, video_name: str):
+        """Function to clear YOLO detections for a specific video."""
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            print(f"Video '{video_name}' not found in database")
+            return
+            
+        # Get all frame_ids for this video
+        self.cursor.execute("""
+            SELECT frame_id FROM yolo_frames WHERE video_id = ?
+        """, (video_id,))
+        frame_ids = [row[0] for row in self.cursor.fetchall()]
+        
+        if not frame_ids:
+            print(f"No YOLO frames found for video '{video_name}'")
+            return
+            
+        # Delete detections for these frames
+        placeholders = ', '.join(['?'] * len(frame_ids))
+        self.cursor.execute(f"DELETE FROM detections WHERE frame_id IN ({placeholders})", frame_ids)
+        
+        # Delete the frames
+        self.cursor.execute("DELETE FROM yolo_frames WHERE video_id = ?", (video_id,))
+        
+        self.connection.commit()
+        print(f"YOLO detections for video '{video_name}' cleared successfully.")
+
+    def reset_video_bytetrack(self, video_name: str):
+        """Function to clear ByteTrack refined detections for a specific video."""
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            print(f"Video '{video_name}' not found in database")
+            return
+            
+        # Get all frame_ids for this video
+        self.cursor.execute("""
+            SELECT frame_id FROM bytetrack_frames WHERE video_id = ?
+        """, (video_id,))
+        frame_ids = [row[0] for row in self.cursor.fetchall()]
+        
+        if not frame_ids:
+            print(f"No ByteTrack frames found for video '{video_name}'")
+            return
+            
+        # Delete refined detections for these frames
+        placeholders = ', '.join(['?'] * len(frame_ids))
+        self.cursor.execute(f"DELETE FROM refined_detections WHERE frame_id IN ({placeholders})", frame_ids)
+        
+        # Delete the frames
+        self.cursor.execute("DELETE FROM bytetrack_frames WHERE video_id = ?", (video_id,))
+        
+        self.connection.commit()
+        print(f"ByteTrack detections for video '{video_name}' cleared successfully.")
+
+    def get_yolo_frames_with_detections(self, video_name: str, filter_objects=None, filter_colors=None,
+                                      filter_directions=None, area_filter=None):
+        """
+        Fetch unique frames with matching YOLO detections from the database for a specific video.
+        """
+        # Get video_id
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return {}
+            
+        where_clauses = [f"f.video_id = ?"]
+        params = [video_id]
 
         # Add conditions based on the filters
         if filter_objects:
             object_placeholders = ', '.join(['?'] * len(filter_objects))
-            where_clauses.append(f"class_name IN ({object_placeholders})")
+            where_clauses.append(f"d.class_name IN ({object_placeholders})")
             params.extend(filter_objects)
 
         if filter_colors:
             color_placeholders = ', '.join(['?'] * len(filter_colors))
-            where_clauses.append(f"dominant_color IN ({color_placeholders})")
+            where_clauses.append(f"d.dominant_color IN ({color_placeholders})")
             params.extend(filter_colors)
 
         if filter_directions:
             direction_placeholders = ', '.join(['?'] * len(filter_directions))
-            where_clauses.append(f"direction IN ({direction_placeholders})")
+            where_clauses.append(f"d.direction IN ({direction_placeholders})")
             params.extend(filter_directions)
 
         if area_filter:
@@ -231,17 +349,17 @@ class Database:
             area_x2 += margin
             area_y2 += margin
             # Filter based on centroid being within the area
-            # centroid - (xmin + xmax)/2, (ymin + ymax)/2
-            where_clauses.append(f"((xmin + xmax)/2 BETWEEN ? AND ?) AND ((ymin + ymax)/2 BETWEEN ? AND ?)")
+            where_clauses.append(f"((d.xmin + d.xmax)/2 BETWEEN ? AND ?) AND ((d.ymin + d.ymax)/2 BETWEEN ? AND ?)")
             params.extend([area_x1, area_x2, area_y1, area_y2])
 
         # Join the clauses
-        where_clause = f" AND ".join(where_clauses) if where_clauses else "1=1"
+        where_clause = " AND ".join(where_clauses)
         print(f"Where Clause: {where_clause}")
 
         query = f"""
-        SELECT DISTINCT frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence, track_id
-        FROM {table_name}
+        SELECT DISTINCT f.frame_number, d.class_name, d.dominant_color, d.xmin, d.xmax, d.ymin, d.ymax, d.confidence, d.track_id
+        FROM detections d
+        JOIN yolo_frames f ON d.frame_id = f.frame_id
         WHERE {where_clause}
         """
 
@@ -269,14 +387,133 @@ class Database:
 
         return frames
 
+    def get_bytetrack_frames_with_detections(self, video_name: str, filter_objects=None, filter_colors=None,
+                                           filter_directions=None, area_filter=None):
+        """
+        Fetch unique frames with matching ByteTrack refined detections from the database for a specific video.
+        """
+        # Get video_id
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return {}
+            
+        where_clauses = [f"f.video_id = ?"]
+        params = [video_id]
+
+        # Add conditions based on the filters
+        if filter_objects:
+            object_placeholders = ', '.join(['?'] * len(filter_objects))
+            where_clauses.append(f"d.class_name IN ({object_placeholders})")
+            params.extend(filter_objects)
+
+        if filter_colors:
+            color_placeholders = ', '.join(['?'] * len(filter_colors))
+            where_clauses.append(f"d.dominant_color IN ({color_placeholders})")
+            params.extend(filter_colors)
+
+        if filter_directions:
+            direction_placeholders = ', '.join(['?'] * len(filter_directions))
+            where_clauses.append(f"d.direction IN ({direction_placeholders})")
+            params.extend(filter_directions)
+
+        if area_filter:
+            print(f'Area Filter: {area_filter}')
+            area_x1, area_y1, area_x2, area_y2, margin = area_filter
+            # Expand area by margin
+            area_x1 -= margin
+            area_y1 -= margin
+            area_x2 += margin
+            area_y2 += margin
+            # Filter based on centroid being within the area
+            where_clauses.append(f"((d.xmin + d.xmax)/2 BETWEEN ? AND ?) AND ((d.ymin + d.ymax)/2 BETWEEN ? AND ?)")
+            params.extend([area_x1, area_x2, area_y1, area_y2])
+
+        # Join the clauses
+        where_clause = " AND ".join(where_clauses)
+        print(f"Where Clause: {where_clause}")
+
+        query = f"""
+        SELECT DISTINCT f.frame_number, d.class_name, d.dominant_color, d.xmin, d.xmax, d.ymin, d.ymax, d.confidence, d.track_id, d.direction
+        FROM refined_detections d
+        JOIN bytetrack_frames f ON d.frame_id = f.frame_id
+        WHERE {where_clause}
+        """
+
+        print(f"Constructed Query: {query}")
+        print(f"Query Parameters: {params}")
+
+        # Execute the query
+        self.cursor.execute(query, params)
+        rows = self.cursor.fetchall()
+
+        # Group detections by frame_number
+        frames = {}
+        for row in rows:
+            frame_number, class_name, dominant_color, xmin, xmax, ymin, ymax, confidence, track_id, direction = row
+            detection = {
+                'class_name': class_name,
+                'dominant_color': dominant_color,
+                'bbox': (xmin, ymin, xmax, ymax),
+                'confidence': confidence,
+                'track_id': track_id,
+                'direction': direction
+            }
+            if frame_number not in frames:
+                frames[frame_number] = {'frame_number': frame_number, 'detections': []}
+            frames[frame_number]['detections'].append(detection)
+
+        return frames
+    
+    def get_number_of_frames_yolo(self, video_name: str) -> int:
+        """Get the number of frames for a specific video in YOLO frames."""
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return 0
+            
+        self.cursor.execute("""
+            SELECT COUNT(*) FROM yolo_frames WHERE video_id = ?
+        """, (video_id,))
+        return self.cursor.fetchone()[0]
+    
+    def get_number_of_frames_bytetrack(self, video_name: str) -> int:
+        """Get the number of frames for a specific video in ByteTrack frames."""
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return 0
+            
+        self.cursor.execute("""
+            SELECT COUNT(*) FROM bytetrack_frames WHERE video_id = ?
+        """, (video_id,))
+        return self.cursor.fetchone()[0]
+
+    def get_videos(self) -> List[Tuple[int, str]]:
+        """Get a list of all videos in the database."""
+        self.cursor.execute("""
+            SELECT video_id, video_name FROM videos ORDER BY created_at DESC
+        """)
+        return self.cursor.fetchall()
+
     def close(self):
         """Close the database connection."""
-        self.connection.close()
+        if self.connection:
+            self.connection.close()
+
+    def reset_database(self):
+        """Function to clear all data from the database."""
+        self.cursor.execute("DELETE FROM detections")
+        self.cursor.execute("DELETE FROM refined_detections")
+        self.cursor.execute("DELETE FROM yolo_frames")
+        self.cursor.execute("DELETE FROM bytetrack_frames")
+        self.cursor.execute("DELETE FROM videos")
+        self.connection.commit()
+        print("Database reset complete.")
 
     def drop_tables(self):
         """Drop the tables in the database."""
-        self.cursor.execute("DROP TABLE IF EXISTS frames")
         self.cursor.execute("DROP TABLE IF EXISTS detections")
         self.cursor.execute("DROP TABLE IF EXISTS refined_detections")
+        self.cursor.execute("DROP TABLE IF EXISTS yolo_frames")
+        self.cursor.execute("DROP TABLE IF EXISTS bytetrack_frames")
+        self.cursor.execute("DROP TABLE IF EXISTS videos")
         self.connection.commit()
         print("Tables dropped successfully.")
