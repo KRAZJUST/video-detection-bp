@@ -76,6 +76,15 @@ class FrameSlideshow(QMainWindow):
         self.context_combo.setCurrentText(str(self.context_frames))
         self.context_combo.currentTextChanged.connect(self.update_context_frames)
         controls_layout.addWidget(self.context_combo)
+
+        # Forward frames control
+        forward_label = QLabel("Forward Frames:")
+        controls_layout.addWidget(forward_label)
+        self.forward_combo = QComboBox()
+        self.forward_combo.addItems(["15", "30", "50"])
+        self.forward_combo.setCurrentText(str(self.forward_frames))
+        self.forward_combo.currentTextChanged.connect(self.update_forward_frames)
+        controls_layout.addWidget(self.forward_combo)
         
         # Export button
         export_button = QPushButton("Export Frame")
@@ -278,6 +287,14 @@ class FrameSlideshow(QMainWindow):
         """Update the number of context frames to show"""
         try:
             self.context_frames = int(value)
+            self.update_visible_frames()
+        except ValueError:
+            pass
+
+    def update_forward_frames(self, value):
+        """Update the number of forward frames to show"""
+        try:
+            self.forward_frames = int(value)
             self.update_visible_frames()
         except ValueError:
             pass
