@@ -436,7 +436,7 @@ class VideoProcessingApp(QMainWindow):
         # TODO: check for Pixmap is a null pixmap error and handle it might not be here
         # Calculate new target width
         available_width = self.scroll_area.viewport().width()
-        effective_width = available_width - 30
+        effective_width = available_width - 5
         target_width = int(effective_width / 2)
 
         # Check if there are any loaded images
@@ -521,7 +521,7 @@ class VideoProcessingApp(QMainWindow):
         max_cols = 2
         available_width = self.scroll_area.viewport().width()
         # Subtract the margin from the width
-        effective_width = available_width - 40
+        effective_width = available_width - 80
         target_width = int(effective_width / max_cols)
         
         # Get the starting and ending indices for this batch

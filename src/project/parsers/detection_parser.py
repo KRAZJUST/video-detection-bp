@@ -184,14 +184,22 @@ class DetectionParser:
         print(f"Filtering by colors: {self.filter_colors}")
     
         # Get initial frames based on basic filters (objects/colors/directions), choose detections or refined detections based on the level of processing
-        frames = self.db.get_frames_with_detections(
-            self.input_video,
-            'detections' if self.tracker == 'yolo' else 'refined_detections',
-            self.filter_objects, 
-            self.filter_colors, 
-            self.filter_directions,
-            self.area_of_interest
-        )
+        if self.tracker == 'yolo':
+            frames = self.db.get_yolo_frames_with_detections(
+                self.input_video,
+                self.filter_objects, 
+                self.filter_colors, 
+                self.filter_directions,
+                self.area_of_interest
+            )
+        elif self.tracker == 'bytetrack':
+            frames = self.db.get_bytetrack_frames_with_detections(
+                self.input_video,
+                self.filter_objects, 
+                self.filter_colors, 
+                self.filter_directions,
+                self.area_of_interest
+            )
         print(f"Number of frames with detections: {len(frames)}")
         
         # Apply spatial filters (interactions and quadrants) if specified, apply interactions only if there are multiple objects
