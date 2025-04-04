@@ -254,7 +254,10 @@ class VideoProcessingApp(QMainWindow):
         self.show_loading('video_info', False)
 
         # Update the interval entry based on the video FPS
-        self.interval_entry.setText(str(int(metadata['fps'])))
+        if metadata['fps'] != "unknown":
+            self.interval_entry.setText(str(int(metadata['fps'])))
+        else:
+            self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
@@ -620,7 +623,6 @@ class VideoProcessingApp(QMainWindow):
         """Open frame slideshow starting from the selected frame"""
         # Determine the directory containing the frames
         frame_dir = os.path.dirname(frame_path)
-        print(metadata)
         
         # If frame_dir is empty, use the default found_frames directory
         if not frame_dir:
@@ -635,7 +637,8 @@ class VideoProcessingApp(QMainWindow):
         self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
                                                frame_dir=frame_dir, extracted_frames_dir=extracted_frames_dir, 
                                                context_frames=15, forward_frames=30, interval=500, 
-                                               fps=int(self.video_info['fps']), frame_interval=self.interval_entry.text())
+                                               fps=int(self.video_info['fps']), frame_interval=self.interval_entry.text(),
+                                               input_video_path=self.video_path)
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):
