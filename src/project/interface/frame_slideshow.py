@@ -1,5 +1,7 @@
 import os
 import re
+import shutil
+import subprocess
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                             QLabel, QPushButton, QSlider, QFileDialog, QComboBox)
 from PyQt6.QtCore import Qt, QTimer
@@ -117,7 +119,7 @@ class FrameSlideshow(QMainWindow):
     def get_frame_timestamp(self, frame_num):
         """Calculate timestamp based on frame number and constant extraction rate"""
         # timestamp = (frame_num * interval) / fps
-        # this gives us the time in seconds
+        # this returns the time in seconds
         # only works with constant frame intervals, so if adding the dynamic 
         # frame extraction interval, refactor this to fetch timestamps from database
         seconds = (float(frame_num) * float(self.frame_interval)) / float(self.fps)
@@ -339,12 +341,37 @@ class FrameSlideshow(QMainWindow):
             self.show_frame_at_visible_index(self.current_frame_index)
 
     def open_in_system_player(self):
-        """Opne the video at the current frame in the system's default video player"""
+        """
+        Opne the video at the current frame in the system's default video player.
+        This will attempt to use commonly used Ubuntu video players
+        that support seeking to a specific timestamp and open the video.
+
+        If none are found, it will fall back to xdg-open which will open the
+        video in the default video player, but not at the specific timestamp.
+        """
         if 0 <= self.current_frame_index < len(self.visible_frame_paths):
             if os.path.exists(self.input_video_path):
-                os.startfile(self.input_video_path)
+                timestamp = self.get_frame_timestamp(self.visible_frame_numbers[self.current_frame_index])
+                if shutil.which('mpv'):
+                    # MPV format
+                    subprocess.Popen(['mpv', f'--start={timestamp}', self.input_video_path])
+                elif shutil.which('vlc'):
+                    # VLC format
+                    subprocess.Popen(['vlc', f'--start-time={timestamp}', self.input_video_path])
+                elif shutil.which('mplayer'):
+                    # MPlayer format
+                    subprocess.Popen(['mplayer', f'-ss', f'{timestamp}', self.input_video_path])
+                elif shutil.which('ffplay'):
+                    # FFplay (part of ffmpeg) format
+                    subprocess.Popen(['ffplay', f'-ss', f'{timestamp}', self.input_video_path])
+                elif shutil.which('smplayer'):
+                    # SMPlayer format
+                    subprocess.Popen(['smplayer', f'-start', f'{timestamp}', self.input_video_path])
+                else:
+                    # Fallback to xdg-open (won't start at specific timestamp)
+                    subprocess.Popen(['xdg-open', self.input_video_path])
+                    print("Warning: No supported video player found for timestamp seeking. Opening with default player.")
             else:
                 print(f"Video file not found: {self.input_video_path}")
         else:
             print("No valid frame selected to open in system player.")
-        # Note: This method is a placeholder and may need to be implemented
