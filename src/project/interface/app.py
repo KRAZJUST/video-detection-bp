@@ -145,6 +145,9 @@ class VideoProcessingApp(QMainWindow):
         self.processing_progress = QProgressBar()
         self.processing_progress.setVisible(False)
         layout.addWidget(self.processing_progress)
+        # Status message
+        self.status_message = QLabel("Ready to process video")
+        layout.addWidget(self.status_message)
         
         settings_group.setLayout(layout)
         parent_layout.addWidget(settings_group)
@@ -367,7 +370,7 @@ class VideoProcessingApp(QMainWindow):
             progress_bar = self.query_progress
             button = self.query_button
             
-        if progress_bar:
+        if progress_bar and section != 'video_processing':
             progress_bar.setVisible(show)
             if show:
                 progress_bar.setRange(0, 0)  # Indeterminate progress
@@ -378,8 +381,6 @@ class VideoProcessingApp(QMainWindow):
             button.setEnabled(not show)
 
     def start_video_processing(self):
-        self.show_loading('video_processing', True)
-    
         # Start processing worker
         self.processing_worker = VideoProcessingWorker(
             self,
@@ -389,15 +390,29 @@ class VideoProcessingApp(QMainWindow):
             interval=int(self.interval_entry.text()),
             tracker=self.tracker_combo.currentText()
         )
-        self.processing_worker.finished.connect(
-            lambda: self.show_loading('video_processing', False)
-        )
         self.processing_worker.error.connect(self.handle_processing_error)
+        self.processing_worker.progress.connect(self.update_processing_progress)
+        self.processing_worker.finished.connect(self.handle_processing_finished)
+
         self.processing_worker.start()
+        self.processing_progress.setValue(0)
+        self.processing_progress.setVisible(True)
+
+    def update_processing_progress(self, message, percentage):
+        """ Update the processing status message in the UI """
+        if hasattr(self, 'status_message'):
+            self.status_message.setText(f"{message}")
+        if hasattr(self, 'processing_progress'):
+            self.processing_progress.setValue(percentage)
 
     def handle_processing_error(self, error_message):
         print(f"Error processing video: {error_message}")
         self.show_loading('video_processing', False)
+
+    def handle_processing_finished(self):
+        if hasattr(self, 'processing_progress'):
+            self.processing_progress.setVisible(False)
+
 
     def eventFilter(self, obj, event):
         # Respond to resize events

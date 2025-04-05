@@ -20,7 +20,8 @@ class VideoProcessor:
                  output_dir: str, 
                  database_path: str,  
                  interval: int = 30, 
-                 tracker_arg: str = 'bytetrack'):
+                 tracker_arg: str = 'bytetrack',
+                 progress_callback: Any = None):
 
         self.video_path = video_path
         self.output_dir = output_dir
@@ -51,8 +52,19 @@ class VideoProcessor:
         
         self.processing_level = 1 if self.tracker_arg in ['yolo', 'bytetrack'] else 2
         self.temp_embeddings = []
+
+        # Initialize the progress callback
+        self.progress_callback = progress_callback
+        # processing stages and their relative weights in overall progress
+        self.stages = {
+            'initialization': {'weight': 5, 'completed': 0},
+            'frame_extraction': {'weight': 25, 'completed': 0},
+            'object_detection': {'weight': 70, 'completed': 0}
+        }
         
         # Get the video informations
+        self.update_progress("Getting video information",
+                             stage='initialization', progress=30)
         video_metadata = VideoInfoUtils.get_video_info(video_path)
         # Convert the video metadata to a dictionary
         self.video_info = vars(video_metadata) if video_metadata else {
@@ -62,10 +74,45 @@ class VideoProcessor:
             'frame_count': None,
             'fps': None
         }
+        self.update_progress("Video information retrieved",
+                             stage='initialization', progress=100)
         print(f"Video Info: {self.video_info}")
+
 
         # Calculate the expected number of frames
         self.expected_frames_count = self.calculate_expected_frames()
+
+    def calculate_overall_progress(self):
+        """Calculate overall progress based on weighted stages"""
+        total_progress = 0
+        total_weight = sum(stage['weight'] for stage in self.stages.values())
+        
+        for stage_info in self.stages.values():
+            stage_contribution = (stage_info['completed'] * stage_info['weight']) / 100
+            total_progress += stage_contribution
+            
+        return int(total_progress * 100 / total_weight)
+
+    def update_progress(self, message, stage=None, progress=None):
+        """
+        Update progress with a status message and percentage
+        
+        Args:
+            message (str): Status message to display
+            stage (str): Current processing stage
+            progress (int): Progress percentage for the current stage (0-100)
+        """
+        # Update stage progress if provided
+        if stage is not None and progress is not None:
+            if stage in self.stages:
+                self.stages[stage]['completed'] = progress
+        
+        # Calculate overall progress
+        overall_progress = self.calculate_overall_progress()
+        
+        # Call the progress callback with message and percentage
+        if self.progress_callback:
+            self.progress_callback(message, overall_progress)
 
     def calculate_expected_frames(self) -> int:
         """Calculate the expected number of frames to be extracted."""
@@ -76,7 +123,8 @@ class VideoProcessor:
     
     def frames_already_extracted(self) -> bool:
         """Check if the required number of frames has already been extracted."""
-
+        self.update_progress("Checking existing frames",
+                             stage='frame_extraction', progress=10)
         # Count the number of frame files in the output directory
         existing_frames_count = len([
             f for f in os.listdir(self.frames_output_dir) 
@@ -91,17 +139,25 @@ class VideoProcessor:
     def extract_frames(self):
         # Check if frames are already extracted
         if self.frames_already_extracted():
+            self.update_progress("Frames already extracted",
+                                    stage='frame_extraction', progress=100)
             print("Frames already extracted")
             return True
+        
         # Delete existing frames
+        self.update_progress("Deleting existing frames",
+                             stage='frame_extraction', progress=20)
         for f in os.listdir(self.frames_output_dir):
             if f.startswith("frame_") and f.endswith(".jpg"):
                 os.remove(os.path.join(self.frames_output_dir, f))
         
         # Check if the CUDA is available
         use_cuda = torch.cuda.is_available()
+
         # Validate video information
         if not self.video_info['duration']:
+            self.update_progress("Could not determine video duration",
+                                 stage='frame_extraction', progress=30)
             print("Could not determine video duration")
             return False
         
@@ -140,6 +196,8 @@ class VideoProcessor:
         print("FFmpeg Command:", " ".join(ffmpeg_command))
         
         try:
+            self.update_progress("Extracting frames",
+                                 stage='frame_extraction', progress=50)
             # Execute FFmpeg command
             result = subprocess.run(
                 ffmpeg_command,  
@@ -149,51 +207,88 @@ class VideoProcessor:
             
             # Check for errors
             if result.returncode != 0:
+                self.update_progress("Error during frame extraction",
+                                     stage='frame_extraction', progress=70)
                 print("FFmpeg Error Output:", result.stderr)
                 return False
             
+            self.update_progress("Frames extracted successfully",
+                                 stage='frame_extraction', progress=100)
             print("Frames extracted successfully")
             return True
         
         except Exception as e:
+            self.update_progress("Error during frame extraction")
             print(f"Execution error: {e}")
             return False
 
     @profile_time_usage
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
+        self.update_progress("Starting video processing",
+                             stage='initialization', progress=50)
+        
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
         if self.tracker_arg == 'yolo' and \
            self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
-            self.db.reset_video_yolo(self.video_path)
+                self.update_progress("Resetting YOLO database for this video...",
+                                    stage='initialization', progress=70)
+                self.db.reset_video_yolo(self.video_path)
         elif self.tracker_arg == 'bytetrack' and \
              self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
-            self.db.reset_video_bytetrack(self.video_path)
+                self.update_progress("Resetting ByteTrack database for this video...",
+                                    stage='initialization', progress=70)
+                self.db.reset_video_bytetrack(self.video_path)
         
         # Add video information to the database
+        self.update_progress("Adding video information to the database",
+                             stage='initialization', progress=80)
         self.db.add_video(self.video_path)
+        self.update_progress("Initialization completed",
+                             stage='initialization', progress=100)
 
         # Run FFmpeg extraction before processing frames
         self.extract_frames()
 
         # Load frames generated by FFmpeg
+        self.update_progress("Loading extracted frames", 
+                             stage='object_detection', progress=5)
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
         
         if self.processing_level == 1:
+            self.update_progress(f"Processing frames with {self.tracker_arg}",
+                                 stage='object_detection', progress=10)
             self._process_video_yolo(frame_files)
         elif self.processing_level == 2:
+            self.update_progress(f"Processing frames with {self.tracker_arg}",
+                                 stage='object_detection', progress=10)
             self._process_video_xclip(frame_files)
         else:
+            self.update_progress("Invalid processing configuration")
             raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
+        
+        # Finalize processing
+        self.update_progress("Completed processing frames",
+                                 stage='object_detection', progress=100)
 
     def _process_video_yolo(self, frame_files):
         """
         YOLO and ByteTrack processing method
         """
+        total_frames = len(frame_files)
+
         for frame_number, frame_file in enumerate(frame_files):
-            #print(f"Processing frame {frame_file}")
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((frame_number / total_frames) * 80)
+            # Update progress every 20 frames or at least at start, middle and end
+            if frame_number == 0 or frame_number == total_frames - 1 or frame_number % 20 == 0:
+                self.update_progress(
+                    f"Processing frame {frame_number + 1}/{total_frames}",
+                    stage='object_detection', 
+                    progress=progress_percent
+                )
             
             # Check if the fps is set as it can be 'unknown' in some cases and cause division by zero
             if self.video_info['fps'] != 'unknown':
@@ -232,10 +327,20 @@ class VideoProcessor:
         """
         batch_size = 8
         frame_batches = self.create_frame_batches(frame_files, batch_size)
+        total_batches = len(frame_batches)
         # Reset temp_embeddings
         self.temp_embeddings = []
 
         for batch_number, frame_batch in enumerate(frame_batches):
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((batch_number / total_batches) * 80)
+            
+            self.update_progress(
+                f"Processing batch {batch_number + 1}/{total_batches}",
+                stage='object_detection', 
+                progress=progress_percent
+            )
+
             # Load frames for the batch
             frames = self.load_frames_as_clip(frame_batch)
 
