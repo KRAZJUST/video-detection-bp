@@ -6,11 +6,22 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                             QLabel, QPushButton, QSlider, QFileDialog, QComboBox)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
+from database.sqlite_database import Database
 
 class FrameSlideshow(QMainWindow):
-    def __init__(self, parent, starting_frame_path, frame_dir, extracted_frames_dir, 
-                 context_frames=10, forward_frames=30, interval=500, fps=24,
-                 frame_interval=30, input_video_path=None):
+    def __init__(self, 
+                 parent, 
+                 starting_frame_path, 
+                 frame_dir, 
+                 extracted_frames_dir, 
+                 context_frames=10, 
+                 forward_frames=30, 
+                 interval=500, 
+                 fps=24,
+                 frame_interval=30, 
+                 input_video_path=None,
+                 database_path=None,
+                 tracker=None):
         super().__init__()
         self.parent = parent
         self.frame_dir = frame_dir
@@ -23,10 +34,14 @@ class FrameSlideshow(QMainWindow):
         self.interval = interval
         # Path to the input video file
         self.input_video_path = input_video_path
+        # Initialize database
+        self.db = Database(database_path)
+        # Tracker name
+        self.tracker = tracker
         
         # Frame rate and extraction interval for timestamp calculation
         # in .webm files, fps is unknown so to avoid type errors, set to 24
-        self.fps = fps if fps != "unknown" else 24
+        self.fps = 24 if fps == 'unknown' or fps <= 0 else fps
         self.frame_interval = frame_interval 
         
         self.setWindowTitle("Frame Slideshow")
@@ -118,12 +133,9 @@ class FrameSlideshow(QMainWindow):
     
     def get_frame_timestamp(self, frame_num):
         """Calculate timestamp based on frame number and constant extraction rate"""
-        # timestamp = (frame_num * interval) / fps
-        # this returns the time in seconds
-        # only works with constant frame intervals, so if adding the dynamic 
-        # frame extraction interval, refactor this to fetch timestamps from database
-        seconds = (float(frame_num) * float(self.frame_interval)) / float(self.fps)
-        return seconds
+        return self.db.get_frame_timestamp(video_name=self.input_video_path,
+                                           frame_number=frame_num,
+                                           tracker=self.tracker)
     
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""
@@ -233,6 +245,7 @@ class FrameSlideshow(QMainWindow):
         
         # Get timestamp for this frame using the constant interval calculation
         timestamp = self.get_frame_timestamp(frame_num)
+        print(f"Frame {frame_num} timestamp: {timestamp}")
         formatted_time = self.format_timestamp(timestamp)
         
         # Update frame label and indicate if this is an annotated frame

@@ -22,11 +22,9 @@ class DetectionParser:
                  frame_height: int = 360, 
                  area_of_interest: tuple = None,
                  feedback_callback: Any = None):
-        self.database_path = database_path
-        self.db = Database(self.database_path)
+        self.db = Database(database_path)
         self.tracker = tracker
         self.use_segmentation = use_segmentation
-        self.connection = None
         self.query_parser = QueryParser(query)
         self.segmenter = YOLOSegmenter()
         self.found_log_entries = {}

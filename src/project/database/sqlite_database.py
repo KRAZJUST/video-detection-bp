@@ -492,7 +492,28 @@ class Database:
             SELECT video_id, video_name FROM videos ORDER BY created_at DESC
         """)
         return self.cursor.fetchall()
-
+    
+    def get_frame_timestamp(self, video_name: str, frame_number: int, tracker: str) -> Optional[float]:
+        """
+        Get the timestamp of a specific frame in a video.
+        """
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return None
+        
+        if tracker == 'yolo':
+            self.cursor.execute("""
+                SELECT timestamp FROM yolo_frames WHERE video_id = ? AND frame_number = ?
+            """, (video_id, frame_number))
+        elif tracker == 'bytetrack':
+            self.cursor.execute("""
+                SELECT timestamp FROM bytetrack_frames WHERE video_id = ? AND frame_number = ?
+            """, (video_id, frame_number))
+        else:
+            raise ValueError("Invalid tracker specified. Use 'yolo' or 'bytetrack'.")
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+      
     def close(self):
         """Close the database connection."""
         if self.connection:
