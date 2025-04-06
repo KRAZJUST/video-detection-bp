@@ -6,6 +6,7 @@ from .query_parser import QueryParser
 from database.sqlite_database import Database
 from constants.constants import COLOR_MAP
 from .yolo_segmenter import YOLOSegmenter
+from profiling_utils.profiling_utils import detailed_profile
 
 
 class DetectionParser:
@@ -123,6 +124,7 @@ class DetectionParser:
             else:
                 return "bottom-right"
  
+    @detailed_profile
     def parse_detections(self):
         """
         Parse detections in the database and filter based on the query.

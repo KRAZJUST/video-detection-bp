@@ -3,6 +3,9 @@ import os
 import time
 import functools
 
+# Dictionary to hold timing data
+timing_data = {}
+
 def profile_memory_usage():
     process = psutil.Process(os.getpid())
     memory_usage = process.memory_info().rss / 1024 ** 2
@@ -29,3 +32,28 @@ def setup_memory_logging(app, interval=5000):
     # Monkey patch QApplication to add timer event
     original_timer_event = app.timerEvent
     app.timerEvent = lambda event: timerEvent(event) or original_timer_event(event)
+
+def detailed_profile(func):
+    """More detailed profiling decorator that collects statistics"""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        name = func.__name__
+        if name not in timing_data:
+            timing_data[name] = {
+                'calls': 0,
+                'total_time': 0,
+                'times': []
+            }
+        
+        start = time.time()
+        result = func(*args, **kwargs)
+        elapsed = time.time() - start
+        
+        # Save timing data
+        timing_data[name]['calls'] += 1
+        timing_data[name]['total_time'] += elapsed
+        timing_data[name]['times'].append(elapsed)
+        
+        print(f"{name} took {elapsed:.4f} seconds")
+        return result
+    return wrapper
