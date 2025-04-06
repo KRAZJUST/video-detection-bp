@@ -2,6 +2,7 @@ import os
 import json
 import cv2
 import shutil
+from typing import Any
 from .query_parser import QueryParser
 from database.sqlite_database import Database
 from constants.constants import COLOR_MAP
@@ -19,7 +20,8 @@ class DetectionParser:
                  use_segmentation: bool = True,
                  frame_width: int = 640, 
                  frame_height: int = 360, 
-                 area_of_interest: tuple = None):
+                 area_of_interest: tuple = None,
+                 feedback_callback: Any = None):
         self.database_path = database_path
         self.db = Database(self.database_path)
         self.tracker = tracker
@@ -34,6 +36,7 @@ class DetectionParser:
 
         self.output_dir = output_dir
         self.input_video = input_video
+        self.feedback_callback = feedback_callback
         
         # Create or clear the found frames directory
         self.found_dir = os.path.join(output_dir, 'found_frames')
@@ -216,6 +219,23 @@ class DetectionParser:
             print(f"Filtering by logic: {self.filter_logic}")
             frames = self.filter_detections_in_frames(frames, logic_operator=self.filter_logic[0], expected_conditions=parsed_elements)
         print(f"Number of frames after logic filter: {len(frames)}")
+
+        # Build a list of words used for filtering to display in the feedback
+        # callaback in GUI
+        words_used_for_filtering = []
+        if self.filter_objects:
+            words_used_for_filtering.extend(self.filter_objects)
+        if self.filter_colors:
+            words_used_for_filtering.extend(self.filter_colors)
+        if self.filter_directions:
+            words_used_for_filtering.extend(self.filter_directions)
+        if self.filter_interactions:
+            words_used_for_filtering.extend(self.filter_interactions)
+        if self.filter_quadrants:
+            words_used_for_filtering.extend(self.filter_quadrants)
+        if self.filter_logic:
+            words_used_for_filtering.extend(self.filter_logic)
+        self.feedback_callback(f"Words used for filtering: {', '.join(words_used_for_filtering)}")
         
         ### Save the filtered frames ###
         # Clear the found frames directory

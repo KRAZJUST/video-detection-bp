@@ -5,6 +5,7 @@ from xclip.xclip_parser import XClipParser
 class QueryWorker(QThread):
     finished = pyqtSignal(dict)
     error = pyqtSignal(str)
+    feedback = pyqtSignal(str)
 
     def __init__(self, app, query, area_of_interest=None):
         super().__init__()
@@ -15,6 +16,10 @@ class QueryWorker(QThread):
 
     def run(self):
         try:
+            # Feedback fallback that emits message
+            def feedback_callback(message):
+                self.feedback.emit(message)
+
             if self.app.tracker_combo.currentText() in ["yolo", "bytetrack"]:
                 log_parser = DetectionParser(
                     query=self.query,
@@ -24,6 +29,7 @@ class QueryWorker(QThread):
                     tracker=self.app.tracker_combo.currentText(),
                     use_segmentation=self.app.use_segmentation.isChecked(),
                     area_of_interest=self.area_of_interest,
+                    feedback_callback=feedback_callback,
                 )
                 log_parser.parse_detections()
 

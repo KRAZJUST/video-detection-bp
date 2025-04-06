@@ -112,6 +112,11 @@ class VideoProcessingApp(QMainWindow):
         self.query_progress.setVisible(False)
         layout.addWidget(self.query_progress)
 
+        # Query feedback message
+        self.query_feedback = QLabel("")
+        self.query_feedback.setWordWrap(True)
+        layout.addWidget(self.query_feedback)
+
         # Results count label
         self.results_count_label = QLabel("Number of frames: -")
         layout.addWidget(self.results_count_label)
@@ -147,6 +152,7 @@ class VideoProcessingApp(QMainWindow):
         layout.addWidget(self.processing_progress)
         # Status message
         self.status_message = QLabel("Ready to process video")
+        self.status_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.status_message)
         
         settings_group.setLayout(layout)
@@ -488,9 +494,14 @@ class VideoProcessingApp(QMainWindow):
                                         area_of_interest=aoi)
         self.query_worker.finished.connect(self.display_query_results)
         self.query_worker.error.connect(self.handle_query_error)
+        self.query_worker.feedback.connect(self.update_query_feedback)
         # Pass deduplication option to the query worker
         self.query_worker.deduplicate = self.deduplicate_frames.isChecked()
         self.query_worker.start()
+
+    def update_query_feedback(self, message):
+        if hasattr(self, 'query_feedback'):
+            self.query_feedback.setText(message)
 
     def display_query_results(self, results):
         print(f"Displaying {len(results)} results")
