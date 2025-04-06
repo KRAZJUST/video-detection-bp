@@ -83,7 +83,8 @@ class VectorDatabaseManager:
             "frame_paths_str": ','.join(meta.get('frame_path', '') for meta in batch_metadata),
             "frame_numbers_str": ','.join(str(meta.get('frame_number', -1)) for meta in batch_metadata),
             "batch_number": batch_metadata[0].get('batch_number', -1),
-            "num_frames": len(batch_metadata)
+            "num_frames": len(batch_metadata),
+            "timestamps": ','.join(str(meta.get('timestamp', -1)) for meta in batch_metadata),
         }
         
         # Generate a unique ID for this batch
@@ -91,7 +92,6 @@ class VectorDatabaseManager:
         
         print(f"Adding batch embeddings with ID: {batch_id}")
         print(f"Batch metadata: {aggregated_metadata}")
-        print(f"Embeddings: {batch_embeddings}")
 
         # Add to ChromaDB collection
         self.collection.add(

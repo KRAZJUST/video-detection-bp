@@ -67,6 +67,7 @@ class XClipParser:
             similarities = 1 / (1 + np.array(distances))       
             # Get metadata
             metadata = query_result['metadatas'][0]
+            print(f'Metadata: {metadata}')
 
             self.top_frames = self.copy_top_k_frames(metadata)
 

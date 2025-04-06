@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
 from database.sqlite_database import Database
+from database.vector_database import VectorDatabaseManager
 
 class FrameSlideshow(QMainWindow):
     def __init__(self, 
@@ -21,7 +22,8 @@ class FrameSlideshow(QMainWindow):
                  frame_interval=30, 
                  input_video_path=None,
                  database_path=None,
-                 tracker=None):
+                 tracker=None,
+                 metadata=None):
         super().__init__()
         self.parent = parent
         self.frame_dir = frame_dir
@@ -38,6 +40,14 @@ class FrameSlideshow(QMainWindow):
         self.db = Database(database_path)
         # Tracker name
         self.tracker = tracker
+        if metadata and len(metadata) > 0:
+            self.metadata = metadata
+
+        # Connect to the vector database
+        self.vector_db = VectorDatabaseManager(
+            database_path="vector_database",
+            collection_name=f"embeddings_{os.path.basename(input_video_path)}",
+        )
         
         # Frame rate and extraction interval for timestamp calculation
         # in .webm files, fps is unknown so to avoid type errors, set to 24
@@ -133,9 +143,31 @@ class FrameSlideshow(QMainWindow):
     
     def get_frame_timestamp(self, frame_num):
         """Calculate timestamp based on frame number and constant extraction rate"""
-        return self.db.get_frame_timestamp(video_name=self.input_video_path,
-                                           frame_number=frame_num,
-                                           tracker=self.tracker)
+        if self.tracker == 'yolo' or self.tracker == 'bytetrack':
+            return self.db.get_frame_timestamp(video_name=self.input_video_path,
+                                                frame_number=frame_num,
+                                                tracker=self.tracker)
+        elif self.tracker == 'xclip-32' or self.tracker == 'xclip-16':
+            if self.metadata:
+                for batch in self.metadata:
+                    # Parse frame numbers from the string
+                    frame_numbers = [int(n) for n in batch['frame_numbers_str'].split(',')]
+                    timestamps = [float(t) for t in batch['timestamps'].split(',')]
+                    
+                    # Check if the requested frame is in this batch
+                    try:
+                        index = frame_numbers.index(frame_num)
+                        return timestamps[index]
+                    except ValueError:
+                        # Frame not found in this batch, continue to next
+                        continue
+            # If not found in metadata, return a default timestamp
+            # this is a safety fallback
+            return float(frame_num) * float(self.frame_interval) / float(self.fps)
+        else:
+            # Default to a constant interval based on fps 
+            # this should never be used but is here for safety
+            return float(frame_num) * float(self.frame_interval) / float(self.fps)
     
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""

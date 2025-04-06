@@ -31,5 +31,4 @@ class XClipModel:
         with torch.no_grad():
             outputs = self.model.get_video_features(**inputs)
 
-        print(f'Extracted video embeddings: {outputs}')
         return outputs

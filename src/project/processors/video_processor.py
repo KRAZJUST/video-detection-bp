@@ -262,7 +262,7 @@ class VideoProcessor:
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
-        if self.tracker_arg == 'yolo' and \
+        if self.tracker_arg in ['yolo', 'xclip-32', 'xclip-16'] and \
            self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
                 self.update_progress("Resetting YOLO database for this video...",
                                     stage='initialization', progress=70)
@@ -357,8 +357,16 @@ class VideoProcessor:
         X-CLIP processing method
         """
         batch_size = 8
+        
+        # mapping of frame paths to their indices for lookups used later
+        # This is a dictionary comprehension to create a mapping of frame paths to their indices
+        # This allows for O(1) lookups instead of O(n) using list.index() 
+        # so it is more efficient in our case when working with large number of frames
+        frame_index_map = {frame_path: idx for idx, frame_path in enumerate(frame_files)}
+        
         frame_batches = self.create_frame_batches(frame_files, batch_size)
         total_batches = len(frame_batches)
+        
         # Reset temp_embeddings
         self.temp_embeddings = []
 
@@ -385,14 +393,24 @@ class VideoProcessor:
             embeddings = self.xclip.extract_embeddings(frames)
             print(f"Batch {batch_number}: Extracted embeddings: {embeddings.shape}")
 
-            # Prepare metadata for each embedding
-            metadata = [
-                {
+            # Prepare metadata for each embedding with O(1) lookups
+            metadata = []
+            for frame_path in frame_batch:
+                # Use the pre-computed index from the mapping
+                frame_idx = frame_index_map[frame_path]
+                
+                # Calculate timestamp
+                if self.video_info['fps'] != 'unknown':
+                    timestamp = frame_idx * (self.interval / self.video_info['fps'])
+                else:
+                    timestamp = frame_idx * self.interval
+                    
+                metadata.append({
                     "frame_path": frame_path,
                     "batch_number": batch_number,
-                    "frame_number": frame_files.index(frame_path)
-                } for frame_path in frame_batch
-            ]
+                    "frame_number": frame_idx,
+                    "timestamp": timestamp,
+                })
 
             # Add embeddings to the vector database
             self.vector_db.add_batch_embeddings(batch_embeddings=embeddings, batch_metadata=metadata, embedding_strategy='mean')

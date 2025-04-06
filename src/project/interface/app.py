@@ -503,13 +503,13 @@ class VideoProcessingApp(QMainWindow):
         if hasattr(self, 'query_feedback'):
             self.query_feedback.setText(message)
 
-    def display_query_results(self, results):
+    def display_query_results(self, results, metadata=None):
         print(f"Displaying {len(results)} results")
 
         # Ensure results is not None and has a valid length
         result_count = len(results) if results else 0
         print(f"Results count: {result_count}")
-        # Qt GUI updates must be done in the main thread
+        # the updates must be done in the main thread
         # otherwise the text won't update properly
         QMetaObject.invokeMethod(self.results_count_label, "setText", 
                                 Qt.ConnectionType.QueuedConnection, 
@@ -517,6 +517,7 @@ class VideoProcessingApp(QMainWindow):
         
         # Store all results
         self.all_results = list(results.items())
+        self.all_metadata = metadata
         self.loaded_images = []
         self.current_batch = 0
         
@@ -556,6 +557,7 @@ class VideoProcessingApp(QMainWindow):
         
         # Get items to process in this batch
         batch_items = self.all_results[start_idx:end_idx]
+        print(f"Batch items: {batch_items}")
         
         # Process each item in the batch
         for i, (frame_path, metadata) in enumerate(batch_items):
@@ -673,7 +675,8 @@ class VideoProcessingApp(QMainWindow):
                                                frame_interval=self.interval_entry.text(),
                                                input_video_path=self.video_path,
                                                database_path=self.database_path,
-                                               tracker=self.tracker_combo.currentText())
+                                               tracker=self.tracker_combo.currentText(),
+                                               metadata=self.all_metadata)
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):

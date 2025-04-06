@@ -3,7 +3,7 @@ from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
 
 class QueryWorker(QThread):
-    finished = pyqtSignal(dict)
+    finished = pyqtSignal(dict, list)
     error = pyqtSignal(str)
     feedback = pyqtSignal(str)
 
@@ -42,6 +42,9 @@ class QueryWorker(QThread):
                         results = self.deduplicate_yolo_results(log_parser.found_log_entries)
                 else:
                     results = log_parser.found_log_entries
+
+                # empty metadata for YOLO and ByteTrack
+                metadata = {}
                 
             elif self.app.tracker_combo.currentText() == "xclip-32" or self.app.tracker_combo.currentText() == "xclip-16":
                 xclip_parser = XClipParser(
@@ -54,7 +57,7 @@ class QueryWorker(QThread):
                 print(type(results))
                 print(f"Top frames: {results}")
                 
-            self.finished.emit(results)
+            self.finished.emit(results, metadata)
             
         except Exception as e:
             self.error.emit(str(e))
