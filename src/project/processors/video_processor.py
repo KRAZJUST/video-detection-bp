@@ -1,8 +1,8 @@
 import os
-import json
 import torch
 import subprocess
 import glob
+import time
 from PIL import Image
 from typing import Any, Dict, List
 import cv2
@@ -11,7 +11,7 @@ from detectors.byte_track_tracker import ByteTrackTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
-from profiling_utils.profiling_utils import profile_time_usage
+from profiling_utils.profiling_utils import profile_time_usage, detailed_profile
 from interface.video_info_utils import VideoInfoUtils
 
 
@@ -136,6 +136,7 @@ class VideoProcessor:
             existing_frames_count - 3 <= self.expected_frames_count
 
     @profile_time_usage
+    @detailed_profile
     def extract_frames(self):
         # Check if frames are already extracted
         if self.frames_already_extracted():
@@ -196,33 +197,63 @@ class VideoProcessor:
         print("FFmpeg Command:", " ".join(ffmpeg_command))
         
         try:
-            self.update_progress("Extracting frames",
-                                 stage='frame_extraction', progress=50)
-            # Execute FFmpeg command
-            result = subprocess.run(
-                ffmpeg_command,  
-                text=True,
-                check=True
+            self.update_progress("Starting frame extraction", stage='frame_extraction', progress=30)
+            
+            # Start ffmpeg in a separate process
+            process = subprocess.Popen(
+                ffmpeg_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                bufsize=1,
             )
             
-            # Check for errors
-            if result.returncode != 0:
-                self.update_progress("Error during frame extraction",
-                                     stage='frame_extraction', progress=70)
-                print("FFmpeg Error Output:", result.stderr)
+            # Progress update variables
+            start_progress = 30
+            end_progress = 90
+            progress_range = end_progress - start_progress
+            
+            # Rough estimate total extraction time based on video duration 
+            # duration / 12x real time processing
+            estimated_total_seconds = float(self.video_info['duration']) / 12.0 
+            update_interval = 3.0
+            
+            # Start time for progress calculation
+            start_time = time.time()
+            
+            # Update progress in a loop while process is running
+            while process.poll() is None:
+                elapsed_time = time.time() - start_time
+                
+                # Calculate progress as a percentage of estimated time
+                progress_percent = min(elapsed_time / estimated_total_seconds, 1.0)
+                current_progress = start_progress + int(progress_percent * progress_range)
+                
+                # Update progress
+                self.update_progress(f"Extracting frames", 
+                                stage='frame_extraction', 
+                                progress=current_progress)
+                
+                # Sleep for the update interval
+                time.sleep(update_interval)
+            
+            # Check if process completed successfully
+            if process.returncode != 0:
+                self.update_progress("Error during frame extraction", stage='frame_extraction', progress=90)
+                print("FFmpeg Error")
                 return False
             
-            self.update_progress("Frames extracted successfully",
-                                 stage='frame_extraction', progress=100)
+            self.update_progress("Frames extracted successfully", stage='frame_extraction', progress=100)
             print("Frames extracted successfully")
             return True
         
         except Exception as e:
-            self.update_progress("Error during frame extraction")
+            self.update_progress(f"Error during frame extraction: {str(e)}")
             print(f"Execution error: {e}")
             return False
 
     @profile_time_usage
+    @detailed_profile
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
         self.update_progress("Starting video processing",
@@ -285,7 +316,7 @@ class VideoProcessor:
             # Update progress every 20 frames or at least at start, middle and end
             if frame_number == 0 or frame_number == total_frames - 1 or frame_number % 20 == 0:
                 self.update_progress(
-                    f"Processing frame {frame_number + 1}/{total_frames}",
+                    f"Processing frames ({frame_number + 1}/{total_frames})",
                     stage='object_detection', 
                     progress=progress_percent
                 )
@@ -336,7 +367,7 @@ class VideoProcessor:
             progress_percent = 10 + int((batch_number / total_batches) * 80)
             
             self.update_progress(
-                f"Processing batch {batch_number + 1}/{total_batches}",
+                f"Processing batches ({batch_number + 1}/{total_batches})",
                 stage='object_detection', 
                 progress=progress_percent
             )
