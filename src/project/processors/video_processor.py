@@ -216,7 +216,7 @@ class VideoProcessor:
             # Rough estimate total extraction time based on video duration 
             # duration / 12x real time processing
             estimated_total_seconds = float(self.video_info['duration']) / 12.0 
-            update_interval = 3.0
+            update_interval = 2.0
             
             # Start time for progress calculation
             start_time = time.time()
@@ -309,12 +309,18 @@ class VideoProcessor:
         YOLO and ByteTrack processing method
         """
         total_frames = len(frame_files)
+        if total_frames < 1000:
+            update_interval = 20
+        elif total_frames < 3000:
+            update_interval = 100
+        else:
+            update_interval = 200 
 
         for frame_number, frame_file in enumerate(frame_files):
             # Calculate progress percentage (10-90% of object_detection stage)
             progress_percent = 10 + int((frame_number / total_frames) * 80)
             # Update progress every 20 frames or at least at start, middle and end
-            if frame_number == 0 or frame_number == total_frames - 1 or frame_number % 20 == 0:
+            if frame_number == 0 or frame_number == total_frames - 1 or frame_number % update_interval == 0:
                 self.update_progress(
                     f"Processing frames ({frame_number + 1}/{total_frames})",
                     stage='object_detection', 

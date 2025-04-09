@@ -262,11 +262,8 @@ class VideoProcessingApp(QMainWindow):
         self.video_info_label.setText(info_text)
         self.show_loading('video_info', False)
 
-        # Update the interval entry based on the video FPS
-        if metadata['fps'] != "unknown":
-            self.interval_entry.setText(str(int(metadata['fps'])))
-        else:
-            self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
+        # Update the interval entry based on the tracker
+        self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
@@ -356,7 +353,7 @@ class VideoProcessingApp(QMainWindow):
 
     def update_interval_entry(self, tracker):
         if tracker == "yolo" or tracker == "xclip-32" or tracker == "xclip-16":
-            self.interval_entry.setText(str(int(self.video_info['fps'])))
+            self.interval_entry.setText("30")
         else:
             self.interval_entry.setText("10")
         

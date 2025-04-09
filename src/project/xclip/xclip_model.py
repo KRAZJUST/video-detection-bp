@@ -1,11 +1,27 @@
+# This code uses Microsoft's X-CLIP model from Hugging Face
+# Citation: Ni, Bolin, et al. "Expanding Language-Image Pretrained Models for General Video Recognition." availible at: https://arxiv.org/abs/2208.02816
+# Model: microsoft/xclip-base-patch32 (https://huggingface.co/microsoft/xclip-base-patch32)
+
 from transformers import XCLIPProcessor, XCLIPModel
 import torch
 
 class XClipModel:
+    """
+    Module using Microsoft's X-CLIP model for video-text representation learning.
+    
+    Model: microsoft/xclip-base-patch32
+    Model Type: X-CLIP
+    Paper: Ni, Bolin, et al. "Expanding Language-Image Pretrained Models for General Video Recognition." availible at: https://arxiv.org/abs/2208.02816
+    
+    Repository: https://github.com/microsoft/VideoX/tree/master/X-CLIP
+    Huggingface model: https://huggingface.co/microsoft/xclip-base-patch32
+    """
     def __init__(self, model_name=None):
         """
-        Initialize the XCLIP model and processor.
-        :param model_name: Optional; specify a different model name if needed.
+        Initialize the XClipModel with a specified model name.
+
+        Args:
+            model_name(str, optional): The name of the model to use. If None, defaults to "microsoft/xclip-base-patch32".
         """
 
         # Use the default model name if none is provided

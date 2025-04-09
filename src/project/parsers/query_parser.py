@@ -1,26 +1,49 @@
-""" This module contains the QueryParser class that parses the user query into structured format. """
+# This code uses Facebook's BART model for zero-shot text classification
+# from Huggingface transformers
+# Citation: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension. ACL 2020. https://arxiv.org/abs/1910.13461
+# Model: facebook/bart-large-mnli (https://huggingface.co/facebook/bart-large-mnli)
+
 from transformers import pipeline
 from constants.constants import COLORS, OBJECTS, DIRECTIONS, QUADRANTS, INTERACTIONS
 
 class QueryParser:
+    """
+    Module using Facebook's BART model for zero-shot text classification
+    accessed through Huggingface Transformers.
+    This class is designed to parse user queries into structured categories
+    such as colors, objects, directions, quadrants, and interactions.  
+
+    Model: facebook/bart-large-mnli
+    Model Type: BART
+    Paper: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training 
+    for Natural Language Generation, Translation, and Comprehension. ACL 2020.
+    https://arxiv.org/abs/1910.13461
+    
+    Repository: https://github.com/facebookresearch/fairseq/tree/main/examples/bart
+    Huggingface model: https://huggingface.co/facebook/bart-large-mnli
+    """
+
     def __init__(self, query):
         self.raw_query = query
-        self.siglip_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        self.bart_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
         self.used_words = set()
         self.query_words = set(self.raw_query.lower().split())
-        self.parsed_queries = self.parse_with_siglip(query)
+        self.parsed_queries = self.parse_with_bart(query)
 
-    def parse_with_siglip(self, query):
+    def parse_with_bart(self, query):
         """
-        Hugging Face's SigLIP model to parse the query into structured components.
+        Parse the query using BART model for zero-shot classification.
+        This function takes a query string and classifies it into various categories
+        such as colors, objects, directions, quadrants, and interactions.
+        It returns a structured format of the parsed query.
 
-        url: https://huggingface.co/docs/transformers/en/model_doc/siglip
+        Using the huggingface pipeline for zero-shot classification with BART model.
         """
         possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or'] + QUADRANTS + INTERACTIONS
 
 
-        # Get predictions from SigLIP
-        result = self.siglip_model(query, possible_labels, return_tensors="pt")
+        # Get predictions
+        result = self.bart_model(query, possible_labels, return_tensors="pt")
         print(result)
 
         # Extract the result into the structured format
@@ -30,7 +53,7 @@ class QueryParser:
 
     def extract_conditions(self, result):
         """
-        Extract what to search for from SigLIP results.
+        Extract what to search for from BART results.
         """
         conditions = []
         threshold = 0.020

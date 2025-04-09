@@ -1,4 +1,6 @@
-"""ByteTrackTracker class for tracking objects using ByteTrack from supervision."""
+# This code uses ByteTrack algorithm implemented in the Supervision library
+# ByteTrack citation: Zhang, Y., et al. (2022). ByteTrack: Multi-Object Tracking by Associating Every Detection Box. ECCV 2022.
+# Supervision library: https://github.com/roboflow/supervision
 
 from typing import Any, Dict, List, Tuple
 import numpy as np
@@ -8,6 +10,15 @@ from .base_tracker import BaseTracker
 
 
 class ByteTrackTracker(BaseTracker):
+    """
+    ByteTrackTracker class for tracking objects using ByteTrack from supervision.
+
+    ByteTrack paper: Zhang, Yifu, et al. "ByteTrack: Multi-Object Tracking by Associating Every Detection Box." 
+    ECCV 2022. https://arxiv.org/abs/2110.06864
+
+    Supervision implementation: https://github.com/roboflow/supervision
+    """
+
     def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 360):
         super().__init__(output_dir, min_frames_for_averaging, frame_width, frame_height)
         self.tracker = sv.ByteTrack(track_activation_threshold=0.2)

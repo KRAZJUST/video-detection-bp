@@ -1,3 +1,7 @@
+# This code uses Microsoft's X-CLIP model from Huggingface transformers
+# Citation: Ni, Bolin, et al. "Expanding Language-Image Pretrained Models for General Video Recognition." availible at: https://arxiv.org/abs/2208.02816
+# Model: microsoft/xclip-base-patch32 (https://huggingface.co/microsoft/xclip-base-patch32)
+
 import torch
 from transformers import XCLIPProcessor, XCLIPModel
 from torch.nn import functional as F
@@ -6,7 +10,27 @@ import os
 import numpy as np
 
 class XClipParser:
+    """
+    Module using Microsoft's X-CLIP model for video-text representation learning.
+    
+    Model: microsoft/xclip-base-patch32
+    Model Type: X-CLIP
+    Paper: Ni, Bolin, et al. "Expanding Language-Image Pretrained Models for General Video Recognition." availible at: https://arxiv.org/abs/2208.02816
+    
+    Repository: https://huggingface.co/microsoft/xclip-base-patch32
+    Huggingface model: https://huggingface.co/microsoft/xclip-base-patch32
+    """
+
     def __init__(self, video_path, query: str, output_dir: str):
+        """
+        Initialize the XClipParser with video path, query, and output directory.
+
+        Args:
+            video_path (str): Path to the video file
+            query (str): Query string for searching in the video
+            output_dir (str): Directory to save the output frames
+        """
+
         self.processor = XCLIPProcessor.from_pretrained("microsoft/xclip-base-patch32")
         self.model = XCLIPModel.from_pretrained("microsoft/xclip-base-patch32")
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

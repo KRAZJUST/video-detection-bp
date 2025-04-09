@@ -1,5 +1,5 @@
 """
-This module contains the ColorFilter class, which is used to detect the most prominent color within a bounding box of an image.
+This module contains the ColorFilter class, which is used to detect the dominant color within a bounding box of an image.
 """
 
 import numpy as np
@@ -58,7 +58,7 @@ class ColorFilter:
         masked_hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
         color_presence = self.calculate_color_presence(masked_hsv, mask)
 
-         # Apply threshold and filter out colors with low presence
+        # Apply threshold and filter out colors with low presence
         threshold = 0.05
         filtered_colors = {color: presence for color, presence in color_presence.items() if presence >= threshold}
 

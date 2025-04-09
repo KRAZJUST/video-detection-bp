@@ -1,3 +1,6 @@
+# This code uses YOLOv11-seg from Ultralytics for object instance segmentation
+# Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11-seg. https://docs.ultralytics.com/models/yolo11/
+
 import numpy as np
 import cv2
 import torch
@@ -5,6 +8,19 @@ from ultralytics import YOLO
 from constants.constants import COLOR_MAP
 
 class YOLOSegmenter:
+    """
+    Module using the YOLOv11-seg model for object instance segmentation.
+    The model's weights are loaded from a specified file path.
+
+    The segmentation architecture builds on YOLOv11's detection capabilities with an additional
+    segmentation head that produces high-quality instance masks.
+
+    Original YOLO architecture by Joseph Redmon et al.
+    Model: yolov11n-seg.pt (YOLOv11 with segmentation head)
+    Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11-seg. https://docs.ultralytics.com/models/yolo11/
+    Repository: https://github.com/ultralytics/ultralytics
+    """
+
     def __init__(self, model_path='yolo11n-seg.pt'):
         """
         Initialize YOLO Segmenter for segmentation and annotation.
