@@ -21,7 +21,7 @@ class XClipParser:
     Huggingface model: https://huggingface.co/microsoft/xclip-base-patch32
     """
 
-    def __init__(self, video_path, query: str, output_dir: str):
+    def __init__(self, video_path, query: str, output_dir: str, model_name: str = None):
         """
         Initialize the XClipParser with video path, query, and output directory.
 
@@ -30,9 +30,17 @@ class XClipParser:
             query (str): Query string for searching in the video
             output_dir (str): Directory to save the output frames
         """
+        # Use the default model name if none is provided
+        if model_name is None:
+            self.model_name = "microsoft/xclip-base-patch32"
+        elif model_name == 'xclip-32':
+            self.model_name = "microsoft/xclip-base-patch32"
+        elif model_name == 'xclip-16':
+            self.model_name = "microsoft/xclip-base-patch16"
 
-        self.processor = XCLIPProcessor.from_pretrained("microsoft/xclip-base-patch32")
-        self.model = XCLIPModel.from_pretrained("microsoft/xclip-base-patch32")
+        self.processor = XCLIPProcessor.from_pretrained(self.model_name)
+        self.model = XCLIPModel.from_pretrained(self.model_name)
+        # Use GPU if available
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
         self.query = query

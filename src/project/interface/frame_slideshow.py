@@ -36,18 +36,20 @@ class FrameSlideshow(QMainWindow):
         self.interval = interval
         # Path to the input video file
         self.input_video_path = input_video_path
-        # Initialize database
-        self.db = Database(database_path)
+        # Initialize database connection
+        if tracker == 'yolo' or tracker == 'bytetrack':
+            self.db = Database(database_path)
         # Tracker name
         self.tracker = tracker
         if metadata and len(metadata) > 0:
             self.metadata = metadata
 
         # Connect to the vector database
-        self.vector_db = VectorDatabaseManager(
-            database_path="vector_database",
-            collection_name=f"embeddings_{os.path.basename(input_video_path)}",
-        )
+        if tracker == 'xclip-32' or tracker == 'xclip-16':
+            self.vector_db = VectorDatabaseManager(
+                database_path="vector_database",
+                collection_name=f"embeddings_{os.path.basename(input_video_path)}",
+            )
         
         # Frame rate and extraction interval for timestamp calculation
         # in .webm files, fps is unknown so to avoid type errors, set to 24
@@ -142,7 +144,16 @@ class FrameSlideshow(QMainWindow):
         self.update_speed()
     
     def get_frame_timestamp(self, frame_num):
-        """Calculate timestamp based on frame number and constant extraction rate"""
+        """
+        Get the timestamp for a given frame number.
+
+        This function retrieves the timestamp for a specific frame number
+        from the database or calculates it based on the frame rate and
+        frame interval.
+
+        Args:
+            frame_num (int): The frame number for which to retrieve the timestamp.
+        """
         if self.tracker == 'yolo' or self.tracker == 'bytetrack':
             return self.db.get_frame_timestamp(video_name=self.input_video_path,
                                                 frame_number=frame_num,

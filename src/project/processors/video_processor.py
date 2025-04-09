@@ -258,7 +258,13 @@ class VideoProcessor:
         """ Function to process video frames for object detection and tracking. """
         self.update_progress("Starting video processing",
                              stage='initialization', progress=50)
+         # Close and reopen the database connection to ensure a fresh state
+        self.db.close()
+        self.db.connect()
         
+        # Add video information to the database
+        self.update_progress("Adding video information to the database",
+                             stage='initialization', progress=80)
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
@@ -273,10 +279,6 @@ class VideoProcessor:
                                     stage='initialization', progress=70)
                 self.db.reset_video_bytetrack(self.video_path)
         
-        # Add video information to the database
-        self.update_progress("Adding video information to the database",
-                             stage='initialization', progress=80)
-        self.db.add_video(self.video_path)
         self.update_progress("Initialization completed",
                              stage='initialization', progress=100)
 

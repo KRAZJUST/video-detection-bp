@@ -51,6 +51,7 @@ class QueryWorker(QThread):
                     video_path=self.app.video_path,
                     query=self.query,
                     output_dir=self.app.output_dir,
+                    model_name=self.app.tracker_combo.currentText(),
                 )
                 similarities, metadata = xclip_parser.search_embeddings(top_k=5)
                 results = xclip_parser.top_frames

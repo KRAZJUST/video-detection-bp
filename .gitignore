@@ -9,6 +9,8 @@ src/project/outputs/*.json
 /src/outputs/
 src/examples/
 src/project/detections.db
+src/project/*.log
+src/project/detections.*
 src/project/venv/
 src/project/env/
 
