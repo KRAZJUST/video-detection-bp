@@ -131,7 +131,7 @@ class VideoProcessingApp(QMainWindow):
         # Tracker selection
         layout.addWidget(QLabel("Tracker:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16"])
+        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16", "siglip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         layout.addWidget(self.tracker_combo)
         
@@ -352,7 +352,7 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
-        if tracker == "yolo" or tracker == "xclip-32" or tracker == "xclip-16":
+        if tracker in ["yolo", "xclip-32", "xclip-16", "siglip"]:
             self.interval_entry.setText("30")
         else:
             self.interval_entry.setText("10")

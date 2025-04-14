@@ -13,6 +13,7 @@ from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
 from profiling_utils.profiling_utils import profile_time_usage, detailed_profile
 from interface.video_info_utils import VideoInfoUtils
+from siglip.siglip_model import SigLIPModel
 
 
 class VideoProcessor:
@@ -20,14 +21,14 @@ class VideoProcessor:
                  output_dir: str, 
                  database_path: str,  
                  interval: int = 30, 
-                 tracker_arg: str = 'bytetrack',
+                 model_name: str = 'yolo',
                  progress_callback: Any = None):
 
         self.video_path = video_path
         self.output_dir = output_dir
         self.frames_output_dir_yx = os.path.join(self.output_dir, "extracted_frames_yx")
         self.frames_output_dir_b = os.path.join(self.output_dir, "extracted_frames_b")
-        self.frames_output_dir = self.frames_output_dir_b if tracker_arg == 'bytetrack' else self.frames_output_dir_yx
+        self.frames_output_dir = self.frames_output_dir_b if model_name == 'bytetrack' else self.frames_output_dir_yx
         # Create output directories if they do not exist
         os.makedirs(self.frames_output_dir_yx, exist_ok=True)
         os.makedirs(self.frames_output_dir_b, exist_ok=True)
@@ -36,22 +37,31 @@ class VideoProcessor:
         self.db = Database(self.database_path)
         self.vector_db = VectorDatabaseManager(
             database_path="vector_database",
-            collection_name=f"embeddings_{os.path.basename(video_path)}",
+            collection_name=f"{model_name}_embeddings_{os.path.basename(video_path)}",
             reset_database=True
         )
-        self.detector = YOLODetector()
-        if tracker_arg == 'bytetrack':
+        self.model_name = model_name
+        # Initialize the model based on the tracker argument
+        if self.model_name in ['yolo', 'bytetrack']:
+            self.detector = YOLODetector()
+        if self.model_name == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
-        self.tracker_arg = tracker_arg
+        if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':
+            self.xclip = XClipModel(self.model_name)
+        if self.model_name == 'siglip':
+            self.siglip_model = SigLIPModel()
 
-        if tracker_arg == 'xclip-32' or tracker_arg == 'xclip-16':
-            self.xclip = XClipModel(self.tracker_arg)
-        self.log_entries = {}
-        self.initial_yolo_results_log = {}
         self.interval = interval
-        
-        self.processing_level = 1 if self.tracker_arg in ['yolo', 'bytetrack'] else 2
         self.temp_embeddings = []
+        # Set the processing level based on the tracker argument
+        if self.model_name in ['yolo', 'bytetrack']:
+            self.processing_level = 1
+        elif self.model_name in ['xclip-32', 'xclip-16']:
+            self.processing_level = 2
+        elif self.model_name == 'siglip':
+            self.processing_level = 3
+        else:
+            raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
 
         # Initialize the progress callback
         self.progress_callback = progress_callback
@@ -268,12 +278,12 @@ class VideoProcessor:
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
-        if self.tracker_arg in ['yolo', 'xclip-32', 'xclip-16'] and \
+        if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
            self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
                 self.update_progress("Resetting YOLO database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_yolo(self.video_path)
-        elif self.tracker_arg == 'bytetrack' and \
+        elif self.model_name == 'bytetrack' and \
              self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
                 self.update_progress("Resetting ByteTrack database for this video...",
                                     stage='initialization', progress=70)
@@ -291,13 +301,17 @@ class VideoProcessor:
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
         
         if self.processing_level == 1:
-            self.update_progress(f"Processing frames with {self.tracker_arg}",
+            self.update_progress(f"Processing frames with {self.model_name}",
                                  stage='object_detection', progress=10)
             self._process_video_yolo(frame_files)
         elif self.processing_level == 2:
-            self.update_progress(f"Processing frames with {self.tracker_arg}",
+            self.update_progress(f"Processing frames with {self.model_name}",
                                  stage='object_detection', progress=10)
             self._process_video_xclip(frame_files)
+        elif self.processing_level == 3:
+            self.update_progress(f"Processing frames with {self.model_name}",
+                                 stage='object_detection', progress=10)
+            self._process_video_siglip(frame_files)
         else:
             self.update_progress("Invalid processing configuration")
             raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
@@ -337,9 +351,9 @@ class VideoProcessor:
                 timestamp = frame_number * self.interval
 
             # Insert frame into the database
-            if self.tracker_arg == 'yolo':
+            if self.model_name == 'yolo':
                 self.db.insert_yolo_frame(self.video_path, frame_number, timestamp)
-            elif self.tracker_arg == 'bytetrack':
+            elif self.model_name == 'bytetrack':
                 self.db.insert_bytetrack_frame(self.video_path, frame_number, timestamp)
             
             # Read frame
@@ -347,18 +361,13 @@ class VideoProcessor:
             
             # Detect objects
             results, detections = self.detector.detect_objects(frame, timestamp)
-            self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
             
             # Handle tracking
-            if self.tracker_arg == 'yolo':
-                self.add_detections_in_db(detections, tracker=self.tracker_arg, frame_number=frame_number)
+            if self.model_name == 'yolo':
+                self.add_detections_in_db(detections, tracker=self.model_name, frame_number=frame_number)
             else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
-                self.log_entries[frame_number] = tracked_detections
-                self.add_detections_in_db(tracked_detections, tracker=self.tracker_arg, frame_number=frame_number)
-
-        #self.save_log(self.initial_yolo_results_log, name='initial_yolo_results_log')
-        #self.save_log(self.log_entries)
+                self.add_detections_in_db(tracked_detections, tracker=self.model_name, frame_number=frame_number)
 
     def _process_video_xclip(self, frame_files):
         """
@@ -424,6 +433,39 @@ class VideoProcessor:
             self.vector_db.add_batch_embeddings(batch_embeddings=embeddings, batch_metadata=metadata, embedding_strategy='mean')
 
         print("Embeddings stored in vector database successfully.")
+
+    @profile_time_usage
+    def _process_video_siglip(self, frame_files):
+        """Process individual video frames with SigLIP model"""
+        total_frames = len(frame_files)
+        
+        print(f"Processing {total_frames} frames with SigLIP")
+        
+        for frame_idx, frame_path in enumerate(frame_files):
+            if frame_idx % 10 == 0:  # Log progress every 10 frames
+                print(f"Processing frame {frame_idx+1}/{total_frames}")
+            
+            # Load the frame
+            image = Image.open(frame_path)
+            
+            # Generate embedding with SigLIP
+            embedding = self.siglip_model.extract_embedding(image)
+            
+             # Calculate timestamp
+            if self.video_info['fps'] != 'unknown':
+                timestamp = frame_idx * (self.interval / self.video_info['fps'])
+            else:
+                timestamp = frame_idx * self.interval
+            
+            # Add embedding and metadata for a single frame into the vector database
+            self.vector_db.add_single_frame_embedding(
+                embedding=embedding,
+                frame_path=frame_path,
+                frame_number=frame_idx,
+                timestamp=timestamp
+            )
+        
+        print("SigLIP embeddings stored in vector database successfully.")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""

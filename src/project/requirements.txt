@@ -14,3 +14,4 @@ segment-anything>=1.0
 sv-ttk
 PyQt6
 Pillow
+sentencepiece
