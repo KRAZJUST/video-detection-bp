@@ -335,7 +335,7 @@ class VideoProcessor:
         for frame_number, frame_file in enumerate(frame_files):
             # Calculate progress percentage (10-90% of object_detection stage)
             progress_percent = 10 + int((frame_number / total_frames) * 80)
-            # Update progress every 20 frames or at least at start, middle and end
+            # Update progress every update_interval frames
             if frame_number == 0 or frame_number == total_frames - 1 or frame_number % update_interval == 0:
                 self.update_progress(
                     f"Processing frames ({frame_number + 1}/{total_frames})",
@@ -438,12 +438,23 @@ class VideoProcessor:
     def _process_video_siglip(self, frame_files):
         """Process individual video frames with SigLIP model"""
         total_frames = len(frame_files)
-        
-        print(f"Processing {total_frames} frames with SigLIP")
-        
+        if total_frames < 1000:
+            update_interval = 20
+        elif total_frames < 3000:
+            update_interval = 100
+        else:
+            update_interval = 200 
+                
         for frame_idx, frame_path in enumerate(frame_files):
-            if frame_idx % 10 == 0:  # Log progress every 10 frames
-                print(f"Processing frame {frame_idx+1}/{total_frames}")
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((frame_idx / total_frames) * 80)
+            # Update progress every update_interval frames
+            if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
+                self.update_progress(
+                    f"Processing frames ({frame_idx + 1}/{total_frames})",
+                    stage='object_detection', 
+                    progress=progress_percent
+                )
             
             # Load the frame
             image = Image.open(frame_path)

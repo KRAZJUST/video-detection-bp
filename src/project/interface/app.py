@@ -14,6 +14,7 @@ from .video_processing_worker import VideoProcessingWorker
 from .query_worker import QueryWorker
 from .frame_slideshow import FrameSlideshow
 from .area_selector import AreaSelector
+from .advanced_settings import AdvancedSettings
 
 class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
@@ -28,6 +29,10 @@ class VideoProcessingApp(QMainWindow):
         self.found_log_entries = {}
         self.temp_embeddings = None
         self.video_info = None
+        self.results_batch_count = 5
+        self.results_frames_count = 40
+        self.deduplicate_frames_value = True
+        self.use_segmentation_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -79,33 +84,28 @@ class VideoProcessingApp(QMainWindow):
     def setup_query_section(self, parent_layout):
         query_group = QGroupBox("Query Builder")
         layout = QVBoxLayout()
+        
+        # Query input
+        query_row = QHBoxLayout()
+        # Left side - Query text entry
         layout.addWidget(QLabel("Query:"))
         self.query_entry = QLineEdit()
-        layout.addWidget(self.query_entry)
-        
+        query_row.addWidget(self.query_entry)
+        # Right side - Advanced settings button
+        self.advanced_settings_button = QPushButton("⚙")  # Gear icon
+        self.advanced_settings_button.setToolTip("Query Settings")
+        self.advanced_settings_button.setMaximumSize(30, 30)  # Make it small
+        self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
+        query_row.addWidget(self.advanced_settings_button)
+        # Add the query row to the main layout
+        layout.addLayout(query_row)
+
         # Query controls layout
         controls_layout = QHBoxLayout()
+        # Search button
         self.query_button = QPushButton("Search Query")
         self.query_button.clicked.connect(self.start_query)
         controls_layout.addWidget(self.query_button)
-        
-        # Segmentation option checkbox
-        self.use_segmentation = QCheckBox("Use Segmentation")
-        self.use_segmentation.setChecked(False)
-        self.use_segmentation.setToolTip("Use segmentation masks for object detection. \n"
-                                         "This feature will not make the search more precise \n"
-                                         "but will display the found objects more accurately \n"
-                                         "at the cost of performance.")
-        controls_layout.addWidget(self.use_segmentation)
-
-        # Deduplication option checkbox
-        self.deduplicate_frames = QCheckBox("Deduplicate Frames")
-        self.deduplicate_frames.setChecked(True)
-        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects so that \n"
-                                           "it is easier to navigate through the results.")
-        controls_layout.addWidget(self.deduplicate_frames)
-
-        layout.addLayout(controls_layout)
         
         # Progress bar
         self.query_progress = QProgressBar()
@@ -125,22 +125,31 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(query_group)
 
     def setup_settings_section(self, parent_layout):
-        settings_group = QGroupBox("Settings")
+        settings_group = QGroupBox("Processing Settings")
         layout = QVBoxLayout()
         
-        # Tracker selection
-        layout.addWidget(QLabel("Tracker:"))
+        # horizontal layout for tracker and interval
+        tracker_row = QHBoxLayout()
+        # Left side - Tracker selection
+        tracker_section = QVBoxLayout()
+        tracker_section.addWidget(QLabel("Model:"))
         self.tracker_combo = QComboBox()
         self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16", "siglip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
-        layout.addWidget(self.tracker_combo)
-        
-        # Interval
-        layout.addWidget(QLabel("Frame Interval:"))
+        self.tracker_combo.setToolTip("Select the tracker to use for processing.")
+        tracker_section.addWidget(self.tracker_combo)
+        tracker_row.addLayout(tracker_section)
+        # Right side - Interval
+        interval_section = QVBoxLayout()
+        interval_section.addWidget(QLabel("Interval:"))
         self.interval_entry = QLineEdit()
-        self.interval_entry.setText("yolo")
-        layout.addWidget(self.interval_entry)
- 
+        self.interval_entry.setText("30")
+        self.interval_entry.setToolTip("Interval for frames extraction.")
+        interval_section.addWidget(self.interval_entry)
+        tracker_row.addLayout(interval_section)
+        # Add the tracker row to the main layout
+        layout.addLayout(tracker_row)
+
         # Process button
         self.process_button = QPushButton("Process Video")
         self.process_button.clicked.connect(self.start_video_processing)
@@ -271,6 +280,21 @@ class VideoProcessingApp(QMainWindow):
         # Extract first frame of the video for AoI selection
         self.extract_first_frame()
 
+    def open_advanced_settings(self):
+        settings_dialog = AdvancedSettings(self)
+        if settings_dialog.exec():
+            # Apply the settings when OK button is clicked
+            self.apply_advanced_settings(settings_dialog)
+
+    def apply_advanced_settings(self, dialog):
+        # Store all settings
+        self.results_batch_count = dialog.batch_count_spinbox.value()
+        self.results_frames_count = dialog.frame_count_spinbox.value()
+
+        # Store the deduplication and segmentation settings
+        self.deduplicate_frames_value = dialog.deduplicate_frames_checkbox.isChecked()
+        self.use_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
+
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""
         try:
@@ -289,7 +313,7 @@ class VideoProcessingApp(QMainWindow):
         except Exception as e:
             print(f"Error extracting first frame: {str(e)}")
             return False
-    
+
     def select_area_of_interest(self):
         """ Open the area selector dialog to select an area of interest """
         if not hasattr(self, 'first_frame'):

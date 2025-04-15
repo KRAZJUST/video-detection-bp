@@ -54,7 +54,7 @@ class QueryWorker(QThread):
                     output_dir=self.app.output_dir,
                     model_name=self.app.tracker_combo.currentText()
                 )
-                similarities, metadata = xclip_parser.search_embeddings(top_k=10)
+                similarities, metadata = xclip_parser.search_embeddings(top_k=self.app.results_batch_count)
                 results = xclip_parser.top_frames
                 print(type(results))
                 print(f"Top frames: {results}")
@@ -66,7 +66,7 @@ class QueryWorker(QThread):
                     output_dir=self.app.output_dir,
                     model_name=self.app.tracker_combo.currentText()
                 )
-                similarities, metadata = siglip_parser.search_embeddings(n_results=30)
+                similarities, metadata = siglip_parser.search_embeddings(n_results=self.app.results_frames_count)
                 results = siglip_parser.top_frames
                 print(type(results))
                 print(f"Top frames: {results}")
