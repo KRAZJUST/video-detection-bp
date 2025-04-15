@@ -1,6 +1,17 @@
 import sqlite3
 from typing import List, Tuple, Any, Dict, Optional
 from detectors.detection import Detection
+import time
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='database_operations.log',  # Log to file
+    filemode='a'  # Append mode
+)
+logger = logging.getLogger("DatabaseOperations")
 
 class Database:
     def __init__(self, db_path: str = "detections.db"):
@@ -18,8 +29,17 @@ class Database:
 
     def connect(self):
         """Connect to the database."""
+        logger.info(f"Connecting to database at {self.db_path}")
         self.connection = sqlite3.connect(self.db_path)
+        # add PRAGMA statements
         self.cursor = self.connection.cursor()
+        # Configure SQLite for better concurrency
+        # This is important for write-heavy applications
+        # and is here to minimize the errors related to database being locked
+        logger.debug("Setting PRAGMA statements for database optimization")
+        self.cursor.execute("PRAGMA journal_mode = WAL")  # Write-Ahead Logging
+        self.cursor.execute("PRAGMA synchronous = NORMAL")  # Less rigorous but faster durability
+        self.cursor.execute("PRAGMA busy_timeout = 5000")  # Wait up to 5 seconds when database is locked
 
     def create_tables(self):
         """Create the necessary tables in the database."""
@@ -107,6 +127,7 @@ class Database:
             self.cursor.execute("""
                 INSERT INTO videos (video_name) VALUES (?)
             """, (video_name,))
+            logger.info(f"Video '{video_name}' added successfully.")
             self.connection.commit()
             return self.cursor.lastrowid
         except sqlite3.IntegrityError:
@@ -259,11 +280,16 @@ class Database:
 
     def reset_video_yolo(self, video_name: str):
         """Function to clear YOLO detections for a specific video."""
+        # Get video_id
         video_id = self.get_video_id(video_name)
         if not video_id:
-            print(f"Video '{video_name}' not found in database")
+            # if the video is not in the database, add it
+            logger.debug(f"Video '{video_name}' not found in database, adding it.")
+            self.add_video(video_name)
             return
-            
+        
+        logger.debug(f"Video ID: {video_id}")
+
         # Get all frame_ids for this video
         self.cursor.execute("""
             SELECT frame_id FROM yolo_frames WHERE video_id = ?
@@ -275,6 +301,7 @@ class Database:
             return
             
         # Delete detections for these frames
+        logger.debug(f"Deleting {len(frame_ids)} detections from YOLO frames")
         placeholders = ', '.join(['?'] * len(frame_ids))
         self.cursor.execute(f"DELETE FROM detections WHERE frame_id IN ({placeholders})", frame_ids)
         
@@ -286,9 +313,12 @@ class Database:
 
     def reset_video_bytetrack(self, video_name: str):
         """Function to clear ByteTrack refined detections for a specific video."""
+        # Get video_id
         video_id = self.get_video_id(video_name)
         if not video_id:
-            print(f"Video '{video_name}' not found in database")
+            # if the video is not in the database, add it
+            logger.debug(f"Video '{video_name}' not found in database, adding it.")
+            self.add_video(video_name)
             return
             
         # Get all frame_ids for this video
@@ -492,7 +522,28 @@ class Database:
             SELECT video_id, video_name FROM videos ORDER BY created_at DESC
         """)
         return self.cursor.fetchall()
-
+    
+    def get_frame_timestamp(self, video_name: str, frame_number: int, tracker: str) -> Optional[float]:
+        """
+        Get the timestamp of a specific frame in a video.
+        """
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return None
+        
+        if tracker == 'yolo' or tracker == 'xclip-32' or tracker == 'xclip-16':
+            self.cursor.execute("""
+                SELECT timestamp FROM yolo_frames WHERE video_id = ? AND frame_number = ?
+            """, (video_id, frame_number))
+        elif tracker == 'bytetrack':
+            self.cursor.execute("""
+                SELECT timestamp FROM bytetrack_frames WHERE video_id = ? AND frame_number = ?
+            """, (video_id, frame_number))
+        else:
+            raise ValueError("Invalid tracker specified. Use 'yolo' or 'bytetrack'.")
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+      
     def close(self):
         """Close the database connection."""
         if self.connection:

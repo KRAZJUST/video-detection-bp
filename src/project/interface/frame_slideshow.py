@@ -1,14 +1,29 @@
 import os
 import re
+import shutil
+import subprocess
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                             QLabel, QPushButton, QSlider, QFileDialog, QComboBox)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap
+from database.sqlite_database import Database
+from database.vector_database import VectorDatabaseManager
 
 class FrameSlideshow(QMainWindow):
-    def __init__(self, parent, starting_frame_path, frame_dir, extracted_frames_dir, 
-                 context_frames=10, forward_frames=30, interval=500, fps=24,
-                 frame_interval=30, input_video_path=None):
+    def __init__(self, 
+                 parent, 
+                 starting_frame_path, 
+                 frame_dir, 
+                 extracted_frames_dir, 
+                 context_frames=10, 
+                 forward_frames=30, 
+                 interval=500, 
+                 fps=24,
+                 frame_interval=30, 
+                 input_video_path=None,
+                 database_path=None,
+                 tracker=None,
+                 metadata=None):
         super().__init__()
         self.parent = parent
         self.frame_dir = frame_dir
@@ -21,10 +36,24 @@ class FrameSlideshow(QMainWindow):
         self.interval = interval
         # Path to the input video file
         self.input_video_path = input_video_path
+        # Initialize database connection
+        if tracker == 'yolo' or tracker == 'bytetrack':
+            self.db = Database(database_path)
+        # Tracker name
+        self.tracker = tracker
+        if metadata and len(metadata) > 0:
+            self.metadata = metadata
+
+        # Connect to the vector database
+        if tracker == 'xclip-32' or tracker == 'xclip-16':
+            self.vector_db = VectorDatabaseManager(
+                database_path="vector_database",
+                collection_name=f"embeddings_{os.path.basename(input_video_path)}",
+            )
         
         # Frame rate and extraction interval for timestamp calculation
         # in .webm files, fps is unknown so to avoid type errors, set to 24
-        self.fps = fps if fps != "unknown" else 24
+        self.fps = 24 if fps == 'unknown' or fps <= 0 else fps
         self.frame_interval = frame_interval 
         
         self.setWindowTitle("Frame Slideshow")
@@ -115,13 +144,41 @@ class FrameSlideshow(QMainWindow):
         self.update_speed()
     
     def get_frame_timestamp(self, frame_num):
-        """Calculate timestamp based on frame number and constant extraction rate"""
-        # timestamp = (frame_num * interval) / fps
-        # this gives us the time in seconds
-        # only works with constant frame intervals, so if adding the dynamic 
-        # frame extraction interval, refactor this to fetch timestamps from database
-        seconds = (float(frame_num) * float(self.frame_interval)) / float(self.fps)
-        return seconds
+        """
+        Get the timestamp for a given frame number.
+
+        This function retrieves the timestamp for a specific frame number
+        from the database or calculates it based on the frame rate and
+        frame interval.
+
+        Args:
+            frame_num (int): The frame number for which to retrieve the timestamp.
+        """
+        if self.tracker == 'yolo' or self.tracker == 'bytetrack':
+            return self.db.get_frame_timestamp(video_name=self.input_video_path,
+                                                frame_number=frame_num,
+                                                tracker=self.tracker)
+        elif self.tracker == 'xclip-32' or self.tracker == 'xclip-16':
+            if self.metadata:
+                for batch in self.metadata:
+                    # Parse frame numbers from the string
+                    frame_numbers = [int(n) for n in batch['frame_numbers_str'].split(',')]
+                    timestamps = [float(t) for t in batch['timestamps'].split(',')]
+                    
+                    # Check if the requested frame is in this batch
+                    try:
+                        index = frame_numbers.index(frame_num)
+                        return timestamps[index]
+                    except ValueError:
+                        # Frame not found in this batch, continue to next
+                        continue
+            # If not found in metadata, return a default timestamp
+            # this is a safety fallback
+            return float(frame_num) * float(self.frame_interval) / float(self.fps)
+        else:
+            # Default to a constant interval based on fps 
+            # this should never be used but is here for safety
+            return float(frame_num) * float(self.frame_interval) / float(self.fps)
     
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""
@@ -231,6 +288,7 @@ class FrameSlideshow(QMainWindow):
         
         # Get timestamp for this frame using the constant interval calculation
         timestamp = self.get_frame_timestamp(frame_num)
+        print(f"Frame {frame_num} timestamp: {timestamp}")
         formatted_time = self.format_timestamp(timestamp)
         
         # Update frame label and indicate if this is an annotated frame
@@ -339,12 +397,37 @@ class FrameSlideshow(QMainWindow):
             self.show_frame_at_visible_index(self.current_frame_index)
 
     def open_in_system_player(self):
-        """Opne the video at the current frame in the system's default video player"""
+        """
+        Opne the video at the current frame in the system's default video player.
+        This will attempt to use commonly used Ubuntu video players
+        that support seeking to a specific timestamp and open the video.
+
+        If none are found, it will fall back to xdg-open which will open the
+        video in the default video player, but not at the specific timestamp.
+        """
         if 0 <= self.current_frame_index < len(self.visible_frame_paths):
             if os.path.exists(self.input_video_path):
-                os.startfile(self.input_video_path)
+                timestamp = self.get_frame_timestamp(self.visible_frame_numbers[self.current_frame_index])
+                if shutil.which('mpv'):
+                    # MPV format
+                    subprocess.Popen(['mpv', f'--start={timestamp}', self.input_video_path])
+                elif shutil.which('vlc'):
+                    # VLC format
+                    subprocess.Popen(['vlc', f'--start-time={timestamp}', self.input_video_path])
+                elif shutil.which('mplayer'):
+                    # MPlayer format
+                    subprocess.Popen(['mplayer', f'-ss', f'{timestamp}', self.input_video_path])
+                elif shutil.which('ffplay'):
+                    # FFplay (part of ffmpeg) format
+                    subprocess.Popen(['ffplay', f'-ss', f'{timestamp}', self.input_video_path])
+                elif shutil.which('smplayer'):
+                    # SMPlayer format
+                    subprocess.Popen(['smplayer', f'-start', f'{timestamp}', self.input_video_path])
+                else:
+                    # Fallback to xdg-open (won't start at specific timestamp)
+                    subprocess.Popen(['xdg-open', self.input_video_path])
+                    print("Warning: No supported video player found for timestamp seeking. Opening with default player.")
             else:
                 print(f"Video file not found: {self.input_video_path}")
         else:
             print("No valid frame selected to open in system player.")
-        # Note: This method is a placeholder and may need to be implemented

@@ -1,4 +1,5 @@
-""" Module to perform object detection using YOLOv11. """
+# This code uses YOLOv11 from Ultralytics for object detection
+# Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11. https://docs.ultralytics.com/models/yolo11/
 
 from typing import Any, Dict, List
 from ultralytics import YOLO
@@ -9,7 +10,16 @@ import numpy as np
 from constants.constants import OBJECTS
 
 class YOLODetector:
-    """ Class to perform object detection using YOLOv11. """
+    """ 
+    Module to perform object detection using YOLOv11 model from Ultralytics.
+    This class is designed to detect objects in a given frame and return the detection results.
+    The model's weights are loaded from a specified file path.
+    
+    Original YOLO architecture by Joseph Redmon et al.
+    Model: yolov11n.pt (YOLOv11)
+    Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11. https://docs.ultralytics.com/models/yolo11/
+    Repository: https://github.com/ultralytics/ultralytics
+    """
 
     def __init__(self, model_path: str = 'yolo11n.pt', device: str = 'auto'):
         self.model = YOLO(model_path)

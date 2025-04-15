@@ -32,9 +32,26 @@ def main():
     sys.exit(app.exec())
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == 'profile':
-        cProfile.run('main()', 'app_profile')
-        p = pstats.Stats('app_profile')
+    if len(sys.argv) > 1 and sys.argv[1] == '-profile':
+        # Run with profiler
+        cProfile.run('main()', 'app_profile.prof')
+        
+        # Print summary to console
+        p = pstats.Stats('app_profile.prof')
+        print("\n=== TOP FUNCTIONS BY TIME ===")
         p.strip_dirs().sort_stats(SortKey.TIME).print_stats(20)
+        
+        print("\n=== TOP FUNCTIONS BY CUMULATIVE TIME ===")
+        p.sort_stats(SortKey.CUMULATIVE).print_stats(20)
+        
+        print("\n=== TOP CALLERS ===")
+        p.sort_stats(SortKey.TIME).print_callers(10)
+        
+        print("\n=== CALL HIERARCHY ===")
+        p.print_callees(10)
+        
+        # Save detailed stats for visualization tools
+        p.dump_stats('app_profile.prof')
+        print("\nProfile data saved to 'app_profile.prof'")
     else:
-        main() 
+        main()

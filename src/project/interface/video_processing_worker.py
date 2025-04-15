@@ -5,6 +5,7 @@ from processors.video_processor import VideoProcessor
 class VideoProcessingWorker(QThread):
     finished = pyqtSignal()
     error = pyqtSignal(str)
+    progress = pyqtSignal(str, int)
 
     def __init__(self, app, video_path, database_path, output_dir, interval, tracker):
         super().__init__()
@@ -18,12 +19,17 @@ class VideoProcessingWorker(QThread):
     @profile_time_usage
     def run(self):
         try:
+            # Progress fallback that emits message and perecentage
+            def progress_callback(message, percentage):
+                self.progress.emit(message, percentage)
+
             processor = VideoProcessor(
                 video_path=self.video_path,
                 database_path=self.database_path,
                 output_dir=self.output_dir,
                 interval=self.interval,
-                tracker_arg=self.tracker
+                model_name=self.tracker,
+                progress_callback=progress_callback,
             )
             processor.process_video()
             

@@ -1,8 +1,8 @@
 import os
-import json
 import torch
 import subprocess
 import glob
+import time
 from PIL import Image
 from typing import Any, Dict, List
 import cv2
@@ -11,8 +11,9 @@ from detectors.byte_track_tracker import ByteTrackTracker
 from database.sqlite_database import Database
 from xclip.xclip_model import XClipModel
 from database.vector_database import VectorDatabaseManager
-from profiling_utils.profiling_utils import profile_time_usage
+from profiling_utils.profiling_utils import profile_time_usage, detailed_profile
 from interface.video_info_utils import VideoInfoUtils
+from siglip.siglip_model import SigLIPModel
 
 
 class VideoProcessor:
@@ -20,13 +21,14 @@ class VideoProcessor:
                  output_dir: str, 
                  database_path: str,  
                  interval: int = 30, 
-                 tracker_arg: str = 'bytetrack'):
+                 model_name: str = 'yolo',
+                 progress_callback: Any = None):
 
         self.video_path = video_path
         self.output_dir = output_dir
         self.frames_output_dir_yx = os.path.join(self.output_dir, "extracted_frames_yx")
         self.frames_output_dir_b = os.path.join(self.output_dir, "extracted_frames_b")
-        self.frames_output_dir = self.frames_output_dir_b if tracker_arg == 'bytetrack' else self.frames_output_dir_yx
+        self.frames_output_dir = self.frames_output_dir_b if model_name == 'bytetrack' else self.frames_output_dir_yx
         # Create output directories if they do not exist
         os.makedirs(self.frames_output_dir_yx, exist_ok=True)
         os.makedirs(self.frames_output_dir_b, exist_ok=True)
@@ -35,24 +37,44 @@ class VideoProcessor:
         self.db = Database(self.database_path)
         self.vector_db = VectorDatabaseManager(
             database_path="vector_database",
-            collection_name=f"embeddings_{os.path.basename(video_path)}",
+            collection_name=f"{model_name}_embeddings_{os.path.basename(video_path)}",
             reset_database=True
         )
-        self.detector = YOLODetector()
-        if tracker_arg == 'bytetrack':
+        self.model_name = model_name
+        # Initialize the model based on the tracker argument
+        if self.model_name in ['yolo', 'bytetrack']:
+            self.detector = YOLODetector()
+        if self.model_name == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
-        self.tracker_arg = tracker_arg
+        if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':
+            self.xclip = XClipModel(self.model_name)
+        if self.model_name == 'siglip':
+            self.siglip_model = SigLIPModel()
 
-        if tracker_arg == 'xclip-32' or tracker_arg == 'xclip-16':
-            self.xclip = XClipModel(self.tracker_arg)
-        self.log_entries = {}
-        self.initial_yolo_results_log = {}
         self.interval = interval
-        
-        self.processing_level = 1 if self.tracker_arg in ['yolo', 'bytetrack'] else 2
         self.temp_embeddings = []
+        # Set the processing level based on the tracker argument
+        if self.model_name in ['yolo', 'bytetrack']:
+            self.processing_level = 1
+        elif self.model_name in ['xclip-32', 'xclip-16']:
+            self.processing_level = 2
+        elif self.model_name == 'siglip':
+            self.processing_level = 3
+        else:
+            raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
+
+        # Initialize the progress callback
+        self.progress_callback = progress_callback
+        # processing stages and their relative weights in overall progress
+        self.stages = {
+            'initialization': {'weight': 5, 'completed': 0},
+            'frame_extraction': {'weight': 25, 'completed': 0},
+            'object_detection': {'weight': 70, 'completed': 0}
+        }
         
         # Get the video informations
+        self.update_progress("Getting video information",
+                             stage='initialization', progress=30)
         video_metadata = VideoInfoUtils.get_video_info(video_path)
         # Convert the video metadata to a dictionary
         self.video_info = vars(video_metadata) if video_metadata else {
@@ -62,10 +84,45 @@ class VideoProcessor:
             'frame_count': None,
             'fps': None
         }
+        self.update_progress("Video information retrieved",
+                             stage='initialization', progress=100)
         print(f"Video Info: {self.video_info}")
+
 
         # Calculate the expected number of frames
         self.expected_frames_count = self.calculate_expected_frames()
+
+    def calculate_overall_progress(self):
+        """Calculate overall progress based on weighted stages"""
+        total_progress = 0
+        total_weight = sum(stage['weight'] for stage in self.stages.values())
+        
+        for stage_info in self.stages.values():
+            stage_contribution = (stage_info['completed'] * stage_info['weight']) / 100
+            total_progress += stage_contribution
+            
+        return int(total_progress * 100 / total_weight)
+
+    def update_progress(self, message, stage=None, progress=None):
+        """
+        Update progress with a status message and percentage
+        
+        Args:
+            message (str): Status message to display
+            stage (str): Current processing stage
+            progress (int): Progress percentage for the current stage (0-100)
+        """
+        # Update stage progress if provided
+        if stage is not None and progress is not None:
+            if stage in self.stages:
+                self.stages[stage]['completed'] = progress
+        
+        # Calculate overall progress
+        overall_progress = self.calculate_overall_progress()
+        
+        # Call the progress callback with message and percentage
+        if self.progress_callback:
+            self.progress_callback(message, overall_progress)
 
     def calculate_expected_frames(self) -> int:
         """Calculate the expected number of frames to be extracted."""
@@ -76,7 +133,8 @@ class VideoProcessor:
     
     def frames_already_extracted(self) -> bool:
         """Check if the required number of frames has already been extracted."""
-
+        self.update_progress("Checking existing frames",
+                             stage='frame_extraction', progress=10)
         # Count the number of frame files in the output directory
         existing_frames_count = len([
             f for f in os.listdir(self.frames_output_dir) 
@@ -88,20 +146,29 @@ class VideoProcessor:
             existing_frames_count - 3 <= self.expected_frames_count
 
     @profile_time_usage
+    @detailed_profile
     def extract_frames(self):
         # Check if frames are already extracted
         if self.frames_already_extracted():
+            self.update_progress("Frames already extracted",
+                                    stage='frame_extraction', progress=100)
             print("Frames already extracted")
             return True
+        
         # Delete existing frames
+        self.update_progress("Deleting existing frames",
+                             stage='frame_extraction', progress=20)
         for f in os.listdir(self.frames_output_dir):
             if f.startswith("frame_") and f.endswith(".jpg"):
                 os.remove(os.path.join(self.frames_output_dir, f))
         
         # Check if the CUDA is available
         use_cuda = torch.cuda.is_available()
+
         # Validate video information
         if not self.video_info['duration']:
+            self.update_progress("Could not determine video duration",
+                                 stage='frame_extraction', progress=30)
             print("Could not determine video duration")
             return False
         
@@ -140,60 +207,141 @@ class VideoProcessor:
         print("FFmpeg Command:", " ".join(ffmpeg_command))
         
         try:
-            # Execute FFmpeg command
-            result = subprocess.run(
-                ffmpeg_command,  
-                text=True,
-                check=True
+            self.update_progress("Starting frame extraction", stage='frame_extraction', progress=30)
+            
+            # Start ffmpeg in a separate process
+            process = subprocess.Popen(
+                ffmpeg_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                bufsize=1,
             )
             
-            # Check for errors
-            if result.returncode != 0:
-                print("FFmpeg Error Output:", result.stderr)
+            # Progress update variables
+            start_progress = 30
+            end_progress = 90
+            progress_range = end_progress - start_progress
+            
+            # Rough estimate total extraction time based on video duration 
+            # duration / 12x real time processing
+            estimated_total_seconds = float(self.video_info['duration']) / 12.0 
+            update_interval = 2.0
+            
+            # Start time for progress calculation
+            start_time = time.time()
+            
+            # Update progress in a loop while process is running
+            while process.poll() is None:
+                elapsed_time = time.time() - start_time
+                
+                # Calculate progress as a percentage of estimated time
+                progress_percent = min(elapsed_time / estimated_total_seconds, 1.0)
+                current_progress = start_progress + int(progress_percent * progress_range)
+                
+                # Update progress
+                self.update_progress(f"Extracting frames", 
+                                stage='frame_extraction', 
+                                progress=current_progress)
+                
+                # Sleep for the update interval
+                time.sleep(update_interval)
+            
+            # Check if process completed successfully
+            if process.returncode != 0:
+                self.update_progress("Error during frame extraction", stage='frame_extraction', progress=90)
+                print("FFmpeg Error")
                 return False
             
+            self.update_progress("Frames extracted successfully", stage='frame_extraction', progress=100)
             print("Frames extracted successfully")
             return True
         
         except Exception as e:
+            self.update_progress(f"Error during frame extraction: {str(e)}")
             print(f"Execution error: {e}")
             return False
 
     @profile_time_usage
+    @detailed_profile
     def process_video(self):
         """ Function to process video frames for object detection and tracking. """
+        self.update_progress("Starting video processing",
+                             stage='initialization', progress=50)
+         # Close and reopen the database connection to ensure a fresh state
+        self.db.close()
+        self.db.connect()
+        
+        # Add video information to the database
+        self.update_progress("Adding video information to the database",
+                             stage='initialization', progress=80)
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
-        if self.tracker_arg == 'yolo' and \
+        if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
            self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
-            self.db.reset_video_yolo(self.video_path)
-        elif self.tracker_arg == 'bytetrack' and \
+                self.update_progress("Resetting YOLO database for this video...",
+                                    stage='initialization', progress=70)
+                self.db.reset_video_yolo(self.video_path)
+        elif self.model_name == 'bytetrack' and \
              self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
-            self.db.reset_video_bytetrack(self.video_path)
+                self.update_progress("Resetting ByteTrack database for this video...",
+                                    stage='initialization', progress=70)
+                self.db.reset_video_bytetrack(self.video_path)
         
-        # Add video information to the database
-        self.db.add_video(self.video_path)
+        self.update_progress("Initialization completed",
+                             stage='initialization', progress=100)
 
         # Run FFmpeg extraction before processing frames
         self.extract_frames()
 
         # Load frames generated by FFmpeg
+        self.update_progress("Loading extracted frames", 
+                             stage='object_detection', progress=5)
         frame_files = sorted(glob.glob(os.path.join(self.frames_output_dir, 'frame_*.jpg')))
         
         if self.processing_level == 1:
+            self.update_progress(f"Processing frames with {self.model_name}",
+                                 stage='object_detection', progress=10)
             self._process_video_yolo(frame_files)
         elif self.processing_level == 2:
+            self.update_progress(f"Processing frames with {self.model_name}",
+                                 stage='object_detection', progress=10)
             self._process_video_xclip(frame_files)
+        elif self.processing_level == 3:
+            self.update_progress(f"Processing frames with {self.model_name}",
+                                 stage='object_detection', progress=10)
+            self._process_video_siglip(frame_files)
         else:
+            self.update_progress("Invalid processing configuration")
             raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
+        
+        # Finalize processing
+        self.update_progress("Completed processing frames",
+                                 stage='object_detection', progress=100)
 
     def _process_video_yolo(self, frame_files):
         """
         YOLO and ByteTrack processing method
         """
+        total_frames = len(frame_files)
+        if total_frames < 1000:
+            update_interval = 20
+        elif total_frames < 3000:
+            update_interval = 100
+        else:
+            update_interval = 200 
+
         for frame_number, frame_file in enumerate(frame_files):
-            #print(f"Processing frame {frame_file}")
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((frame_number / total_frames) * 80)
+            # Update progress every update_interval frames
+            if frame_number == 0 or frame_number == total_frames - 1 or frame_number % update_interval == 0:
+                self.update_progress(
+                    f"Processing frames ({frame_number + 1}/{total_frames})",
+                    stage='object_detection', 
+                    progress=progress_percent
+                )
             
             # Check if the fps is set as it can be 'unknown' in some cases and cause division by zero
             if self.video_info['fps'] != 'unknown':
@@ -203,9 +351,9 @@ class VideoProcessor:
                 timestamp = frame_number * self.interval
 
             # Insert frame into the database
-            if self.tracker_arg == 'yolo':
+            if self.model_name == 'yolo':
                 self.db.insert_yolo_frame(self.video_path, frame_number, timestamp)
-            elif self.tracker_arg == 'bytetrack':
+            elif self.model_name == 'bytetrack':
                 self.db.insert_bytetrack_frame(self.video_path, frame_number, timestamp)
             
             # Read frame
@@ -213,29 +361,42 @@ class VideoProcessor:
             
             # Detect objects
             results, detections = self.detector.detect_objects(frame, timestamp)
-            self.initial_yolo_results_log[frame_number] = [vars(det) for det in detections]
             
             # Handle tracking
-            if self.tracker_arg == 'yolo':
-                self.add_detections_in_db(detections, tracker=self.tracker_arg, frame_number=frame_number)
+            if self.model_name == 'yolo':
+                self.add_detections_in_db(detections, tracker=self.model_name, frame_number=frame_number)
             else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
-                self.log_entries[frame_number] = tracked_detections
-                self.add_detections_in_db(tracked_detections, tracker=self.tracker_arg, frame_number=frame_number)
-
-        #self.save_log(self.initial_yolo_results_log, name='initial_yolo_results_log')
-        #self.save_log(self.log_entries)
+                self.add_detections_in_db(tracked_detections, tracker=self.model_name, frame_number=frame_number)
 
     def _process_video_xclip(self, frame_files):
         """
         X-CLIP processing method
         """
         batch_size = 8
+        
+        # mapping of frame paths to their indices for lookups used later
+        # This is a dictionary comprehension to create a mapping of frame paths to their indices
+        # This allows for O(1) lookups instead of O(n) using list.index() 
+        # so it is more efficient in our case when working with large number of frames
+        frame_index_map = {frame_path: idx for idx, frame_path in enumerate(frame_files)}
+        
         frame_batches = self.create_frame_batches(frame_files, batch_size)
+        total_batches = len(frame_batches)
+        
         # Reset temp_embeddings
         self.temp_embeddings = []
 
         for batch_number, frame_batch in enumerate(frame_batches):
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((batch_number / total_batches) * 80)
+            
+            self.update_progress(
+                f"Processing batches ({batch_number + 1}/{total_batches})",
+                stage='object_detection', 
+                progress=progress_percent
+            )
+
             # Load frames for the batch
             frames = self.load_frames_as_clip(frame_batch)
 
@@ -249,19 +410,73 @@ class VideoProcessor:
             embeddings = self.xclip.extract_embeddings(frames)
             print(f"Batch {batch_number}: Extracted embeddings: {embeddings.shape}")
 
-            # Prepare metadata for each embedding
-            metadata = [
-                {
+            # Prepare metadata for each embedding with O(1) lookups
+            metadata = []
+            for frame_path in frame_batch:
+                # Use the pre-computed index from the mapping
+                frame_idx = frame_index_map[frame_path]
+                
+                # Calculate timestamp
+                if self.video_info['fps'] != 'unknown':
+                    timestamp = frame_idx * (self.interval / self.video_info['fps'])
+                else:
+                    timestamp = frame_idx * self.interval
+                    
+                metadata.append({
                     "frame_path": frame_path,
                     "batch_number": batch_number,
-                    "frame_number": frame_files.index(frame_path)
-                } for frame_path in frame_batch
-            ]
+                    "frame_number": frame_idx,
+                    "timestamp": timestamp,
+                })
 
             # Add embeddings to the vector database
             self.vector_db.add_batch_embeddings(batch_embeddings=embeddings, batch_metadata=metadata, embedding_strategy='mean')
 
         print("Embeddings stored in vector database successfully.")
+
+    @profile_time_usage
+    def _process_video_siglip(self, frame_files):
+        """Process individual video frames with SigLIP model"""
+        total_frames = len(frame_files)
+        if total_frames < 1000:
+            update_interval = 20
+        elif total_frames < 3000:
+            update_interval = 100
+        else:
+            update_interval = 200 
+                
+        for frame_idx, frame_path in enumerate(frame_files):
+            # Calculate progress percentage (10-90% of object_detection stage)
+            progress_percent = 10 + int((frame_idx / total_frames) * 80)
+            # Update progress every update_interval frames
+            if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
+                self.update_progress(
+                    f"Processing frames ({frame_idx + 1}/{total_frames})",
+                    stage='object_detection', 
+                    progress=progress_percent
+                )
+            
+            # Load the frame
+            image = Image.open(frame_path)
+            
+            # Generate embedding with SigLIP
+            embedding = self.siglip_model.extract_embedding(image)
+            
+             # Calculate timestamp
+            if self.video_info['fps'] != 'unknown':
+                timestamp = frame_idx * (self.interval / self.video_info['fps'])
+            else:
+                timestamp = frame_idx * self.interval
+            
+            # Add embedding and metadata for a single frame into the vector database
+            self.vector_db.add_single_frame_embedding(
+                embedding=embedding,
+                frame_path=frame_path,
+                frame_number=frame_idx,
+                timestamp=timestamp
+            )
+        
+        print("SigLIP embeddings stored in vector database successfully.")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""

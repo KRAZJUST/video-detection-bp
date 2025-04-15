@@ -27,10 +27,12 @@ class VectorDatabaseManager:
         
         # Initialize ChromaDB client
         self.chroma_client = chromadb.PersistentClient(path=self.persist_directory)
-        
+        print(f"ChromaDB client initialized with path: {self.persist_directory}")
+
         if reset_database:
             try:
                 self.chroma_client.delete_collection(name=collection_name)
+                print(f"Collection {collection_name} deleted.")
             except Exception as e:
                 print(f"Collection {collection_name} not found.", e)
 
@@ -39,6 +41,7 @@ class VectorDatabaseManager:
             name=collection_name,
             metadata={"hnsw:space": "cosine"}  # Cosine similarity for embedding matching
         )
+        print(f"Collection {collection_name} created or retrieved.")
         
         self.collection_name = collection_name
         
@@ -83,7 +86,8 @@ class VectorDatabaseManager:
             "frame_paths_str": ','.join(meta.get('frame_path', '') for meta in batch_metadata),
             "frame_numbers_str": ','.join(str(meta.get('frame_number', -1)) for meta in batch_metadata),
             "batch_number": batch_metadata[0].get('batch_number', -1),
-            "num_frames": len(batch_metadata)
+            "num_frames": len(batch_metadata),
+            "timestamps": ','.join(str(meta.get('timestamp', -1)) for meta in batch_metadata),
         }
         
         # Generate a unique ID for this batch
@@ -91,7 +95,6 @@ class VectorDatabaseManager:
         
         print(f"Adding batch embeddings with ID: {batch_id}")
         print(f"Batch metadata: {aggregated_metadata}")
-        print(f"Embeddings: {batch_embeddings}")
 
         # Add to ChromaDB collection
         self.collection.add(
@@ -102,6 +105,51 @@ class VectorDatabaseManager:
         
         return batch_id
     
+    def add_single_frame_embedding(self, 
+                                   embedding, 
+                                    frame_path: str,
+                                    frame_number: int,
+                                    timestamp: float):
+        """
+        Add embedding for a single frame with metadata.
+        
+        Args:
+            embedding (torch.Tensor): Tensor of embeddings for a single frame
+            frame_path (str): Path to the frame file
+            frame_number (int): Frame number in the video
+            timestamp (float): Timestamp of the frame in the video
+        """
+        # Ensure embedding is in the right format (1D)
+        if embedding.dim() > 1:
+            embedding = embedding.squeeze(0)
+        
+        # Convert torch tensor to list for ChromaDB
+        embedding_list = embedding.tolist()
+        
+        # Create metadata for this frame
+        metadata = {
+            "frame_paths_str": frame_path,
+            "frame_numbers_str": str(frame_number),
+            "timestamps": str(timestamp),
+            "batch_number": -1,  # Not applicable for single frames
+            "num_frames": 1,
+        }
+        
+        # Generate a unique ID for this frame
+        frame_id = str(uuid.uuid4())
+        
+        print(f"Adding single frame embedding with ID: {frame_id}")
+        print(f"Frame metadata: {metadata}")
+
+        # Add to ChromaDB collection
+        self.collection.add(
+            embeddings=embedding_list,
+            metadatas=[metadata],
+            ids=[frame_id]
+        )
+        
+        return frame_id
+
     def query_batch_embeddings(self, 
                                 query_embedding: torch.Tensor, 
                                 n_results: int = 5) -> Dict[str, Any]:

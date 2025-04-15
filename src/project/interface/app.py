@@ -14,6 +14,7 @@ from .video_processing_worker import VideoProcessingWorker
 from .query_worker import QueryWorker
 from .frame_slideshow import FrameSlideshow
 from .area_selector import AreaSelector
+from .advanced_settings import AdvancedSettings
 
 class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
@@ -28,6 +29,10 @@ class VideoProcessingApp(QMainWindow):
         self.found_log_entries = {}
         self.temp_embeddings = None
         self.video_info = None
+        self.results_batch_count = 5
+        self.results_frames_count = 40
+        self.deduplicate_frames_value = True
+        self.use_segmentation_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -79,38 +84,38 @@ class VideoProcessingApp(QMainWindow):
     def setup_query_section(self, parent_layout):
         query_group = QGroupBox("Query Builder")
         layout = QVBoxLayout()
+        
+        # Query input
+        query_row = QHBoxLayout()
+        # Left side - Query text entry
         layout.addWidget(QLabel("Query:"))
         self.query_entry = QLineEdit()
-        layout.addWidget(self.query_entry)
-        
+        query_row.addWidget(self.query_entry)
+        # Right side - Advanced settings button
+        self.advanced_settings_button = QPushButton("⚙")  # Gear icon
+        self.advanced_settings_button.setToolTip("Query Settings")
+        self.advanced_settings_button.setMaximumSize(30, 30)  # Make it small
+        self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
+        query_row.addWidget(self.advanced_settings_button)
+        # Add the query row to the main layout
+        layout.addLayout(query_row)
+
         # Query controls layout
         controls_layout = QHBoxLayout()
+        # Search button
         self.query_button = QPushButton("Search Query")
         self.query_button.clicked.connect(self.start_query)
         controls_layout.addWidget(self.query_button)
-        
-        # Segmentation option checkbox
-        self.use_segmentation = QCheckBox("Use Segmentation")
-        self.use_segmentation.setChecked(False)
-        self.use_segmentation.setToolTip("Use segmentation masks for object detection. \n"
-                                         "This feature will not make the search more precise \n"
-                                         "but will display the found objects more accurately \n"
-                                         "at the cost of performance.")
-        controls_layout.addWidget(self.use_segmentation)
-
-        # Deduplication option checkbox
-        self.deduplicate_frames = QCheckBox("Deduplicate Frames")
-        self.deduplicate_frames.setChecked(True)
-        self.deduplicate_frames.setToolTip("Deduplicate frames with identical objects so that \n"
-                                           "it is easier to navigate through the results.")
-        controls_layout.addWidget(self.deduplicate_frames)
-
-        layout.addLayout(controls_layout)
         
         # Progress bar
         self.query_progress = QProgressBar()
         self.query_progress.setVisible(False)
         layout.addWidget(self.query_progress)
+
+        # Query feedback message
+        self.query_feedback = QLabel("")
+        self.query_feedback.setWordWrap(True)
+        layout.addWidget(self.query_feedback)
 
         # Results count label
         self.results_count_label = QLabel("Number of frames: -")
@@ -120,22 +125,31 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(query_group)
 
     def setup_settings_section(self, parent_layout):
-        settings_group = QGroupBox("Settings")
+        settings_group = QGroupBox("Processing Settings")
         layout = QVBoxLayout()
         
-        # Tracker selection
-        layout.addWidget(QLabel("Tracker:"))
+        # horizontal layout for tracker and interval
+        tracker_row = QHBoxLayout()
+        # Left side - Tracker selection
+        tracker_section = QVBoxLayout()
+        tracker_section.addWidget(QLabel("Model:"))
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16"])
+        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16", "siglip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
-        layout.addWidget(self.tracker_combo)
-        
-        # Interval
-        layout.addWidget(QLabel("Frame Interval:"))
+        self.tracker_combo.setToolTip("Select the tracker to use for processing.")
+        tracker_section.addWidget(self.tracker_combo)
+        tracker_row.addLayout(tracker_section)
+        # Right side - Interval
+        interval_section = QVBoxLayout()
+        interval_section.addWidget(QLabel("Interval:"))
         self.interval_entry = QLineEdit()
-        self.interval_entry.setText("yolo")
-        layout.addWidget(self.interval_entry)
- 
+        self.interval_entry.setText("30")
+        self.interval_entry.setToolTip("Interval for frames extraction.")
+        interval_section.addWidget(self.interval_entry)
+        tracker_row.addLayout(interval_section)
+        # Add the tracker row to the main layout
+        layout.addLayout(tracker_row)
+
         # Process button
         self.process_button = QPushButton("Process Video")
         self.process_button.clicked.connect(self.start_video_processing)
@@ -145,6 +159,10 @@ class VideoProcessingApp(QMainWindow):
         self.processing_progress = QProgressBar()
         self.processing_progress.setVisible(False)
         layout.addWidget(self.processing_progress)
+        # Status message
+        self.status_message = QLabel("Ready to process video")
+        self.status_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.status_message)
         
         settings_group.setLayout(layout)
         parent_layout.addWidget(settings_group)
@@ -253,17 +271,29 @@ class VideoProcessingApp(QMainWindow):
         self.video_info_label.setText(info_text)
         self.show_loading('video_info', False)
 
-        # Update the interval entry based on the video FPS
-        if metadata['fps'] != "unknown":
-            self.interval_entry.setText(str(int(metadata['fps'])))
-        else:
-            self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
+        # Update the interval entry based on the tracker
+        self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
         self.area_selector_button.setEnabled(True)
         # Extract first frame of the video for AoI selection
         self.extract_first_frame()
+
+    def open_advanced_settings(self):
+        settings_dialog = AdvancedSettings(self)
+        if settings_dialog.exec():
+            # Apply the settings when OK button is clicked
+            self.apply_advanced_settings(settings_dialog)
+
+    def apply_advanced_settings(self, dialog):
+        # Store all settings
+        self.results_batch_count = dialog.batch_count_spinbox.value()
+        self.results_frames_count = dialog.frame_count_spinbox.value()
+
+        # Store the deduplication and segmentation settings
+        self.deduplicate_frames_value = dialog.deduplicate_frames_checkbox.isChecked()
+        self.use_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
 
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""
@@ -283,7 +313,7 @@ class VideoProcessingApp(QMainWindow):
         except Exception as e:
             print(f"Error extracting first frame: {str(e)}")
             return False
-    
+
     def select_area_of_interest(self):
         """ Open the area selector dialog to select an area of interest """
         if not hasattr(self, 'first_frame'):
@@ -346,8 +376,8 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
-        if tracker == "yolo" or tracker == "xclip-32" or tracker == "xclip-16":
-            self.interval_entry.setText(str(int(self.video_info['fps'])))
+        if tracker in ["yolo", "xclip-32", "xclip-16", "siglip"]:
+            self.interval_entry.setText("30")
         else:
             self.interval_entry.setText("10")
         
@@ -367,7 +397,7 @@ class VideoProcessingApp(QMainWindow):
             progress_bar = self.query_progress
             button = self.query_button
             
-        if progress_bar:
+        if progress_bar and section != 'video_processing':
             progress_bar.setVisible(show)
             if show:
                 progress_bar.setRange(0, 0)  # Indeterminate progress
@@ -378,8 +408,6 @@ class VideoProcessingApp(QMainWindow):
             button.setEnabled(not show)
 
     def start_video_processing(self):
-        self.show_loading('video_processing', True)
-    
         # Start processing worker
         self.processing_worker = VideoProcessingWorker(
             self,
@@ -389,15 +417,29 @@ class VideoProcessingApp(QMainWindow):
             interval=int(self.interval_entry.text()),
             tracker=self.tracker_combo.currentText()
         )
-        self.processing_worker.finished.connect(
-            lambda: self.show_loading('video_processing', False)
-        )
         self.processing_worker.error.connect(self.handle_processing_error)
+        self.processing_worker.progress.connect(self.update_processing_progress)
+        self.processing_worker.finished.connect(self.handle_processing_finished)
+
         self.processing_worker.start()
+        self.processing_progress.setValue(0)
+        self.processing_progress.setVisible(True)
+
+    def update_processing_progress(self, message, percentage):
+        """ Update the processing status message in the UI """
+        if hasattr(self, 'status_message'):
+            self.status_message.setText(f"{message}")
+        if hasattr(self, 'processing_progress'):
+            self.processing_progress.setValue(percentage)
 
     def handle_processing_error(self, error_message):
         print(f"Error processing video: {error_message}")
         self.show_loading('video_processing', False)
+
+    def handle_processing_finished(self):
+        if hasattr(self, 'processing_progress'):
+            self.processing_progress.setVisible(False)
+
 
     def eventFilter(self, obj, event):
         # Respond to resize events
@@ -473,17 +515,22 @@ class VideoProcessingApp(QMainWindow):
                                         area_of_interest=aoi)
         self.query_worker.finished.connect(self.display_query_results)
         self.query_worker.error.connect(self.handle_query_error)
+        self.query_worker.feedback.connect(self.update_query_feedback)
         # Pass deduplication option to the query worker
         self.query_worker.deduplicate = self.deduplicate_frames.isChecked()
         self.query_worker.start()
 
-    def display_query_results(self, results):
+    def update_query_feedback(self, message):
+        if hasattr(self, 'query_feedback'):
+            self.query_feedback.setText(message)
+
+    def display_query_results(self, results, metadata=None):
         print(f"Displaying {len(results)} results")
 
         # Ensure results is not None and has a valid length
         result_count = len(results) if results else 0
         print(f"Results count: {result_count}")
-        # Qt GUI updates must be done in the main thread
+        # the updates must be done in the main thread
         # otherwise the text won't update properly
         QMetaObject.invokeMethod(self.results_count_label, "setText", 
                                 Qt.ConnectionType.QueuedConnection, 
@@ -491,6 +538,7 @@ class VideoProcessingApp(QMainWindow):
         
         # Store all results
         self.all_results = list(results.items())
+        self.all_metadata = metadata
         self.loaded_images = []
         self.current_batch = 0
         
@@ -530,6 +578,7 @@ class VideoProcessingApp(QMainWindow):
         
         # Get items to process in this batch
         batch_items = self.all_results[start_idx:end_idx]
+        print(f"Batch items: {batch_items}")
         
         # Process each item in the batch
         for i, (frame_path, metadata) in enumerate(batch_items):
@@ -636,11 +685,19 @@ class VideoProcessingApp(QMainWindow):
             extracted_frames_dir = os.path.join(self.output_dir, "extracted_frames_yx")
         
         # Create and show slideshow window
-        self.slideshow_window = FrameSlideshow(self, starting_frame_path=frame_path, 
-                                               frame_dir=frame_dir, extracted_frames_dir=extracted_frames_dir, 
-                                               context_frames=15, forward_frames=30, interval=500, 
-                                               fps=int(self.video_info['fps']), frame_interval=self.interval_entry.text(),
-                                               input_video_path=self.video_path)
+        self.slideshow_window = FrameSlideshow(self, 
+                                               starting_frame_path=frame_path, 
+                                               frame_dir=frame_dir, 
+                                               extracted_frames_dir=extracted_frames_dir, 
+                                               context_frames=15, 
+                                               forward_frames=30, 
+                                               interval=500, 
+                                               fps=int(self.video_info['fps']), 
+                                               frame_interval=self.interval_entry.text(),
+                                               input_video_path=self.video_path,
+                                               database_path=self.database_path,
+                                               tracker=self.tracker_combo.currentText(),
+                                               metadata=self.all_metadata)
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):
