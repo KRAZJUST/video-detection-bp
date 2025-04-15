@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QThread, pyqtSignal
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
+from siglip.siglip_parser import SigLIPParser
 
 class QueryWorker(QThread):
     finished = pyqtSignal(dict, list)
@@ -46,21 +47,35 @@ class QueryWorker(QThread):
                 # empty metadata for YOLO and ByteTrack
                 metadata = {}
                 
-            elif self.app.tracker_combo.currentText() == "xclip-32" or self.app.tracker_combo.currentText() == "xclip-16":
+            elif self.app.tracker_combo.currentText() in ["xclip-32", "xclip-16"]:
                 xclip_parser = XClipParser(
                     video_path=self.app.video_path,
                     query=self.query,
                     output_dir=self.app.output_dir,
-                    model_name=self.app.tracker_combo.currentText(),
+                    model_name=self.app.tracker_combo.currentText()
                 )
-                similarities, metadata = xclip_parser.search_embeddings(top_k=5)
+                similarities, metadata = xclip_parser.search_embeddings(top_k=self.app.results_batch_count)
                 results = xclip_parser.top_frames
+                print(type(results))
+                print(f"Top frames: {results}")
+            
+            elif self.app.tracker_combo.currentText() == "siglip":
+                siglip_parser = SigLIPParser(
+                    video_path=self.app.video_path,
+                    query=self.query,
+                    output_dir=self.app.output_dir,
+                    model_name=self.app.tracker_combo.currentText()
+                )
+                similarities, metadata = siglip_parser.search_embeddings(n_results=self.app.results_frames_count)
+                results = siglip_parser.top_frames
                 print(type(results))
                 print(f"Top frames: {results}")
                 
             self.finished.emit(results, metadata)
             
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.error.emit(str(e))
 
     def deduplicate_tracker_results(self, results, max_frames_interval=15):

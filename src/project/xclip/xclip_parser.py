@@ -11,7 +11,7 @@ import numpy as np
 
 class XClipParser:
     """
-    Module using Microsoft's X-CLIP model for video-text representation learning.
+    Module is using Microsoft's X-CLIP model for video-text representation learning.
     
     Model: microsoft/xclip-base-patch32
     Model Type: X-CLIP
@@ -21,7 +21,11 @@ class XClipParser:
     Huggingface model: https://huggingface.co/microsoft/xclip-base-patch32
     """
 
-    def __init__(self, video_path, query: str, output_dir: str, model_name: str = None):
+    def __init__(self, 
+                 video_path,
+                 query: str, 
+                 output_dir: str, 
+                 model_name: str = None):
         """
         Initialize the XClipParser with video path, query, and output directory.
 
@@ -46,7 +50,7 @@ class XClipParser:
         self.query = query
         self.vector_db = VectorDatabaseManager(
             database_path="vector_database",
-            collection_name=f"embeddings_{os.path.basename(video_path)}"
+            collection_name=f"{model_name}_embeddings_{os.path.basename(video_path)}"
         )
         self.output_dir = output_dir
         self.top_frames = []
@@ -129,7 +133,7 @@ class XClipParser:
 
         # Track copied files to avoid duplicates
         copied_files = set()
-         # Dictionary to store results (path → empty list)
+        # Dictionary to store results (path → empty list)
         frame_results = {}
 
         # Iterate through metadata to copy frames

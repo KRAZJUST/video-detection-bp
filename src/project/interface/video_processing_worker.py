@@ -28,7 +28,7 @@ class VideoProcessingWorker(QThread):
                 database_path=self.database_path,
                 output_dir=self.output_dir,
                 interval=self.interval,
-                tracker_arg=self.tracker,
+                model_name=self.tracker,
                 progress_callback=progress_callback,
             )
             processor.process_video()

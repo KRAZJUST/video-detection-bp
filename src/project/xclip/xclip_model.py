@@ -7,7 +7,7 @@ import torch
 
 class XClipModel:
     """
-    Module using Microsoft's X-CLIP model for video-text representation learning.
+    Module is using Microsoft's X-CLIP model for video-text representation learning.
     
     Model: microsoft/xclip-base-patch32
     Model Type: X-CLIP
