@@ -92,9 +92,6 @@ class VectorDatabaseManager:
         
         # Generate a unique ID for this batch
         batch_id = str(uuid.uuid4())
-        
-        print(f"Adding batch embeddings with ID: {batch_id}")
-        print(f"Batch metadata: {aggregated_metadata}")
 
         # Add to ChromaDB collection
         self.collection.add(
@@ -137,9 +134,8 @@ class VectorDatabaseManager:
         
         # Generate a unique ID for this frame
         frame_id = str(uuid.uuid4())
-        
-        print(f"Adding single frame embedding with ID: {frame_id}")
-        print(f"Frame metadata: {metadata}")
+
+        print(f'Metadata: {metadata}')
 
         # Add to ChromaDB collection
         self.collection.add(

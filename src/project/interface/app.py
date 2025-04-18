@@ -106,6 +106,8 @@ class VideoProcessingApp(QMainWindow):
         self.query_button = QPushButton("Search Query")
         self.query_button.clicked.connect(self.start_query)
         controls_layout.addWidget(self.query_button)
+        # add controls layout to the main layout
+        layout.addLayout(controls_layout)
         
         # Progress bar
         self.query_progress = QProgressBar()
@@ -171,7 +173,7 @@ class VideoProcessingApp(QMainWindow):
         video_info_group = QGroupBox("Video Information")
         layout = QVBoxLayout()
         
-        self.video_info_label = QLabel("Video Information:\n")
+        self.video_info_label = QLabel()
         layout.addWidget(self.video_info_label)
         
          # AoI selection
@@ -258,7 +260,6 @@ class VideoProcessingApp(QMainWindow):
             bitrate_str = f"{bitrate_mbps:.2f} Mbps"
         
         info_text = (
-            f"Video Information:\n"
             f"Duration: {minutes:02d}:{seconds:02d}\n"
             f"FPS: {metadata['fps']}\n"
             f"Resolution: {metadata['width']}x{metadata['height']}\n"
@@ -380,9 +381,6 @@ class VideoProcessingApp(QMainWindow):
             self.interval_entry.setText("30")
         else:
             self.interval_entry.setText("10")
-        
-        # Update segmentation checkbox visibility
-        self.use_segmentation.setVisible(tracker in ["yolo", "bytetrack"])
 
     def show_loading(self, section, show):
         progress_bar = None
@@ -517,7 +515,7 @@ class VideoProcessingApp(QMainWindow):
         self.query_worker.error.connect(self.handle_query_error)
         self.query_worker.feedback.connect(self.update_query_feedback)
         # Pass deduplication option to the query worker
-        self.query_worker.deduplicate = self.deduplicate_frames.isChecked()
+        self.query_worker.deduplicate = self.deduplicate_frames_value
         self.query_worker.start()
 
     def update_query_feedback(self, message):
