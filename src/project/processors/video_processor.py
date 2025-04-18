@@ -22,6 +22,7 @@ class VideoProcessor:
                  database_path: str,  
                  interval: int = 30, 
                  model_name: str = 'yolo',
+                 siglip_batch_mode = False,
                  progress_callback: Any = None):
 
         self.video_path = video_path
@@ -41,6 +42,7 @@ class VideoProcessor:
             reset_database=True
         )
         self.model_name = model_name
+        self.siglip_batch_mode = siglip_batch_mode
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
             self.detector = YOLODetector()
@@ -49,7 +51,7 @@ class VideoProcessor:
         if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':
             self.xclip = XClipModel(self.model_name)
         if self.model_name == 'siglip':
-            self.siglip_model = SigLIPModel()
+            self.siglip_model = SigLIPModel(batch_processing=self.siglip_batch_mode)
 
         self.interval = interval
         self.temp_embeddings = []
@@ -435,48 +437,111 @@ class VideoProcessor:
         print("Embeddings stored in vector database successfully.")
 
     @profile_time_usage
-    def _process_video_siglip(self, frame_files):
-        """Process individual video frames with SigLIP model"""
+    def _process_video_siglip(self, frame_files, batch_size=4):
+        """
+        Process video frames with SigLIP model
+        
+        Args:
+            frame_files: List of paths to video frames
+            batch_mode: Whether to process frames as batches or individually
+            batch_size: Number of frames in each batch (if batch_mode is True)
+        """
         total_frames = len(frame_files)
-        if total_frames < 1000:
-            update_interval = 20
-        elif total_frames < 3000:
-            update_interval = 100
-        else:
-            update_interval = 200 
+        
+        if self.siglip_batch_mode:
+            # Process frames in batches similar to X-CLIP
+            frame_index_map = {frame_path: idx for idx, frame_path in enumerate(frame_files)}
+            frame_batches = self.create_frame_batches(frame_files, batch_size)
+            total_batches = len(frame_batches)
+            
+            for batch_number, frame_batch in enumerate(frame_batches):
+                # Calculate progress percentage
+                progress_percent = 10 + int((batch_number / total_batches) * 80)
                 
-        for frame_idx, frame_path in enumerate(frame_files):
-            # Calculate progress percentage (10-90% of object_detection stage)
-            progress_percent = 10 + int((frame_idx / total_frames) * 80)
-            # Update progress every update_interval frames
-            if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
                 self.update_progress(
-                    f"Processing frames ({frame_idx + 1}/{total_frames})",
+                    f"Processing batches ({batch_number + 1}/{total_batches})",
                     stage='object_detection', 
                     progress=progress_percent
                 )
-            
-            # Load the frame
-            image = Image.open(frame_path)
-            
-            # Generate embedding with SigLIP
-            embedding = self.siglip_model.extract_embedding(image)
-            
-             # Calculate timestamp
-            if self.video_info['fps'] != 'unknown':
-                timestamp = frame_idx * (self.interval / self.video_info['fps'])
+                
+                # Load frames for the batch
+                frames = self.load_frames_as_clip(frame_batch)
+                
+                # Pad the batch if needed
+                if len(frames) < batch_size:
+                    padding_needed = batch_size - len(frames)
+                    frames.extend([frames[-1]] * padding_needed)
+                
+                # Generate pooled embedding for the batch
+                embedding = self.siglip_model.extract_clip_embedding(frames, pooling_strategy='mean')
+                print(f"Batch {batch_number}: Extracted embedding shape: {embedding.shape}")
+                
+                # Prepare metadata for each embedding
+                metadata = []
+                for frame_path in frame_batch:
+                    frame_idx = frame_index_map[frame_path]
+                    
+                    # Calculate timestamp
+                    if self.video_info['fps'] != 'unknown':
+                        timestamp = frame_idx * (self.interval / self.video_info['fps'])
+                    else:
+                        timestamp = frame_idx * self.interval
+                        
+                    metadata.append({
+                        "frame_path": frame_path,
+                        "batch_number": batch_number,
+                        "frame_number": frame_idx,
+                        "timestamp": timestamp,
+                    })
+                
+                # Add embeddings to the vector database
+                self.vector_db.add_batch_embeddings(
+                    batch_embeddings=embedding,
+                    batch_metadata=metadata,
+                    embedding_strategy='mean'
+                )
+                
+            print("SigLIP batch embeddings stored in vector database successfully.")
+        else:
+            if total_frames < 1000:
+                update_interval = 20
+            elif total_frames < 3000:
+                update_interval = 100
             else:
-                timestamp = frame_idx * self.interval
+                update_interval = 200 
+                    
+            for frame_idx, frame_path in enumerate(frame_files):
+                # Calculate progress percentage (10-90% of object_detection stage)
+                progress_percent = 10 + int((frame_idx / total_frames) * 80)
+                # Update progress every update_interval frames
+                if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
+                    self.update_progress(
+                        f"Processing frames ({frame_idx + 1}/{total_frames})",
+                        stage='object_detection', 
+                        progress=progress_percent
+                    )
+                
+                # Load the frame
+                image = Image.open(frame_path)
+                
+                # Generate embedding with SigLIP
+                embedding = self.siglip_model.extract_embedding(image)
+                
+                # Calculate timestamp
+                if self.video_info['fps'] != 'unknown':
+                    timestamp = frame_idx * (self.interval / self.video_info['fps'])
+                else:
+                    timestamp = frame_idx * self.interval
+                
+                # Add embedding and metadata for a single frame into the vector database
+                self.vector_db.add_single_frame_embedding(
+                    embedding=embedding,
+                    frame_path=frame_path,
+                    frame_number=frame_idx,
+                    timestamp=timestamp
+                )
             
-            # Add embedding and metadata for a single frame into the vector database
-            self.vector_db.add_single_frame_embedding(
-                embedding=embedding,
-                frame_path=frame_path,
-                frame_number=frame_idx,
-                timestamp=timestamp
-            )
-        
-        print("SigLIP embeddings stored in vector database successfully.")
+            print("SigLIP embeddings stored in vector database successfully.")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
         """Accumulate detections and insert in bulk into the database."""

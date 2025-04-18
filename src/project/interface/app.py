@@ -33,6 +33,7 @@ class VideoProcessingApp(QMainWindow):
         self.results_frames_count = 40
         self.deduplicate_frames_value = True
         self.use_segmentation_value = False
+        self.batch_mode_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -292,7 +293,8 @@ class VideoProcessingApp(QMainWindow):
         self.results_batch_count = dialog.batch_count_spinbox.value()
         self.results_frames_count = dialog.frame_count_spinbox.value()
 
-        # Store the deduplication and segmentation settings
+        # Store the batch mode and deduplication and segmentation settings
+        self.batch_mode_value = dialog.batch_mode_checkbox.isChecked()
         self.deduplicate_frames_value = dialog.deduplicate_frames_checkbox.isChecked()
         self.use_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
 

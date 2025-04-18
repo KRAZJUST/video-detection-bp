@@ -24,6 +24,12 @@ class AdvancedSettings(QDialog):
         self.frame_count_spinbox.setValue(parent.results_frames_count if hasattr(parent, 'results_frames_count') else 50)
         form_layout.addRow("SigLIP Frame Count:", self.frame_count_spinbox)
         
+        # Add batch mode checkbox for siglip
+        self.batch_mode_checkbox = QCheckBox()
+        self.batch_mode_checkbox.setChecked(parent.batch_mode_value if hasattr(parent, 'batch_mode_value') else False)
+        self.batch_mode_checkbox.setToolTip("Use batch mode for SigLIP. \n")
+        form_layout.addRow("Batch Mode:", self.batch_mode_checkbox)
+
         # Add deduplication checkbox
         self.deduplicate_frames_checkbox = QCheckBox()
         self.deduplicate_frames_checkbox.setChecked(parent.deduplicate_frames_value if hasattr(parent, 'deduplicate_frames_value') else True)

@@ -64,9 +64,11 @@ class QueryWorker(QThread):
                     video_path=self.app.video_path,
                     query=self.query,
                     output_dir=self.app.output_dir,
+                    batch_mode=self.app.batch_mode_value,
                     model_name=self.app.tracker_combo.currentText()
                 )
-                similarities, metadata = siglip_parser.search_embeddings(n_results=self.app.results_frames_count)
+                n_results = self.app.results_batch_count if self.app.batch_mode_value else self.app.results_frames_count
+                similarities, metadata = siglip_parser.search_embeddings(n_results=n_results)
                 results = siglip_parser.top_frames
                 print(type(results))
                 print(f"Top frames: {results}")

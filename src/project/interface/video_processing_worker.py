@@ -29,6 +29,7 @@ class VideoProcessingWorker(QThread):
                 output_dir=self.output_dir,
                 interval=self.interval,
                 model_name=self.tracker,
+                siglip_batch_mode=self.app.batch_mode_value,
                 progress_callback=progress_callback,
             )
             processor.process_video()

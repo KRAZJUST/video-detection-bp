@@ -10,6 +10,7 @@ class SigLIPParser:
                  video_path,
                  model_name: str = None,
                  query: str = None,
+                 batch_mode: bool = False,
                  output_dir: str = None):
         """
         Initialize SigLIP parser for querying video frames.
@@ -25,6 +26,7 @@ class SigLIPParser:
 
         self.query = query
         self.output_dir = output_dir
+        self.batch_mode = batch_mode
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"device: {self.device}")
         self.siglip_model = SiglipModel.from_pretrained(self.model_name).to(self.device)
@@ -107,25 +109,48 @@ class SigLIPParser:
         # Directory to store results (path → empty list)
         frame_results = {}
         
-        for meta in metadata:
-            # Extract the frame path of the single frame
-            frame_path = meta['frame_paths_str']
-            # Extract just the filename
-            frame_filename = os.path.basename(frame_path)
+        if self.batch_mode:
+            for meta in metadata:
+                # Split frame paths string into individual frame paths
+                frame_paths = meta['frame_paths_str'].split(',')
+                # Copy each frame in the batch
+                for frame_path in frame_paths:
+                    # Extract just the filename
+                    frame_filename = os.path.basename(frame_path)
+                    # Copy the frame to the found_frames directory
+                    if frame_filename not in copied_frames:
+                        # construct the destination path
+                        dest_path = os.path.join(found_frames_dir, frame_filename)
+                        # Copy the file
+                        try:
+                            import shutil
+                            shutil.copy(frame_path, dest_path)
+                            copied_frames.append(dest_path)
+                            # add frame path to the results with empty list to match other parsers
+                            frame_results[frame_path] = []
+                        except Exception as e:
+                            print(f"Error copying frame {frame_filename}: {e}")
+                            continue
+        else:
+            for meta in metadata:
+                # Extract the frame path of the single frame
+                frame_path = meta['frame_paths_str']
+                # Extract just the filename
+                frame_filename = os.path.basename(frame_path)
 
-            # Copy the frame to the found_frames directory
-            if frame_filename not in copied_frames:
-                # construct the destination path
-                dest_path = os.path.join(found_frames_dir, frame_filename)
-                # Copy the file
-                try:
-                    import shutil
-                    shutil.copy(frame_path, dest_path)
-                    copied_frames.append(dest_path)
-                    # add frame path to the results with empty list to match other parsers
-                    frame_results[frame_path] = []
-                except Exception as e:
-                    print(f"Error copying frame {frame_filename}: {e}")
-                    continue
-        
+                # Copy the frame to the found_frames directory
+                if frame_filename not in copied_frames:
+                    # construct the destination path
+                    dest_path = os.path.join(found_frames_dir, frame_filename)
+                    # Copy the file
+                    try:
+                        import shutil
+                        shutil.copy(frame_path, dest_path)
+                        copied_frames.append(dest_path)
+                        # add frame path to the results with empty list to match other parsers
+                        frame_results[frame_path] = []
+                    except Exception as e:
+                        print(f"Error copying frame {frame_filename}: {e}")
+                        continue
+            
         return frame_results
