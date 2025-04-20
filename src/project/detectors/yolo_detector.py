@@ -24,9 +24,11 @@ class YOLODetector:
 
     def __init__(self, model_path: str = 'yolo11n.pt', 
                  device: str = 'auto',
-                 use_segmentation: bool = False):
+                 use_segmentation: bool = False,
+                 skip_color_analysis: bool = False):
         self.model = YOLO(model_path)
         self.color_filter = ColorFilter()
+        self.skip_color_analysis = skip_color_analysis
         self.device = device
         if device == 'auto':
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -74,7 +76,7 @@ class YOLODetector:
                         confidence=confidence,
                         bbox=(xmin, ymin, xmax, ymax),
                         timestamp=timestamp,
-                        dominant_color=self.color_filter.analyze_object_color(frame, (xmin, ymin, xmax, ymax), self.segmenter)
+                        dominant_color=self.color_filter.analyze_object_color(frame, (xmin, ymin, xmax, ymax), self.segmenter) if not self.skip_color_analysis else None,
                     ))
 
         return results[0], detections

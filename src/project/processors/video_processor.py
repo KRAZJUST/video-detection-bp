@@ -44,13 +44,15 @@ class VideoProcessor:
         self.model_name = model_name
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
-            # Use segmentation when using only YOLO
-            # as the segmentattion for bytetrack is done in the tracker
+            # Use segmentation only if the model is YOLO
             if use_segmentation and self.model_name == 'yolo':
                 print("Using YOLO with segmentation")
                 self.detector = YOLODetector(use_segmentation=use_segmentation)
             else:
-                self.detector = YOLODetector()
+                if self.model_name == 'yolo':
+                    self.detector = YOLODetector()
+                elif self.model_name == 'bytetrack':
+                    self.detector = YOLODetector(skip_color_analysis=True)
         if self.model_name == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, 
                                             frame_width=640, frame_height=360)
