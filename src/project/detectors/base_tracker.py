@@ -9,7 +9,7 @@ from .color_filter import ColorFilter
 from constants.constants import COLOR_MAP
 
 class BaseTracker(ABC):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 360):
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 3, frame_width: int = 640, frame_height: int = 360):
         self.output_dir = output_dir
         self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
         self.track_history = {}
@@ -89,6 +89,10 @@ class BaseTracker(ABC):
     def update_color_history(self, track_id: int, color_data: dict, frame_number: int) -> dict:
         """
         Update color history with exponential moving average.
+
+        This method keeps track of the last N frames of color data for each track ID
+        and calculates the exponential moving average to smooth out noise in color detection.
+        It also resets the history if the track was missing for too long.
         
         Args:
             track_id: The ID of the tracked object
@@ -115,8 +119,12 @@ class BaseTracker(ABC):
         if len(self.color_history[track_id]) > max_history:
             self.color_history[track_id] = self.color_history[track_id][-max_history:]
             
-        # Calculate exponential moving average
-        alpha = 0.3  # Smoothing factor
+        # Calculate exponential moving average with smoothing factor
+        # that determines how much weight to give to the current frame vs. the previous average
+        # the bigger the alpha, the more weight is given to the current frame
+        # This approach puts more weight on the current frame so it
+        # has more influence on the average while still considering the history
+        alpha = 0.3
         avg_colors = {}
         
         if len(self.color_history[track_id]) >= self.min_frames_for_averaging:
@@ -125,6 +133,7 @@ class BaseTracker(ABC):
                 avg_colors[color] = self.color_history[track_id][0].get(color, 0.0)
                 
             # Apply exponential moving average
+            # Iterate over all frames in history and apply smoothing
             for frame_data in self.color_history[track_id][1:]:
                 for color in self.color_filter.color_ranges.keys():
                     current_value = frame_data.get(color, 0.0)
