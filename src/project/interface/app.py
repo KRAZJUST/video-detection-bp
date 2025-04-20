@@ -15,6 +15,7 @@ from .query_worker import QueryWorker
 from .frame_slideshow import FrameSlideshow
 from .area_selector import AreaSelector
 from .advanced_settings import AdvancedSettings
+from .processing_settings import ProcessingSettings
 
 class VideoProcessingApp(QMainWindow):
     def __init__(self, database_path: str):
@@ -33,6 +34,7 @@ class VideoProcessingApp(QMainWindow):
         self.results_frames_count = 40
         self.deduplicate_frames_value = True
         self.use_segmentation_value = False
+        self.processing_segmentation_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -141,7 +143,7 @@ class VideoProcessingApp(QMainWindow):
         self.tracker_combo.setToolTip("Select the tracker to use for processing.")
         tracker_section.addWidget(self.tracker_combo)
         tracker_row.addLayout(tracker_section)
-        # Right side - Interval
+        # Centre - Interval
         interval_section = QVBoxLayout()
         interval_section.addWidget(QLabel("Interval:"))
         self.interval_entry = QLineEdit()
@@ -149,7 +151,13 @@ class VideoProcessingApp(QMainWindow):
         self.interval_entry.setToolTip("Interval for frames extraction.")
         interval_section.addWidget(self.interval_entry)
         tracker_row.addLayout(interval_section)
-        # Add the tracker row to the main layout
+        # Right side - Advanced settings button
+        self.processing_settings_button = QPushButton("⚙")  # Gear icon
+        self.processing_settings_button.setToolTip("Processing Settings")
+        self.processing_settings_button.setMaximumSize(30, 30)  # Make it small
+        self.processing_settings_button.clicked.connect(self.open_processing_settings)
+        tracker_row.addWidget(self.processing_settings_button)
+        # Add the query row to the main layout
         layout.addLayout(tracker_row)
 
         # Process button
@@ -295,6 +303,16 @@ class VideoProcessingApp(QMainWindow):
         # Store the deduplication and segmentation settings
         self.deduplicate_frames_value = dialog.deduplicate_frames_checkbox.isChecked()
         self.use_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
+
+    def open_processing_settings(self):
+        settings_dialog = ProcessingSettings(self)
+        if settings_dialog.exec():
+            # Apply the settings when OK button is clicked
+            self.apply_processing_settings(settings_dialog)
+    
+    def apply_processing_settings(self, dialog):
+        # Store the processing segmentation value
+        self.processing_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
 
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""

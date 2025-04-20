@@ -22,6 +22,7 @@ class VideoProcessor:
                  database_path: str,  
                  interval: int = 30, 
                  model_name: str = 'yolo',
+                 use_segmentation: bool = False,
                  progress_callback: Any = None):
 
         self.video_path = video_path
@@ -43,7 +44,7 @@ class VideoProcessor:
         self.model_name = model_name
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
-            self.detector = YOLODetector()
+            self.detector = YOLODetector(use_segmentation=use_segmentation)
         if self.model_name == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
         if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':

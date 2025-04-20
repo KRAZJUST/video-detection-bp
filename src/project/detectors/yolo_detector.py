@@ -8,6 +8,7 @@ from .detection import Detection
 import torch
 import numpy as np
 from constants.constants import OBJECTS
+from parsers.yolo_segmenter import YOLOSegmenter
 
 class YOLODetector:
     """ 
@@ -21,7 +22,9 @@ class YOLODetector:
     Repository: https://github.com/ultralytics/ultralytics
     """
 
-    def __init__(self, model_path: str = 'yolo11n.pt', device: str = 'auto'):
+    def __init__(self, model_path: str = 'yolo11n.pt', 
+                 device: str = 'auto',
+                 use_segmentation: bool = False):
         self.model = YOLO(model_path)
         self.color_filter = ColorFilter()
         self.device = device
@@ -30,6 +33,10 @@ class YOLODetector:
         self.model.to(self.device)
         self.class_names = self.model.names
         self.OBJECTS = OBJECTS
+        if use_segmentation:
+            self.segmenter = YOLOSegmenter()
+        else:
+            self.segmenter = None
 
     def detect_objects(self, frame: np.ndarray, timestamp: float) -> List[Dict[str, Any]]:
         results = self.model.predict(frame, verbose=False)
@@ -48,7 +55,7 @@ class YOLODetector:
                         confidence=confidence,
                         bbox=(xmin, ymin, xmax, ymax),
                         timestamp=timestamp,
-                        dominant_color=self.color_filter.detect_dominant_color(frame, (xmin, ymin, xmax, ymax))
+                        dominant_color=self.color_filter.analyze_object_color(frame, (xmin, ymin, xmax, ymax), self.segmenter)
                     ))
 
         return results[0], detections

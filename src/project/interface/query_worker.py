@@ -28,7 +28,7 @@ class QueryWorker(QThread):
                     output_dir=self.app.output_dir,
                     database_path=self.app.database_path,
                     tracker=self.app.tracker_combo.currentText(),
-                    use_segmentation=self.app.use_segmentation.isChecked(),
+                    use_segmentation=self.app.use_segmentation_value,
                     area_of_interest=self.area_of_interest,
                     feedback_callback=feedback_callback,
                 )
