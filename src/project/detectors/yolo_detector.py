@@ -39,6 +39,25 @@ class YOLODetector:
             self.segmenter = None
 
     def detect_objects(self, frame: np.ndarray, timestamp: float) -> List[Dict[str, Any]]:
+        """
+        Detect objects in the given frame using the YOLO model.
+
+        Args:
+            frame (np.ndarray): The input image in BGR format
+            timestamp (float): The timestamp of the frame
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing detection results
+
+        NOTE:
+            The function will only detect people and vehicles. This can be easily
+            hanged by modifying the OBJECTS list in constants/constants.py. 
+
+            The function will also use segmentation if the use_segmentation flag is set to True.
+            The segmentation will be used only for the color calculation of the detected objects
+            and not the whole frame -- this is done to speed up the process as otherwise the segmentation
+            masks would be calculated for all objects in the frame and not just the detected ones.
+        """
+
         results = self.model.predict(frame, verbose=False)
         detections = []
         for result in results:

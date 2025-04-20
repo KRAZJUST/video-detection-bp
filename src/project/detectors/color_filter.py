@@ -35,7 +35,6 @@ class ColorFilter:
         Args:
             image (np.ndarray): The input image in BGR format
             bbox (tuple): The bounding box coordinates (xmin, ymin, xmax, ymax)
-            color_filter (ColorFilter): The color filter instance
             segmenter (YOLOSegmenter, optional): The segmenter instance for mask generation
             
         Returns:

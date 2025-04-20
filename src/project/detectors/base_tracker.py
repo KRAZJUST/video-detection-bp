@@ -342,7 +342,16 @@ class BaseTracker(ABC):
         return final_direction
 
     def annotate_frame(self, frame: np.ndarray, detections: List[Dict[str, Any]]) -> np.ndarray:
-        """Annotate frame with bounding boxes and labels."""
+        """
+        Helper function to annotate the frame with bounding boxes, labels, and colors.
+
+        Args:
+            frame (np.ndarray): The input image in BGR format.
+            detections (List[Dict[str, Any]]): List of detection dictionaries containing 'bbox', 'class_name', etc.
+        
+        Returns:
+            np.ndarray: Annotated image with bounding boxes and labels.
+        """
         annotated_frame = frame.copy()
         
         for det in detections:
@@ -376,7 +385,17 @@ class BaseTracker(ABC):
         return annotated_frame
 
     def save_annotated_frame(self, frame: np.ndarray, detections: List[Dict[str, Any]], frame_number: int):
-        """Save annotated frame to disk."""
+        """
+        Helper function to save the annotated frame to disk.
+        
+        Args:
+            frame (np.ndarray): The input image in BGR format.
+            detections (List[Dict[str, Any]]): List of detection dictionaries containing 'bbox', 'class_name', etc.
+            frame_number (int): The current frame number.
+
+        Returns:
+            None
+        """
         annotated_frame = self.annotate_frame(frame, detections)
         output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:05d}.jpg")
         cv2.imwrite(output_path, annotated_frame)
