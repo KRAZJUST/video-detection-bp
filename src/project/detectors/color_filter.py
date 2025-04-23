@@ -16,12 +16,12 @@ class ColorFilter:
             'red': [((0, 70, 50), (10, 255, 255)), ((170, 70, 50), (180, 255, 255))],
             'blue': [((100, 150, 0), (140, 255, 255))],
             'green': [((40, 70, 70), (80, 255, 255))],
-            'yellow': [((22, 100, 100), (35, 255, 255))],
+            'yellow': [((20, 50, 100), (40, 255, 255))], 
             'white': [((0, 0, 168), (180, 25, 255))],
-            'orange': [((10, 100, 100), (20, 255, 255))],
+            'orange': [((5, 100, 100), (25, 255, 255))],
             'purple': [((140, 50, 50), (160, 255, 255))],
-            'brown': [((10, 50, 50), (20, 200, 200))],
-            'black': [((0, 0, 0), (180, 255, 30))],
+            'brown': [((5, 50, 50), (15, 200, 130))],
+            'black': [((0, 0, 0), (180, 155, 30))],
             'pink': [((140, 50, 200), (170, 255, 255))],
             'beige': [((15, 30, 150), (25, 100, 255))],
             # Catchall for grays and uncertain colors limited to low saturation areas
@@ -44,6 +44,14 @@ class ColorFilter:
         segmentation_mask = None
         if segmenter is not None:
             segmentation_mask = segmenter.segment_region(image, bbox)
+            # Ensure the mask is atleast a few pixels in size
+            if segmentation_mask is not None:
+                mask_height, mask_width = segmentation_mask.shape
+                non_zero_pixels = np.count_nonzero(segmentation_mask)
+                if mask_height < 5 or mask_width < 5 or non_zero_pixels < 25:
+                    # If the mask is too small or has too few non-zero pixels, ignore it
+                    # and fallback to the bounding box
+                    segmentation_mask = None
         
         # Use the segmentation mask if available
         dominant_color = self.detect_dominant_color(image, bbox, segmentation_mask)
@@ -177,7 +185,7 @@ class ColorFilter:
                 matching_pixels = cv2.bitwise_and(combined_mask, mask)
                 pixel_count = np.sum(matching_pixels) / 255
                 percentage = pixel_count / total_mask_pixels
-                if percentage > 0.1:  # Only include if more than 10%
+                if percentage > 0.05:  # Only include if more than 5%
                     color_presence[color] = percentage
                 
                 # Update unclassified pixels
