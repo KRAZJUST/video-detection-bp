@@ -418,8 +418,7 @@ class VideoProcessor:
                 
             # Generate embeddings for the frames using X-CLIP
             embeddings = self.xclip.extract_embeddings(frames)
-            print(f"Batch {batch_number}: Extracted embeddings: {embeddings.shape}")
-
+          
             # Prepare metadata for each embedding with O(1) lookups
             metadata = []
             for frame_path in frame_batch:

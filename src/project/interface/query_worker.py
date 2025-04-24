@@ -123,7 +123,7 @@ class QueryWorker(QThread):
         print(f"Total unique frames: {len(unique_results)}")
         return unique_results
 
-    def deduplicate_yolo_results(self, results, min_count_change=1, max_frames_interval=10, min_confidence=0.4):
+    def deduplicate_yolo_results(self, results, min_count_change=1, max_frames_interval=8, min_confidence=0.1):
         """
         Deduplicate results based on object classes, counts, and color names.
         Filter out frames that don't contain significant changes, but keep important frames.

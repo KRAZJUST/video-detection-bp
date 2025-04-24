@@ -79,7 +79,6 @@ class VectorDatabaseManager:
         # Remove the extra batch dimension
         if len(embeddings_list) == 1 and isinstance(embeddings_list[0], list):
             embeddings_list = embeddings_list[0]  # Flatten if embeddings are nested
-        print(f'Embeddings list: {embeddings_list}')
         
         # Flatten metadata to simple types
         aggregated_metadata = {
@@ -134,8 +133,6 @@ class VectorDatabaseManager:
         
         # Generate a unique ID for this frame
         frame_id = str(uuid.uuid4())
-
-        print(f'Metadata: {metadata}')
 
         # Add to ChromaDB collection
         self.collection.add(
