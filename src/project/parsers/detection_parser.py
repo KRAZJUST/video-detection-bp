@@ -258,65 +258,163 @@ class DetectionParser:
     def apply_spatial_filters(self, frames) -> dict:
         """
         Apply spatial filters (interactions and quadrants) to frames.
-        
         First, filter frames based on quadrants if specified.
         Then, filter frames based on interactions if specified by checking pairs of objects that should interact.
+        Considers both object class and color when specified in queries.
         
         Args:
             frames (dict): Frames and their detections.
-            
         Returns:
             dict: Filtered frames based on spatial filters.
         """
         filtered_frames = {}
-
         for frame_number, frame_data in frames.items():
             detections = frame_data['detections']
-
-            # Quadrant filtering remains the same
+            
+            # Quadrant filtering
             if self.filter_quadrants:
                 quadrant_match = any(
-                    self.get_frame_quadrant(detection['bbox'], (self.frame_width, self.frame_height)) in self.filter_quadrants 
+                    self.get_frame_quadrant(detection['bbox'], (self.frame_width, self.frame_height)) in self.filter_quadrants
                     for detection in detections
                 )
                 if not quadrant_match:
                     continue
-
+            
             # Interaction filtering
             if self.filter_interactions:
-                interaction_match = False
+                # Group detections by class name AND color when color is specified
+                class_color_detections = {}
+                for detection in detections:
+                    class_name = detection['class_name']
+                    
+                    # Only process objects that are in the filter list
+                    if class_name in self.filter_objects:
+                        # Check if color is available and consider it in grouping
+                        color = None
+                        if 'dominant_color' in detection:
+                            color = detection['dominant_color']
+                        
+                        # Get expected color for this object from query
+                        expected_color = self.get_color_for_object(class_name)
+                        
+                        # Create key that includes both class and color (if specified)
+                        if expected_color and color:
+                            key = f"{class_name}_{color}"
+                        else:
+                            key = class_name
+                        
+                        # Group by class+color or just class
+                        class_color_detections.setdefault(key, []).append(detection)
                 
-                # Filter detections by objects and colors
-                matching_detections = [
-                    detection for detection in detections 
-                    if any(
-                        self.matches_properties(detection, {'class_name': obj, 'color': self.get_color_for_object(obj)})
-                        for obj in self.filter_objects
-                    )
-                ]
-                
-                # Check unique interactions between different detections
-                if len(matching_detections) >= 2:
-                    for i in range(len(matching_detections)):
-                        for j in range(i+1, len(matching_detections)):
-                            # Ensure we're comparing different detections
-                            if matching_detections[i] != matching_detections[j]:
-                                interaction_type = self.calculate_interaction(
-                                    matching_detections[i]['bbox'], 
-                                    matching_detections[j]['bbox']
-                                )
-                                if interaction_type in self.filter_interactions:
-                                    interaction_match = True
-                                    break
-                        if interaction_match:
-                            break
-                
-                if not interaction_match:
+                # Find interactions based on query requirements
+                if not self._check_color_aware_interactions(class_color_detections):
                     continue
-
+            
+            # If frame passed all filters, add to results
             filtered_frames[frame_number] = frame_data
-
+        
         return filtered_frames
+
+    def _check_color_aware_interactions(self, class_color_detections):
+        """
+        Helper method to check if there are required interactions between objects,
+        considering both class and color when specified.
+        
+        Args:
+            class_color_detections (dict): Dictionary of class_color keys to lists of detections.
+        Returns:
+            bool: True if required interactions are found.
+        """
+        # Get all unique base classes (without color)
+        base_classes = set()
+        for key in class_color_detections.keys():
+            base_class = key.split('_')[0]  # Extract base class from key
+            base_classes.add(base_class)
+        
+        # If more than one unique class is specified, focus on the interactions between them
+        if len(base_classes) > 1:
+            # Look for interactions between different base classes
+            for key1, detections1 in class_color_detections.items():
+                for key2, detections2 in class_color_detections.items():
+                    # Skip if same key (same class+color combination)
+                    if key1 == key2:
+                        continue
+                    
+                    # Extract base classes to check if they're different
+                    base_class1 = key1.split('_')[0]
+                    base_class2 = key2.split('_')[0]
+                    
+                    # Check if these are the same class but different colors
+                    same_class_diff_color = base_class1 == base_class2 and key1 != key2
+                    
+                    # Either different classes or same class with different colors
+                    if base_class1 != base_class2 or same_class_diff_color:
+                        # Check interactions between these groups
+                        if self._find_interactions_between_groups(detections1, detections2):
+                            return True
+        else:
+            # If only one base class is specified, check interactions within that class
+            # but only between different colors if colors are specified
+            keys = list(class_color_detections.keys())
+            
+            # Multiple color variants of the same class
+            if len(keys) > 1:
+                # Check interactions between different color variants
+                for i in range(len(keys)):
+                    for j in range(i+1, len(keys)):
+                        key1, key2 = keys[i], keys[j]
+                        if self._find_interactions_between_groups(
+                            class_color_detections[key1], 
+                            class_color_detections[key2]
+                        ):
+                            return True
+            else:
+                # If only one class+color or just one class, check interactions within that group
+                for detections_list in class_color_detections.values():
+                    if len(detections_list) >= 2 and self._find_interactions_within_group(detections_list):
+                        return True
+        
+        return False
+
+    def _extract_query_color_objects(self):
+        """
+        Extract object-color pairs from the query.
+        Returns a dictionary mapping objects to their specified colors.
+        """
+        color_objects = {}
+        for element in self.query_parser.get_parsed_queries():
+            if 'object' in element and 'color' in element:
+                obj_class = element['object']
+                color = element['color']
+                color_objects[obj_class] = color
+        return color_objects
+
+    def _find_interactions_between_groups(self, group1, group2):
+        """
+        Find interactions between two groups of detections.
+        Returns True on first matching interaction.
+        """
+        for det1 in group1:
+            for det2 in group2:
+                interaction_type = self.calculate_interaction(det1['bbox'], det2['bbox'])
+                if interaction_type in self.filter_interactions:
+                    return True
+        return False
+
+    def _find_interactions_within_group(self, detections):
+        """
+        Find interactions within the same group of detections.
+        Returns True on first matching interaction.
+        """
+        for i in range(len(detections)):
+            for j in range(i+1, len(detections)):
+                interaction_type = self.calculate_interaction(
+                    detections[i]['bbox'],
+                    detections[j]['bbox']
+                )
+                if interaction_type in self.filter_interactions:
+                    return True
+        return False
 
     def get_color_for_object(self, obj):
         """
@@ -327,25 +425,6 @@ class DetectionParser:
             if 'object' in element and element['object'] == obj and 'color' in element:
                 return element['color']
         return None
-
-    def matches_properties(self, detection, expected_props):
-        """
-        Check if a detection matches the expected properties.
-        
-        Args:
-            detection (dict): Detection with class_name, dominant_color, etc.
-            expected_props (dict): Expected properties with class_name, color, etc.
-        
-        Returns:
-            bool: True if the detection matches all specified properties
-        """
-        if expected_props['class_name'] != detection['class_name']:
-            return False
-        
-        if expected_props['color'] is not None and expected_props['color'] != detection['dominant_color']:
-            return False
-            
-        return True
 
     def filter_detections_in_frames(self, frames, logic_operator=None, expected_conditions=None):
         """
@@ -408,13 +487,6 @@ class DetectionParser:
             self.annotate_image(frame_file_path, detections, frame_num)
         else:
             print(f"Warning: Frame file {frame_file_name} does not exist in {self.output_dir}")
-
-    def save_found_log(self):
-        """Save the filtered log entries to a new JSON file."""
-        found_log_path = os.path.join(self.output_dir, 'found_log.json')
-        with open(found_log_path, 'w') as found_log_file:
-            json.dump(self.found_log_entries, found_log_file, indent=4)
-        print(f"Found log saved to '{found_log_path}'.")
 
     def annotate_image(self, frame_file_path, detections, frame_num):
         """

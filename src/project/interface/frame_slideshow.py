@@ -146,40 +146,80 @@ class FrameSlideshow(QMainWindow):
     def get_frame_timestamp(self, frame_num):
         """
         Get the timestamp for a given frame number.
-
-        This function retrieves the timestamp for a specific frame number
-        from the database or calculates it based on the frame rate and
-        frame interval.
-
+        
         Args:
             frame_num (int): The frame number for which to retrieve the timestamp.
+        
+        Returns:
+            float: The timestamp in seconds for the given frame.
         """
-        if self.tracker == 'yolo' or self.tracker == 'bytetrack':
+        if self.tracker in ['yolo', 'bytetrack']:
+            # Get the timestamp from the database
             return self.db.get_frame_timestamp(video_name=self.input_video_path,
-                                                frame_number=frame_num,
-                                                tracker=self.tracker)
-        elif self.tracker == 'xclip-32' or self.tracker == 'xclip-16':
+                                            frame_number=frame_num,
+                                            tracker=self.tracker)
+        elif self.tracker in ['xclip-32', 'xclip-16', 'siglip']:
             if self.metadata:
-                for batch in self.metadata:
-                    # Parse frame numbers from the string
-                    frame_numbers = [int(n) for n in batch['frame_numbers_str'].split(',')]
-                    timestamps = [float(t) for t in batch['timestamps'].split(',')]
-                    
-                    # Check if the requested frame is in this batch
-                    try:
-                        index = frame_numbers.index(frame_num)
-                        return timestamps[index]
-                    except ValueError:
-                        # Frame not found in this batch, continue to next
-                        continue
-            # If not found in metadata, return a default timestamp
-            # this is a safety fallback
-            return float(frame_num) * float(self.frame_interval) / float(self.fps)
+                # First, try to find the frame in the metadata
+                timestamp = self._find_timestamp_in_metadata(frame_num)
+                if timestamp is not None:
+                    return timestamp
+                
+            # This is just a fallback in case the metadata doesn't have the 
+            # timestamp for the frame
+            return self._calculate_timestamp_from_fps(frame_num)
         else:
-            # Default to a constant interval based on fps 
-            # this should never be used but is here for safety
-            return float(frame_num) * float(self.frame_interval) / float(self.fps)
+            # Default to a constant interval based on fps for unknown trackers
+            return self._calculate_timestamp_from_fps(frame_num)
     
+    def _find_timestamp_in_metadata(self, frame_num):
+        """
+        Helper method to find a timestamp for a frame in the metadata.
+        
+        Args:
+            frame_num (int): The frame number to search for.
+        
+        Returns:
+            float or None: The timestamp if found, None otherwise.
+        """
+        for batch in self.metadata:
+            # Parse frame numbers from the string
+            frame_numbers_str = batch['frame_numbers_str']
+            timestamps_str = batch['timestamps']
+            
+            # Check if this is a batch or single frame entry
+            if ',' in frame_numbers_str:
+                # This is a batch
+                frame_numbers = [int(n) for n in frame_numbers_str.split(',')]
+                timestamps = [float(t) for t in timestamps_str.split(',')]
+                
+                # Check if the requested frame is in this batch
+                try:
+                    index = frame_numbers.index(frame_num)
+                    return timestamps[index]
+                except ValueError:
+                    # Frame not found in this batch, continue to next
+                    continue
+            else:
+                # This is a single frame entry
+                if int(frame_numbers_str) == frame_num:
+                    return float(timestamps_str)
+        
+        # Frame not found in any metadata
+        return None
+
+    def _calculate_timestamp_from_fps(self, frame_num):
+        """
+        Calculate timestamp based on frame number and FPS.
+        
+        Args:
+            frame_num (int): The frame number.
+        
+        Returns:
+            float: The calculated timestamp.
+        """
+        return float(frame_num) * float(self.frame_interval) / float(self.fps)
+
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""
         minutes = int(seconds // 60)

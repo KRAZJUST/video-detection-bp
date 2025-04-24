@@ -16,25 +16,57 @@ class ColorFilter:
             'red': [((0, 70, 50), (10, 255, 255)), ((170, 70, 50), (180, 255, 255))],
             'blue': [((100, 150, 0), (140, 255, 255))],
             'green': [((40, 70, 70), (80, 255, 255))],
-            'yellow': [((22, 100, 100), (35, 255, 255))],
+            'yellow': [((20, 50, 100), (40, 255, 255))], 
             'white': [((0, 0, 168), (180, 25, 255))],
-            'orange': [((10, 100, 100), (20, 255, 255))],
+            'orange': [((5, 100, 100), (25, 255, 255))],
             'purple': [((140, 50, 50), (160, 255, 255))],
-            'brown': [((10, 50, 50), (20, 200, 200))],
-            'black': [((0, 0, 0), (180, 255, 30))],
+            'brown': [((5, 50, 50), (15, 200, 130))],
+            'black': [((0, 0, 0), (180, 155, 30))],
             'pink': [((140, 50, 200), (170, 255, 255))],
             'beige': [((15, 30, 150), (25, 100, 255))],
             # Catchall for grays and uncertain colors limited to low saturation areas
             'gray': [((0, 0, 40), (180, 18, 230))]
         }
 
-    def detect_dominant_color(self, image: np.ndarray, bbox: Tuple) -> str:
+    def analyze_object_color(self, image, bbox, segmenter=None):
         """
-        Detect the most prominent color within the bounding box of the image.
+        Analyze the color of an object using segmentation (if available) for more precise results.
+        
+        Args:
+            image (np.ndarray): The input image in BGR format
+            bbox (tuple): The bounding box coordinates (xmin, ymin, xmax, ymax)
+            segmenter (YOLOSegmenter, optional): The segmenter instance for mask generation
+            
+        Returns:
+            str: The dominant color of the object
+            dict: The color presence percentages
+        """
+        segmentation_mask = None
+        if segmenter is not None:
+            segmentation_mask = segmenter.segment_region(image, bbox)
+            # Ensure the mask is atleast a few pixels in size
+            if segmentation_mask is not None:
+                mask_height, mask_width = segmentation_mask.shape
+                non_zero_pixels = np.count_nonzero(segmentation_mask)
+                if mask_height < 5 or mask_width < 5 or non_zero_pixels < 25:
+                    # If the mask is too small or has too few non-zero pixels, ignore it
+                    # and fallback to the bounding box
+                    segmentation_mask = None
+        
+        # Use the segmentation mask if available
+        dominant_color = self.detect_dominant_color(image, bbox, segmentation_mask)
+        
+        return dominant_color
+
+    def detect_dominant_color(self, image: np.ndarray, bbox: Tuple, segmentation_mask=None) -> str:
+        """
+        Detect the most prominent color within the bounding box of the image,
+        optionally using a segmentation mask for more precise detection.
 
         Args:
             image (np.ndarray): The original frame in BGR format.
             bbox (Tuple[int, int, int, int]): Bounding box coordinates (xmin, ymin, xmax, ymax).
+            segmentation_mask (np.ndarray, optional): Binary mask of the object. If None, uses shape-based masking.
 
         Returns:
             str: The name of the most prominent color, or 'none' if no color is prominent.
@@ -45,14 +77,22 @@ class ColorFilter:
         if roi.size == 0:
             return 'none'
 
-        width = xmax - xmin
-        height = ymax - ymin
-        aspect_ratio = width / height
-
-        if aspect_ratio <= 0.8 and aspect_ratio >= 1.2:
-            mask = self.create_circular_mask(width, height)
+        # Create the mask - either use segmentation mask or shape-based mask
+        if segmentation_mask is not None:
+            # Extract the portion of the segmentation mask that corresponds to the ROI
+            mask = segmentation_mask[ymin:ymax, xmin:xmax]
+            # Ensure mask is binary (0 or 255)
+            _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
         else:
-            mask = self.create_elliptical_mask(width, height)
+            # Fall back to the original shape-based masking
+            width = xmax - xmin
+            height = ymax - ymin
+            aspect_ratio = width / height
+
+            if aspect_ratio <= 0.8 or aspect_ratio >= 1.2:
+                mask = self.create_elliptical_mask(width, height)
+            else:
+                mask = self.create_circular_mask(width, height)
 
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         masked_hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
@@ -66,6 +106,7 @@ class ColorFilter:
             # If no colors detected, return the color with the highest presence
             if color_presence:
                 return max(color_presence.items(), key=lambda x: x[1])[0]
+            return 'none'
 
         # Return the color with the highest presence
         dominant_color = max(filtered_colors, key=filtered_colors.get)
@@ -144,7 +185,7 @@ class ColorFilter:
                 matching_pixels = cv2.bitwise_and(combined_mask, mask)
                 pixel_count = np.sum(matching_pixels) / 255
                 percentage = pixel_count / total_mask_pixels
-                if percentage > 0.1:  # Only include if more than 10%
+                if percentage > 0.05:  # Only include if more than 5%
                     color_presence[color] = percentage
                 
                 # Update unclassified pixels

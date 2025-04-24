@@ -23,52 +23,100 @@ class YOLOSegmenter:
 
     def __init__(self, model_path='yolo11n-seg.pt'):
         """
-        Initialize YOLO Segmenter for segmentation and annotation.
+        Initialize the YOLO Segmenter.
+        
         Args:
-            model_path: Path to the YOLO model with segmentation capabilities.
+            model_path: Path to the YOLOv11-seg model weights
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         # Load YOLO model with segmentation head
         self.model = YOLO(model_path).to(self.device)
+        print(f"YOLO model loaded on {self.device}")
+    
+    def segment_region(self, image, bbox, padding=10):
+        """
+        Apply YOLOv11-seg only to a specific region defined by the bounding box.
+        
+        Args:
+            image: RGB image array
+            bbox: Bounding box coordinates [x1, y1, x2, y2]
+            padding: Extra padding around the bbox to ensure complete object capture
+            
+        Returns:
+            Binary mask for the object in the bounding box
+        """
+        # Extract bbox coordinates and ensure they're integers
+        x1, y1, x2, y2 = map(int, bbox)
+        
+        # Add padding but stay within image boundaries
+        h, w = image.shape[:2]
+        x1_pad = max(0, x1 - padding)
+        y1_pad = max(0, y1 - padding)
+        x2_pad = min(w, x2 + padding)
+        y2_pad = min(h, y2 + padding)
+        
+        # Crop the region
+        region = image[y1_pad:y2_pad, x1_pad:x2_pad]
+        
+        # Skip empty regions
+        if region.size == 0:
+            return None
+        
+        # Create full-size mask
+        full_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+        
+        # Run segmentation on just the region
+        results = self.model(region)
+        
+        if results[0].masks is not None and len(results[0].masks.xy) > 0:
+            # Get the first mask (should be the best one for a cropped region)
+            mask_points = results[0].masks.xy[0]
+            
+            # Adjust coordinates to full image space
+            mask_points[:, 0] += x1_pad
+            mask_points[:, 1] += y1_pad
+            
+            # Draw the polygon on the full mask
+            cv2.fillPoly(full_mask, [np.array(mask_points, dtype=np.int32)], 255)
+        
+        return full_mask
 
     def annotate_image(self, image, detections):
         """
-        Annotate image with YOLO segmentation masks and labels.
+        Annotate image with segmentation masks and labels based on existing detections.
+        
         Args:
             image: BGR image array
             detections: List of detection dictionaries containing 'bbox', 'class_name', etc.
+        
         Returns:
             Annotated image with masks and labels
         """
-        # Ensure input image is in RGB format
+        # Convert BGR to RGB for processing
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        # YOLO expects an entire image for processing, but we only need the masks for detections in the frame
-        # so re-use the detections
-        results = self.model(rgb_image)
-
+        
         # Create a copy for drawing
         annotated_image = image.copy()
-
+        
         for detection in detections:
             # Get bounding box coordinates and class
-            xmin, ymin, xmax, ymax = detection['bbox']
+            bbox = detection['bbox']
             class_name = detection.get('class_name', 'unknown')
             dominant_color = detection.get('dominant_color', 'unknown')
-
-            # Get all masks from YOLO results
-            if results[0].masks is None:
-                continue
-                
-            best_mask = self.get_mask_with_highest_iou(results[0].masks.xy, detection['bbox'],image=image)
             
-            if best_mask is not None:
-                # Create colored overlay
+            # Generate mask for this region only
+            mask = self.segment_region(rgb_image, bbox)
+            
+            if mask is not None:
+                # Get color for this class
                 color = COLOR_MAP.get(dominant_color, (0, 255, 0))
+                
+                # Create colored overlay
                 colored_mask = np.zeros_like(image)
                 for c in range(3):
-                    colored_mask[:, :, c] = (best_mask / 255) * color[c]
-
+                    colored_mask[:, :, c] = (mask / 255) * color[c]
+                
                 # Blend the mask with the original image
                 alpha = 0.3
                 annotated_image = cv2.addWeighted(
@@ -76,85 +124,56 @@ class YOLOSegmenter:
                     colored_mask.astype(np.uint8), alpha,
                     0
                 )
-
+                
                 # Draw contours around the mask
                 contours, _ = cv2.findContours(
-                    best_mask,
+                    mask,
                     cv2.RETR_EXTERNAL,
                     cv2.CHAIN_APPROX_SIMPLE
                 )
                 cv2.drawContours(annotated_image, contours, -1, color, 2)
-
+                
                 # Add a label to the object
+                xmin, ymin, xmax, ymax = map(int, bbox)
                 label = f"{class_name}: {dominant_color}"
-                # get the size of the text to determine rectangle size
+                
+                # Get the size of the text to determine rectangle size
                 (text_width, text_height), _ = cv2.getTextSize(
-                    label, 
-                    cv2.FONT_HERSHEY_SIMPLEX, 
-                    0.5, 
+                    label,
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
                     2
                 )
-
+                
                 # Calculate rectangle coordinates
-                rect_x = int(xmin)
-                rect_y = int(ymin) - text_height - 15
-                # + padding
+                rect_x = xmin
+                rect_y = ymin - text_height - 15
                 rect_w = text_width + 10
                 rect_h = text_height + 10
-
-                # Create a separate overlay for the semi-transparent rectangle
+                
+                # Create overlay for text background
                 overlay = annotated_image.copy()
                 cv2.rectangle(
                     overlay,
                     (rect_x, rect_y),
                     (rect_x + rect_w, rect_y + rect_h),
-                    # Dark gray
-                    (64, 64, 64),
+                    (64, 64, 64),  # Dark gray
                     -1
                 )
-
-                # Add the overlay with transparency
-                alpha = 0.8 
+                
+                # Blend overlay
+                alpha = 0.8
                 cv2.addWeighted(overlay, alpha, annotated_image, 1 - alpha, 0, annotated_image)
-
-                # Add the text on top
+                
+                # Add text
                 cv2.putText(
                     annotated_image,
                     label,
-                    # put the label in the middle of the rectangle
                     (rect_x + 5, rect_y + text_height + 5),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,
                     color,
                     2
                 )
-
+                
         return annotated_image
-
-    def get_mask_with_highest_iou(self, masks, bbox, image):
-        """
-        Select mask with highest IoU (Intersection over Union) with the bounding box
-        """
-        x1, y1, x2, y2 = map(int, bbox)
-        bbox_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        bbox_mask[y1:y2, x1:x2] = 255
-        
-        best_mask = None
-        best_iou = 0
-        
-        for mask in masks:
-            # Create binary mask
-            current_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-            cv2.fillPoly(current_mask, [np.array(mask, dtype=np.int32)], 255)
-            
-            # Calculate IoU
-            intersection = np.logical_and(bbox_mask, current_mask)
-            union = np.logical_or(bbox_mask, current_mask)
-            iou = np.sum(intersection) / np.sum(union)
-            
-            if iou > best_iou:
-                best_iou = iou
-                best_mask = current_mask
-        
-        # Return the best mask if IoU is above a threshold
-        return best_mask if best_iou > 0.2 else None 

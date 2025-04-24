@@ -8,6 +8,7 @@ from .detection import Detection
 import torch
 import numpy as np
 from constants.constants import OBJECTS
+from parsers.yolo_segmenter import YOLOSegmenter
 
 class YOLODetector:
     """ 
@@ -21,17 +22,44 @@ class YOLODetector:
     Repository: https://github.com/ultralytics/ultralytics
     """
 
-    def __init__(self, model_path: str = 'yolo11n.pt', device: str = 'auto'):
+    def __init__(self, model_path: str = 'yolo11n.pt', 
+                 device: str = 'auto',
+                 use_segmentation: bool = False,
+                 skip_color_analysis: bool = False):
         self.model = YOLO(model_path)
         self.color_filter = ColorFilter()
+        self.skip_color_analysis = skip_color_analysis
         self.device = device
         if device == 'auto':
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model.to(self.device)
         self.class_names = self.model.names
         self.OBJECTS = OBJECTS
+        if use_segmentation:
+            self.segmenter = YOLOSegmenter()
+        else:
+            self.segmenter = None
 
     def detect_objects(self, frame: np.ndarray, timestamp: float) -> List[Dict[str, Any]]:
+        """
+        Detect objects in the given frame using the YOLO model.
+
+        Args:
+            frame (np.ndarray): The input image in BGR format
+            timestamp (float): The timestamp of the frame
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing detection results
+
+        NOTE:
+            The function will only detect people and vehicles. This can be easily
+            hanged by modifying the OBJECTS list in constants/constants.py. 
+
+            The function will also use segmentation if the use_segmentation flag is set to True.
+            The segmentation will be used only for the color calculation of the detected objects
+            and not the whole frame -- this is done to speed up the process as otherwise the segmentation
+            masks would be calculated for all objects in the frame and not just the detected ones.
+        """
+
         results = self.model.predict(frame, verbose=False)
         detections = []
         for result in results:
@@ -48,7 +76,7 @@ class YOLODetector:
                         confidence=confidence,
                         bbox=(xmin, ymin, xmax, ymax),
                         timestamp=timestamp,
-                        dominant_color=self.color_filter.detect_dominant_color(frame, (xmin, ymin, xmax, ymax))
+                        dominant_color=self.color_filter.analyze_object_color(frame, (xmin, ymin, xmax, ymax), self.segmenter) if not self.skip_color_analysis else None,
                     ))
 
         return results[0], detections

@@ -19,12 +19,27 @@ class ByteTrackTracker(BaseTracker):
     Supervision implementation: https://github.com/roboflow/supervision
     """
 
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 2, frame_width: int = 640, frame_height: int = 360):
+    def __init__(self, output_dir: str, 
+                 min_frames_for_averaging: int = 2, 
+                 frame_width: int = 640, 
+                 frame_height: int = 360):
         super().__init__(output_dir, min_frames_for_averaging, frame_width, frame_height)
         self.tracker = sv.ByteTrack(track_activation_threshold=0.2)
         self.color_filter = ColorFilter()
 
     def update_tracks(self, results, frame: np.ndarray, frame_number: int) -> List[Dict[str, Any]]:
+        """
+        Passes the YOLO results to the ByteTrack tracker and updates the tracks.
+
+        Args:
+            results: YOLO detection results
+            frame: The current frame being processed
+            frame_number: The current frame number
+        
+        Returns:
+            List[Dict[str, Any]]: A list of dictionaries containing detection results
+        """
+        
         # Convert YOLO results to Detections format
         sv_detections = sv.Detections.from_ultralytics(results)
         
@@ -60,6 +75,6 @@ class ByteTrackTracker(BaseTracker):
             detections.append(detection_info)
 
         # Save annotated frame
-        self.save_annotated_frame(frame, detections, frame_number)
+        #self.save_annotated_frame(frame, detections, frame_number)
         
         return detections

@@ -22,6 +22,7 @@ class VideoProcessor:
                  database_path: str,  
                  interval: int = 30, 
                  model_name: str = 'yolo',
+                 use_segmentation: bool = False,
                  progress_callback: Any = None):
 
         self.video_path = video_path
@@ -43,9 +44,18 @@ class VideoProcessor:
         self.model_name = model_name
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
-            self.detector = YOLODetector()
+            # Use segmentation only if the model is YOLO
+            if use_segmentation and self.model_name == 'yolo':
+                print("Using YOLO with segmentation")
+                self.detector = YOLODetector(use_segmentation=use_segmentation)
+            else:
+                if self.model_name == 'yolo':
+                    self.detector = YOLODetector()
+                elif self.model_name == 'bytetrack':
+                    self.detector = YOLODetector(skip_color_analysis=True)
         if self.model_name == 'bytetrack':
-            self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, frame_width=640, frame_height=360)
+            self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, 
+                                            frame_width=640, frame_height=360)
         if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':
             self.xclip = XClipModel(self.model_name)
         if self.model_name == 'siglip':
@@ -408,8 +418,7 @@ class VideoProcessor:
                 
             # Generate embeddings for the frames using X-CLIP
             embeddings = self.xclip.extract_embeddings(frames)
-            print(f"Batch {batch_number}: Extracted embeddings: {embeddings.shape}")
-
+          
             # Prepare metadata for each embedding with O(1) lookups
             metadata = []
             for frame_path in frame_batch:
