@@ -56,8 +56,6 @@ class QueryWorker(QThread):
                 )
                 similarities, metadata = xclip_parser.search_embeddings(top_k=self.app.results_batch_count)
                 results = xclip_parser.top_frames
-                print(type(results))
-                print(f"Top frames: {results}")
             
             elif self.app.tracker_combo.currentText() == "siglip":
                 siglip_parser = SigLIPParser(
@@ -68,8 +66,6 @@ class QueryWorker(QThread):
                 )
                 similarities, metadata = siglip_parser.search_embeddings(n_results=self.app.results_frames_count)
                 results = siglip_parser.top_frames
-                print(type(results))
-                print(f"Top frames: {results}")
                 
             self.finished.emit(results, metadata)
             
@@ -212,11 +208,6 @@ class QueryWorker(QThread):
                 last_frame_added = frame_num
                 frames_since_last_add = 0
                 
-                print(f"Added frame {frame_path} - reason: {reason}")
-                print(f"Frame {frame_path} - counts: {current_class_counts}")
-                if current_color_distribution:
-                    print(f"Frame {frame_path} - colors: {current_color_distribution}")
-            
         print(f"Total unique frames: {len(unique_results)} out of {len(results)}")
         return unique_results
 

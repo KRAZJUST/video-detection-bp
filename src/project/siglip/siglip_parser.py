@@ -26,7 +26,6 @@ class SigLIPParser:
         self.query = query
         self.output_dir = output_dir
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"device: {self.device}")
         self.siglip_model = SiglipModel.from_pretrained(self.model_name).to(self.device)
         self.siglip_processor = SiglipProcessor.from_pretrained(self.model_name)
         self.collection_name = f"siglip_embeddings_{os.path.basename(video_path)}"
@@ -76,7 +75,6 @@ class SigLIPParser:
         similarities = 1 / (1 + np.array(distances))
         # Get metadata
         metadata = results['metadatas'][0]
-        print(f'Metadata: {metadata}')
 
         self.top_frames = self.copy_top_k_frames(metadata)
 
