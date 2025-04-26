@@ -25,6 +25,14 @@ class ProcessingSettings(QDialog):
                                                 "as the ByteTrack has averaged color calculation even without segmentation \n" \
                                                 "and the segmentation will take a lot of time to process.")
         form_layout.addRow("Use Segmentation:", self.use_segmentation_checkbox)
+        # Checkbox for skiping the siglip frames based on the yolo detections
+        self.skip_siglip_frames_checkbox = QCheckBox()
+        self.skip_siglip_frames_checkbox.setChecked(parent.skip_siglip_with_yolo_value if hasattr(parent, 'skip_siglip_with_yolo_value') else False)
+        self.skip_siglip_frames_checkbox.setToolTip("Skip the frames being processed with SigLIP based on the YOLO detections. \n" \
+                                                "This feature will make the processing faster and possibly more precise \n" \
+                                                "but only on the videos with a less crowded scenes.\n" \
+                                                "If the scene has a lot of objects, the processing will take approximately 1.05-1.1 times longer. \n")
+        form_layout.addRow("Skip SigLIP with YOLO:", self.skip_siglip_frames_checkbox)
         layout.addLayout(form_layout)
 
         # Add buttons

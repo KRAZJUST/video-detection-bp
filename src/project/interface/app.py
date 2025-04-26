@@ -35,6 +35,7 @@ class VideoProcessingApp(QMainWindow):
         self.deduplicate_frames_value = True
         self.use_segmentation_value = False
         self.processing_segmentation_value = False
+        self.skip_siglip_with_yolo_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -311,8 +312,9 @@ class VideoProcessingApp(QMainWindow):
             self.apply_processing_settings(settings_dialog)
     
     def apply_processing_settings(self, dialog):
-        # Store the processing segmentation value
+        # Store the processing segmentation value and skip siglip value
         self.processing_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
+        self.skip_siglip_with_yolo_value = dialog.skip_siglip_frames_checkbox.isChecked()
 
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""

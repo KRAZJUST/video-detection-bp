@@ -3,6 +3,7 @@ import torch
 import subprocess
 import glob
 import time
+import math
 from PIL import Image
 from typing import Any, Dict, List
 import cv2
@@ -23,6 +24,7 @@ class VideoProcessor:
                  interval: int = 30, 
                  model_name: str = 'yolo',
                  use_segmentation: bool = False,
+                 skip_siglip_with_yolo: bool = False,
                  progress_callback: Any = None):
 
         self.video_path = video_path
@@ -41,6 +43,7 @@ class VideoProcessor:
             collection_name=f"{model_name}_embeddings_{os.path.basename(video_path)}",
             reset_database=True
         )
+        self.skip_siglip_with_yolo = skip_siglip_with_yolo
         self.model_name = model_name
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
@@ -139,7 +142,7 @@ class VideoProcessor:
         if self.video_info.get('frame_count') is None:
             return None
         total_frames = self.video_info['frame_count']
-        return total_frames // self.interval
+        return math.ceil(total_frames / self.interval)
     
     def frames_already_extracted(self) -> bool:
         """Check if the required number of frames has already been extracted."""
@@ -290,6 +293,8 @@ class VideoProcessor:
         # so the number of frames is different, delete the frames before reprocessing
         if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
            self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
+                print(f"got {self.db.get_number_of_frames_yolo(self.video_path)} frames")
+                print(f"expected {self.expected_frames_count} frames")
                 self.update_progress("Resetting YOLO database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_yolo(self.video_path)
@@ -375,6 +380,7 @@ class VideoProcessor:
             # Handle tracking
             if self.model_name == 'yolo':
                 self.add_detections_in_db(detections, tracker=self.model_name, frame_number=frame_number)
+                self.processed_with_yolo = True
             else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
                 self.add_detections_in_db(tracked_detections, tracker=self.model_name, frame_number=frame_number)
@@ -452,15 +458,30 @@ class VideoProcessor:
         elif total_frames < 3000:
             update_interval = 100
         else:
-            update_interval = 200 
-                
+            update_interval = 200
+
+        if self.skip_siglip_with_yolo:
+            # pre-fetch all frames with detections
+            frames_with_detections = self.db.get_frames_with_yolo_detections(self.video_path)
+            print(len(frames_with_detections), "frames with detections")
+            if len(frames_with_detections) == 0:
+                # no frames with detections, process all frames
+                frames_with_detections = set(range(total_frames))
+        else:
+            # process all frames
+            frames_with_detections = set(range(total_frames))
+
         for frame_idx, frame_path in enumerate(frame_files):
+            # Skip frames without YOLO detections
+            if frame_idx not in frames_with_detections:
+                continue
+
             # Calculate progress percentage (10-90% of object_detection stage)
-            progress_percent = 10 + int((frame_idx / total_frames) * 80)
+            progress_percent = 10 + int((frame_idx / len(frames_with_detections)) * 80)
             # Update progress every update_interval frames
-            if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
+            if frame_idx == 0 or frame_idx == len(frames_with_detections) - 1 or frame_idx % update_interval == 0:
                 self.update_progress(
-                    f"Processing frames ({frame_idx + 1}/{total_frames})",
+                    f"Processing frames ({frame_idx + 1}/{len(frames_with_detections)})",
                     stage='object_detection', 
                     progress=progress_percent
                 )

@@ -30,6 +30,7 @@ class VideoProcessingWorker(QThread):
                 interval=self.interval,
                 model_name=self.tracker,
                 use_segmentation=self.app.processing_segmentation_value,
+                skip_siglip_with_yolo=self.app.skip_siglip_with_yolo_value,
                 progress_callback=progress_callback,
             )
             processor.process_video()
