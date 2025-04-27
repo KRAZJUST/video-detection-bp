@@ -155,8 +155,7 @@ class VideoProcessor:
         ])
         
         # Return True if the expected frames are already extracted, False otherwise
-        return existing_frames_count + 3 >= self.expected_frames_count and \
-            existing_frames_count - 3 <= self.expected_frames_count
+        return abs(existing_frames_count - self.expected_frames_count) < 2
 
     @profile_time_usage
     @detailed_profile
@@ -292,14 +291,14 @@ class VideoProcessor:
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
         if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
-           self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
+           abs((self.db.get_number_of_frames_yolo(self.video_path) - self.expected_frames_count)) > 1:
                 print(f"got {self.db.get_number_of_frames_yolo(self.video_path)} frames")
                 print(f"expected {self.expected_frames_count} frames")
                 self.update_progress("Resetting YOLO database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_yolo(self.video_path)
         elif self.model_name == 'bytetrack' and \
-             self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
+             abs((self.db.get_number_of_frames_bytetrack(self.video_path) - self.expected_frames_count)) > 1:
                 self.update_progress("Resetting ByteTrack database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_bytetrack(self.video_path)
@@ -477,11 +476,11 @@ class VideoProcessor:
                 continue
 
             # Calculate progress percentage (10-90% of object_detection stage)
-            progress_percent = 10 + int((frame_idx / len(frames_with_detections)) * 80)
+            progress_percent = 10 + int((frame_idx / total_frames) * 80)
             # Update progress every update_interval frames
-            if frame_idx == 0 or frame_idx == len(frames_with_detections) - 1 or frame_idx % update_interval == 0:
+            if frame_idx == 0 or frame_idx == total_frames - 1 or frame_idx % update_interval == 0:
                 self.update_progress(
-                    f"Processing frames ({frame_idx + 1}/{len(frames_with_detections)})",
+                    f"Processing frames ({frame_idx + 1}/{total_frames})",
                     stage='object_detection', 
                     progress=progress_percent
                 )
