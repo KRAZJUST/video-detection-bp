@@ -202,7 +202,7 @@ class VideoProcessor:
         # Add output pat
         base_command.extend([
             '-start_number', '0',
-            f'{self.frames_output_dir}/frame_%05d.jpg'
+            f'{self.frames_output_dir}/frame_%06d.jpg'
         ])
         
         # CUDA acceleration command

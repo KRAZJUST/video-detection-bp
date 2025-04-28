@@ -406,7 +406,7 @@ class BaseTracker(ABC):
             None
         """
         annotated_frame = self.annotate_frame(frame, detections)
-        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:05d}.jpg")
+        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:06d}.jpg")
         cv2.imwrite(output_path, annotated_frame)
 
     @abstractmethod

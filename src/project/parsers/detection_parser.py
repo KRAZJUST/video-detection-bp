@@ -479,7 +479,7 @@ class DetectionParser:
         """
         Save annotated frame with detections.
         """
-        frame_file_name = f'frame_{frame_num:05d}.jpg'
+        frame_file_name = f'frame_{frame_num:06d}.jpg'
         frame_file_path = os.path.join(frame_file_dir, frame_file_name)
 
         # Check if the frame file exists in the specified directory
@@ -556,5 +556,5 @@ class DetectionParser:
             return
 
         # Save the annotated image
-        output_path = os.path.join(self.found_dir, f"frame_{frame_num:05d}.jpg")
+        output_path = os.path.join(self.found_dir, f"frame_{frame_num:06d}.jpg")
         cv2.imwrite(output_path, annotated_frame)

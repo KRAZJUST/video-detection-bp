@@ -413,7 +413,7 @@ class FrameSlideshow(QMainWindow):
             formatted_time = self.format_timestamp(timestamp).replace(":", "_")
             
             # Get save location from user with suggested filename including timestamp
-            suggested_name = f"frame_{frame_num:05d}_{formatted_time}.jpg"
+            suggested_name = f"frame_{frame_num:06d}_{formatted_time}.jpg"
             
             file_path, _ = QFileDialog.getSaveFileName(
                 self,

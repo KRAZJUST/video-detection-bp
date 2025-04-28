@@ -609,7 +609,7 @@ class VideoProcessingApp(QMainWindow):
             
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
-                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:05d}.jpg")
+                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:06d}.jpg")
             
             if os.path.exists(frame_path):
                 try:
