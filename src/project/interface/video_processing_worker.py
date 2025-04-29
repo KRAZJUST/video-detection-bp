@@ -15,6 +15,7 @@ class VideoProcessingWorker(QThread):
         self.output_dir = output_dir
         self.interval = interval
         self.tracker = tracker
+        self.terminate_processing = False
 
     @profile_time_usage
     def run(self):
@@ -22,6 +23,8 @@ class VideoProcessingWorker(QThread):
             # Progress fallback that emits message and perecentage
             def progress_callback(message, percentage):
                 self.progress.emit(message, percentage)
+                # Check termination flag during progress updates
+                return not self.terminate_processing
 
             processor = VideoProcessor(
                 video_path=self.video_path,
@@ -33,8 +36,11 @@ class VideoProcessingWorker(QThread):
                 skip_siglip_with_yolo=self.app.skip_siglip_with_yolo_value,
                 progress_callback=progress_callback,
             )
-            processor.process_video()
             
+            # Check if processing was terminated
+            if not self.terminate_processing:
+                processor.process_video()
+
             # Emit finished signal
             self.finished.emit()
             

@@ -222,9 +222,21 @@ class FrameSlideshow(QMainWindow):
 
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""
-        minutes = int(seconds // 60)
-        remaining_seconds = seconds % 60
-        return f"{minutes:02d}:{remaining_seconds:06.3f}"
+        if seconds > 3600:
+            hours = int(seconds // 3600)
+            seconds %= 3600
+            minutes = int(seconds // 60)
+            remaining_seconds = seconds % 60
+            return f"{hours:02d}:{minutes:02d}:{remaining_seconds:06.3f}"
+        elif seconds > 60:
+            minutes = int(seconds // 60)
+            seconds %= 60
+            remaining_seconds = seconds % 60
+            return f"{minutes:02d}:{remaining_seconds:06.3f}"
+        else:
+            # If less than 60 seconds, just show seconds with milliseconds
+            remaining_seconds = seconds % 60
+            return f"00:{remaining_seconds:06.3f}"
     
     def find_frames(self):
         """Find all frames in both directories and organize them"""

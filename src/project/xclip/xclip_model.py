@@ -39,12 +39,12 @@ class XClipModel:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
 
+    @torch.no_grad()
     def extract_embeddings(self, frames):
         # Preprocess input frames into tensors and move them to the device
         inputs = self.processor(videos=[frames], return_tensors="pt").to(self.device)
 
         # Extract video embeddings
-        with torch.no_grad():
-            outputs = self.model.get_video_features(**inputs)
+        outputs = self.model.get_video_features(**inputs)
 
         return outputs
