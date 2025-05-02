@@ -1,7 +1,22 @@
+# =============================================================================
+# File: sqlite_database.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a SQLite database interface for storing and managing
+# video detection data. It includes methods for creating tables, inserting
+# data, and querying the database. The database is designed to handle
+# video metadata, frames, YOLO detections, and ByteTrack refined detections.
+#
+# =============================================================================
+
 import sqlite3
 from typing import List, Tuple, Any, Dict, Optional
-from detectors.detection import Detection
-import time
 import logging
 
 # Configure logging
@@ -416,6 +431,40 @@ class Database:
             frames[frame_number]['detections'].append(detection)
 
         return frames
+    
+    def get_frames_with_yolo_detections(self, video_name: str):
+        """
+        Function to fetch the numbers of frames containing YOLO detections
+        for a specific video.
+        Used to filter out frames with no detections when processing with SigLIP.
+
+        Args:
+            video_name (str): The name of the video to fetch frames for.
+        Returns:
+            Set[int]: A set of frame numbers containing YOLO detections.
+        """
+        # Get video_id
+        video_id = self.get_video_id(video_name)
+        if not video_id:
+            return set()
+        
+        # Query to get all frames with detections for the video
+        query = """
+        SELECT *
+        FROM yolo_frames f
+        JOIN detections d ON d.frame_id = f.frame_id
+        WHERE f.video_id = ?
+        """
+        
+        self.cursor.execute(query, [video_id])
+        rows = self.cursor.fetchall()
+        
+        # Extract just the frame numbers and return as a set
+        frame_numbers = set()
+        for row in rows:
+            frame_numbers.add(row[2])
+
+        return frame_numbers
 
     def get_bytetrack_frames_with_detections(self, video_name: str, filter_objects=None, filter_colors=None,
                                            filter_directions=None, area_filter=None):

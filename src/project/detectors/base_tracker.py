@@ -1,3 +1,19 @@
+# =============================================================================
+# File: base_tracker.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a base class for tracking objects in video frames. It
+# includes methods for processing color detection, updating track history,
+# calculating directions, and annotating frames with bounding boxes and labels.
+#
+# =============================================================================
+
 from abc import ABC, abstractmethod
 import os
 from typing import Tuple, List, Dict, Any
@@ -406,7 +422,7 @@ class BaseTracker(ABC):
             None
         """
         annotated_frame = self.annotate_frame(frame, detections)
-        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:05d}.jpg")
+        output_path = os.path.join(self.annotated_images_dir, f"frame_{frame_number:06d}.jpg")
         cv2.imwrite(output_path, annotated_frame)
 
     @abstractmethod

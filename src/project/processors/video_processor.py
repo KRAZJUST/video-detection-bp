@@ -1,8 +1,28 @@
+# =============================================================================
+# File: video_processor.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a class for handling video processing tasks. It includes
+# methods for extracting frames, performing object detection and tracking, and
+# managing the database. The class is designed to work with different models
+# (YOLO, ByteTrack, X-CLIP, SigLIP) and can be configured to use segmentation
+# and skip SigLIP processing with YOLO. The class also includes progress tracking
+# and termination handling.
+#
+# =============================================================================
+
 import os
 import torch
 import subprocess
 import glob
 import time
+import math
 from PIL import Image
 from typing import Any, Dict, List
 import cv2
@@ -23,6 +43,7 @@ class VideoProcessor:
                  interval: int = 30, 
                  model_name: str = 'yolo',
                  use_segmentation: bool = False,
+                 skip_siglip_with_yolo: bool = False,
                  progress_callback: Any = None):
 
         self.video_path = video_path
@@ -41,6 +62,7 @@ class VideoProcessor:
             collection_name=f"{model_name}_embeddings_{os.path.basename(video_path)}",
             reset_database=True
         )
+        self.skip_siglip_with_yolo = skip_siglip_with_yolo
         self.model_name = model_name
         # Initialize the model based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
@@ -73,6 +95,8 @@ class VideoProcessor:
         else:
             raise ValueError("Invalid tracker argument. Please use either 'yolo', 'bytetrack' or 'xclip'.")
 
+        # Initialize the flag to check if processing should be terminated
+        self.should_terminate = False
         # Initialize the progress callback
         self.progress_callback = progress_callback
         # processing stages and their relative weights in overall progress
@@ -132,14 +156,17 @@ class VideoProcessor:
         
         # Call the progress callback with message and percentage
         if self.progress_callback:
-            self.progress_callback(message, overall_progress)
+            result = self.progress_callback(message, overall_progress)
+            if result is False:
+                self.should_terminate = True
+                print("Processing terminated by user.")
 
     def calculate_expected_frames(self) -> int:
         """Calculate the expected number of frames to be extracted."""
         if self.video_info.get('frame_count') is None:
             return None
         total_frames = self.video_info['frame_count']
-        return total_frames // self.interval
+        return math.ceil(total_frames / self.interval)
     
     def frames_already_extracted(self) -> bool:
         """Check if the required number of frames has already been extracted."""
@@ -152,8 +179,7 @@ class VideoProcessor:
         ])
         
         # Return True if the expected frames are already extracted, False otherwise
-        return existing_frames_count + 3 >= self.expected_frames_count and \
-            existing_frames_count - 3 <= self.expected_frames_count
+        return abs(existing_frames_count - self.expected_frames_count) < 2
 
     @profile_time_usage
     @detailed_profile
@@ -200,7 +226,7 @@ class VideoProcessor:
         # Add output pat
         base_command.extend([
             '-start_number', '0',
-            f'{self.frames_output_dir}/frame_%05d.jpg'
+            f'{self.frames_output_dir}/frame_%06d.jpg'
         ])
         
         # CUDA acceleration command
@@ -218,7 +244,12 @@ class VideoProcessor:
         
         try:
             self.update_progress("Starting frame extraction", stage='frame_extraction', progress=30)
-            
+            # Check if the extraction should be terminated
+            if self.should_terminate:
+                self.update_progress("Frame extraction terminated by user", stage='frame_extraction', progress=90)
+                print("Frame extraction terminated by user")
+                return False
+
             # Start ffmpeg in a separate process
             process = subprocess.Popen(
                 ffmpeg_command,
@@ -243,6 +274,13 @@ class VideoProcessor:
             
             # Update progress in a loop while process is running
             while process.poll() is None:
+                # Check if the extraction should be terminated
+                if self.should_terminate:
+                    process.terminate()
+                    process.wait()
+                    self.update_progress("Frame extraction terminated by user", stage='frame_extraction', progress=90)
+                    print("Frame extraction terminated by user")
+                    return False
                 elapsed_time = time.time() - start_time
                 
                 # Calculate progress as a percentage of estimated time
@@ -278,6 +316,10 @@ class VideoProcessor:
         """ Function to process video frames for object detection and tracking. """
         self.update_progress("Starting video processing",
                              stage='initialization', progress=50)
+        # Check if processing should be terminated
+        if self.should_terminate:
+            self.update_progress("Video processing terminated by user", stage='initialization', progress=0)
+            return False
          # Close and reopen the database connection to ensure a fresh state
         self.db.close()
         self.db.connect()
@@ -285,25 +327,37 @@ class VideoProcessor:
         # Add video information to the database
         self.update_progress("Adding video information to the database",
                              stage='initialization', progress=80)
+        # Check if processing should be terminated
+        if self.should_terminate:
+            self.update_progress("Video processing terminated by user", stage='initialization', progress=0)
+            return False
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
         if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
-           self.db.get_number_of_frames_yolo(self.video_path) != self.expected_frames_count:
+           abs((self.db.get_number_of_frames_yolo(self.video_path) - self.expected_frames_count)) > 1:
+                print(f"got {self.db.get_number_of_frames_yolo(self.video_path)} frames")
+                print(f"expected {self.expected_frames_count} frames")
                 self.update_progress("Resetting YOLO database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_yolo(self.video_path)
         elif self.model_name == 'bytetrack' and \
-             self.db.get_number_of_frames_bytetrack(self.video_path) != self.expected_frames_count:
+             abs((self.db.get_number_of_frames_bytetrack(self.video_path) - self.expected_frames_count)) > 1:
                 self.update_progress("Resetting ByteTrack database for this video...",
                                     stage='initialization', progress=70)
                 self.db.reset_video_bytetrack(self.video_path)
         
         self.update_progress("Initialization completed",
                              stage='initialization', progress=100)
-
+        # Check if processing should be terminated
+        if self.should_terminate:
+            self.update_progress("Video processing terminated by user", stage='initialization', progress=0)
+            return False
+        
         # Run FFmpeg extraction before processing frames
-        self.extract_frames()
+        if not self.extract_frames():
+            self.update_progress("Frame extraction failed", stage='initialization', progress=0)
+            return False
 
         # Load frames generated by FFmpeg
         self.update_progress("Loading extracted frames", 
@@ -343,6 +397,11 @@ class VideoProcessor:
             update_interval = 200 
 
         for frame_number, frame_file in enumerate(frame_files):
+            # Check if processing should be terminated every 10 frames
+            if frame_number % 10 == 0 and self.should_terminate:
+                self.update_progress("Video processing terminated by user", stage='object_detection', progress=0)
+                return False
+
             # Calculate progress percentage (10-90% of object_detection stage)
             progress_percent = 10 + int((frame_number / total_frames) * 80)
             # Update progress every update_interval frames
@@ -375,6 +434,7 @@ class VideoProcessor:
             # Handle tracking
             if self.model_name == 'yolo':
                 self.add_detections_in_db(detections, tracker=self.model_name, frame_number=frame_number)
+                self.processed_with_yolo = True
             else:
                 tracked_detections = self.tracker.update_tracks(results, frame, frame_number)
                 self.add_detections_in_db(tracked_detections, tracker=self.model_name, frame_number=frame_number)
@@ -398,6 +458,11 @@ class VideoProcessor:
         self.temp_embeddings = []
 
         for batch_number, frame_batch in enumerate(frame_batches):
+            # Check if processing should be terminated every 5 batches
+            if batch_number % 5 == 0 and self.should_terminate:
+                self.update_progress("Video processing terminated by user", stage='object_detection', progress=0)
+                return False
+            
             # Calculate progress percentage (10-90% of object_detection stage)
             progress_percent = 10 + int((batch_number / total_batches) * 80)
             
@@ -452,9 +517,29 @@ class VideoProcessor:
         elif total_frames < 3000:
             update_interval = 100
         else:
-            update_interval = 200 
-                
+            update_interval = 200
+
+        if self.skip_siglip_with_yolo:
+            # pre-fetch all frames with detections
+            frames_with_detections = self.db.get_frames_with_yolo_detections(self.video_path)
+            print(len(frames_with_detections), "frames with detections")
+            if len(frames_with_detections) == 0:
+                # no frames with detections, process all frames
+                frames_with_detections = set(range(total_frames))
+        else:
+            # process all frames
+            frames_with_detections = set(range(total_frames))
+
         for frame_idx, frame_path in enumerate(frame_files):
+            # Check if processing should be terminated every 10 frames
+            if frame_idx % 10 == 0 and self.should_terminate:
+                self.update_progress("Video processing terminated by user", stage='object_detection', progress=0)
+                return False
+            
+            # Skip frames without YOLO detections
+            if frame_idx not in frames_with_detections:
+                continue
+
             # Calculate progress percentage (10-90% of object_detection stage)
             progress_percent = 10 + int((frame_idx / total_frames) * 80)
             # Update progress every update_interval frames

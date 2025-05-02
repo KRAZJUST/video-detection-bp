@@ -1,10 +1,27 @@
+# =============================================================================
+# File: app.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module implements the main application window. It is divded into several
+# sections and uses PyQt6 for the UI. It also uses several workers classes from
+# the interface directory to handle video processing, querying, and displaying
+# results.
+#
+# =============================================================================
+
 import os
 import cv2
 import numpy as np
 import time
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  # type: ignore
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
-                            QComboBox, QCheckBox, QFileDialog, QProgressBar,
+                            QComboBox, QSpinBox, QFileDialog, QProgressBar,
                             QScrollArea, QGridLayout, QGroupBox, QFrame)
 from PyQt6.QtCore import Qt, QEvent, QMetaObject, Q_ARG
 from PyQt6.QtGui import QPixmap, QImage
@@ -35,6 +52,7 @@ class VideoProcessingApp(QMainWindow):
         self.deduplicate_frames_value = True
         self.use_segmentation_value = False
         self.processing_segmentation_value = False
+        self.skip_siglip_with_yolo_value = False
 
         self.setWindowTitle("Video Processing Application")
         self.setMinimumSize(1400, 900)
@@ -135,22 +153,17 @@ class VideoProcessingApp(QMainWindow):
         # horizontal layout for tracker and interval
         tracker_row = QHBoxLayout()
         # Left side - Tracker selection
-        tracker_section = QVBoxLayout()
-        tracker_section.addWidget(QLabel("Model:"))
         self.tracker_combo = QComboBox()
         self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16", "siglip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         self.tracker_combo.setToolTip("Select the tracker to use for processing.")
-        tracker_section.addWidget(self.tracker_combo)
-        tracker_row.addLayout(tracker_section)
+        tracker_row.addWidget(self.tracker_combo)
         # Centre - Interval
-        interval_section = QVBoxLayout()
-        interval_section.addWidget(QLabel("Interval:"))
-        self.interval_entry = QLineEdit()
-        self.interval_entry.setText("30")
+        self.interval_entry = QSpinBox()
+        self.interval_entry.setRange(1, 200)
+        self.interval_entry.setValue(30)
         self.interval_entry.setToolTip("Interval for frames extraction.")
-        interval_section.addWidget(self.interval_entry)
-        tracker_row.addLayout(interval_section)
+        tracker_row.addWidget(self.interval_entry)
         # Right side - Advanced settings button
         self.processing_settings_button = QPushButton("⚙")  # Gear icon
         self.processing_settings_button.setToolTip("Processing Settings")
@@ -160,13 +173,24 @@ class VideoProcessingApp(QMainWindow):
         # Add the query row to the main layout
         layout.addLayout(tracker_row)
 
+        process_buttons_layout = QHBoxLayout()
         # Process button
         self.process_button = QPushButton("Process Video")
+        self.process_button.setMinimumSize(310, 30)
         self.process_button.clicked.connect(self.start_video_processing)
-        layout.addWidget(self.process_button)
+        process_buttons_layout.addWidget(self.process_button)
+        # Cancel button
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.setMaximumSize(self.process_button.width(), 30)
+        self.cancel_button.clicked.connect(self.cancel_video_processing)
+        self.cancel_button.setVisible(False) # Initially invisible
+        process_buttons_layout.addWidget(self.cancel_button)
+        # Add the process buttons layout to the main layout
+        layout.addLayout(process_buttons_layout)
         
         # Progress bar
         self.processing_progress = QProgressBar()
+        self.processing_progress.setMaximumSize(self.cancel_button.width(), 30)
         self.processing_progress.setVisible(False)
         layout.addWidget(self.processing_progress)
         # Status message
@@ -281,7 +305,7 @@ class VideoProcessingApp(QMainWindow):
         self.show_loading('video_info', False)
 
         # Update the interval entry based on the tracker
-        self.interval_entry.setText("10") if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setText("30")
+        self.interval_entry.setValue(10) if self.tracker_combo.currentText() == "bytetrack" else self.interval_entry.setValue(30)
         # Store the video metadata for later use
         self.video_info = metadata
         # Enable the AoI selection button
@@ -311,8 +335,9 @@ class VideoProcessingApp(QMainWindow):
             self.apply_processing_settings(settings_dialog)
     
     def apply_processing_settings(self, dialog):
-        # Store the processing segmentation value
+        # Store the processing segmentation value and skip siglip value
         self.processing_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
+        self.skip_siglip_with_yolo_value = dialog.skip_siglip_frames_checkbox.isChecked()
 
     def extract_first_frame(self):
         """Get the first frame of the video for Area of Interest selection"""
@@ -396,9 +421,9 @@ class VideoProcessingApp(QMainWindow):
 
     def update_interval_entry(self, tracker):
         if tracker in ["yolo", "xclip-32", "xclip-16", "siglip"]:
-            self.interval_entry.setText("30")
+            self.interval_entry.setValue(30)
         else:
-            self.interval_entry.setText("10")
+            self.interval_entry.setValue(10)
 
     def show_loading(self, section, show):
         progress_bar = None
@@ -430,16 +455,25 @@ class VideoProcessingApp(QMainWindow):
             video_path=self.video_path,
             database_path=self.database_path,
             output_dir=self.output_dir,
-            interval=int(self.interval_entry.text()),
+            interval=int(self.interval_entry.value()),
             tracker=self.tracker_combo.currentText()
         )
         self.processing_worker.error.connect(self.handle_processing_error)
         self.processing_worker.progress.connect(self.update_processing_progress)
         self.processing_worker.finished.connect(self.handle_processing_finished)
-
         self.processing_worker.start()
+        # Update UI
         self.processing_progress.setValue(0)
         self.processing_progress.setVisible(True)
+        self.process_button.setVisible(False)
+        self.cancel_button.setVisible(True)
+
+    def cancel_video_processing(self):
+        if hasattr(self, "processing_worker") and self.processing_worker.isRunning():
+            # Don't force terminate the thread, just set the flag to stop
+            self.processing_worker.terminate_processing = True
+            self.status_message.setText("Canceling processing...")
+            self.reset_processing_ui()
 
     def update_processing_progress(self, message, percentage):
         """ Update the processing status message in the UI """
@@ -451,11 +485,19 @@ class VideoProcessingApp(QMainWindow):
     def handle_processing_error(self, error_message):
         print(f"Error processing video: {error_message}")
         self.show_loading('video_processing', False)
+        self.reset_processing_ui()
 
     def handle_processing_finished(self):
+        self.reset_processing_ui()
+
+    def reset_processing_ui(self):
+        """Reset UI elements after processing completes or is cancelled"""
         if hasattr(self, 'processing_progress'):
             self.processing_progress.setVisible(False)
-
+        if hasattr(self, 'process_button'):
+            self.process_button.setVisible(True)
+        if hasattr(self, 'cancel_button'):
+            self.cancel_button.setVisible(False)
 
     def eventFilter(self, obj, event):
         # Respond to resize events
@@ -607,7 +649,7 @@ class VideoProcessingApp(QMainWindow):
             
             # Ensure frame_path is a string and exists
             if isinstance(frame_path, int):
-                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:05d}.jpg")
+                frame_path = os.path.join(self.found_frames_dir, f"frame_{frame_path:06d}.jpg")
             
             if os.path.exists(frame_path):
                 try:
@@ -709,7 +751,7 @@ class VideoProcessingApp(QMainWindow):
                                                forward_frames=30, 
                                                interval=500, 
                                                fps=int(self.video_info['fps']), 
-                                               frame_interval=self.interval_entry.text(),
+                                               frame_interval=self.interval_entry.value(),
                                                input_video_path=self.video_path,
                                                database_path=self.database_path,
                                                tracker=self.tracker_combo.currentText(),

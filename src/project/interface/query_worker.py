@@ -1,3 +1,21 @@
+# =============================================================================
+# File: query_worker.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a worker thread for querying video frames based on
+# user input query. It handles different types of queries, including object
+# detection and embedding-based searches. The results are emitted back to
+# the main thread for further processing. It also includes methods for
+# deduplicating result frames.
+#
+# =============================================================================
+
 from PyQt6.QtCore import QThread, pyqtSignal
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
@@ -56,8 +74,6 @@ class QueryWorker(QThread):
                 )
                 similarities, metadata = xclip_parser.search_embeddings(top_k=self.app.results_batch_count)
                 results = xclip_parser.top_frames
-                print(type(results))
-                print(f"Top frames: {results}")
             
             elif self.app.tracker_combo.currentText() == "siglip":
                 siglip_parser = SigLIPParser(
@@ -68,8 +84,6 @@ class QueryWorker(QThread):
                 )
                 similarities, metadata = siglip_parser.search_embeddings(n_results=self.app.results_frames_count)
                 results = siglip_parser.top_frames
-                print(type(results))
-                print(f"Top frames: {results}")
                 
             self.finished.emit(results, metadata)
             
@@ -212,11 +226,6 @@ class QueryWorker(QThread):
                 last_frame_added = frame_num
                 frames_since_last_add = 0
                 
-                print(f"Added frame {frame_path} - reason: {reason}")
-                print(f"Frame {frame_path} - counts: {current_class_counts}")
-                if current_color_distribution:
-                    print(f"Frame {frame_path} - colors: {current_color_distribution}")
-            
         print(f"Total unique frames: {len(unique_results)} out of {len(results)}")
         return unique_results
 

@@ -1,5 +1,23 @@
-# This code uses YOLOv11-seg from Ultralytics for object instance segmentation
-# Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11-seg. https://docs.ultralytics.com/models/yolo11/
+# =============================================================================
+# File: yolo_segmenter.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses YOLOv11-seg from Ultralytics for object instance segmentation.
+#   Model from ultralytics: https://docs.ultralytics.com/models/yolo11/
+#
+# Description:
+# This module implements the YOLOSegmenter class, which uses YOLOv11-seg from
+# Ultralytics for object instance segmentation of the object. The model's 
+# weights are loaded from a specified file path. It also provides method for
+# annotating the image with segmentation masks and labels based on existing
+# detections. 
+#
+# =============================================================================
 
 import numpy as np
 import cv2

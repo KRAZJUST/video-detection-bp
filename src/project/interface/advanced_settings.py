@@ -1,3 +1,18 @@
+# =============================================================================
+# File: advanced_settings.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a dialog for advanced settings when querying for 
+# the results in the application UI.
+#
+# =============================================================================
+
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QSpinBox, QCheckBox, QDialogButtonBox
 
 class AdvancedSettings(QDialog):

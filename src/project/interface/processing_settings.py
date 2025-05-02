@@ -1,3 +1,19 @@
+# =============================================================================
+# File: processing_settings.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a dialog for processing settings in the application UI.
+# The user can select whether to use segmentation and skip SigLIP frames based 
+# on YOLO detections.
+#
+# =============================================================================
+
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QCheckBox, QDialogButtonBox
 
 class ProcessingSettings(QDialog):
@@ -25,6 +41,14 @@ class ProcessingSettings(QDialog):
                                                 "as the ByteTrack has averaged color calculation even without segmentation \n" \
                                                 "and the segmentation will take a lot of time to process.")
         form_layout.addRow("Use Segmentation:", self.use_segmentation_checkbox)
+        # Checkbox for skiping the siglip frames based on the yolo detections
+        self.skip_siglip_frames_checkbox = QCheckBox()
+        self.skip_siglip_frames_checkbox.setChecked(parent.skip_siglip_with_yolo_value if hasattr(parent, 'skip_siglip_with_yolo_value') else False)
+        self.skip_siglip_frames_checkbox.setToolTip("Skip the frames being processed with SigLIP based on the YOLO detections. \n" \
+                                                "This feature will make the processing faster and possibly more precise \n" \
+                                                "but only on the videos with a less crowded scenes.\n" \
+                                                "If the scene has a lot of objects, the processing will take approximately 1.05-1.1 times longer. \n")
+        form_layout.addRow("Skip SigLIP with YOLO:", self.skip_siglip_frames_checkbox)
         layout.addLayout(form_layout)
 
         # Add buttons

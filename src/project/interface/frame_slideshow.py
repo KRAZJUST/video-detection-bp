@@ -1,3 +1,20 @@
+# =============================================================================
+# File: frame_slideshow.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a class for displaying a informations about the selected frame
+# with the option to play a slideshow of frames. It allows the user to navigate
+# through frames, view their timestamps, and export them. The class also includes
+# functionality to open the video at the current frame in the system's default video player.
+#
+# =============================================================================
+
 import os
 import re
 import shutil
@@ -222,9 +239,21 @@ class FrameSlideshow(QMainWindow):
 
     def format_timestamp(self, seconds):
         """Format seconds into MM:SS.mmm"""
-        minutes = int(seconds // 60)
-        remaining_seconds = seconds % 60
-        return f"{minutes:02d}:{remaining_seconds:06.3f}"
+        if seconds > 3600:
+            hours = int(seconds // 3600)
+            seconds %= 3600
+            minutes = int(seconds // 60)
+            remaining_seconds = seconds % 60
+            return f"{hours:02d}:{minutes:02d}:{remaining_seconds:06.3f}"
+        elif seconds > 60:
+            minutes = int(seconds // 60)
+            seconds %= 60
+            remaining_seconds = seconds % 60
+            return f"{minutes:02d}:{remaining_seconds:06.3f}"
+        else:
+            # If less than 60 seconds, just show seconds with milliseconds
+            remaining_seconds = seconds % 60
+            return f"00:{remaining_seconds:06.3f}"
     
     def find_frames(self):
         """Find all frames in both directories and organize them"""
@@ -413,7 +442,7 @@ class FrameSlideshow(QMainWindow):
             formatted_time = self.format_timestamp(timestamp).replace(":", "_")
             
             # Get save location from user with suggested filename including timestamp
-            suggested_name = f"frame_{frame_num:05d}_{formatted_time}.jpg"
+            suggested_name = f"frame_{frame_num:06d}_{formatted_time}.jpg"
             
             file_path, _ = QFileDialog.getSaveFileName(
                 self,

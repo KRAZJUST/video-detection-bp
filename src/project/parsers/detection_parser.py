@@ -1,5 +1,20 @@
+# =============================================================================
+# File: detection_parser.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module is responsible for parsing the detection results from the database
+# and filtering them based on the query. It then saves the annotated frames found 
+# based on the query.
+#
+# =============================================================================
+
 import os
-import json
 import cv2
 import shutil
 from typing import Any
@@ -479,7 +494,7 @@ class DetectionParser:
         """
         Save annotated frame with detections.
         """
-        frame_file_name = f'frame_{frame_num:05d}.jpg'
+        frame_file_name = f'frame_{frame_num:06d}.jpg'
         frame_file_path = os.path.join(frame_file_dir, frame_file_name)
 
         # Check if the frame file exists in the specified directory
@@ -556,5 +571,5 @@ class DetectionParser:
             return
 
         # Save the annotated image
-        output_path = os.path.join(self.found_dir, f"frame_{frame_num:05d}.jpg")
+        output_path = os.path.join(self.found_dir, f"frame_{frame_num:06d}.jpg")
         cv2.imwrite(output_path, annotated_frame)

@@ -1,4 +1,27 @@
-from PIL import Image
+# =============================================================================
+# File: siglip_parser.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses the SigLIP model from HuggingFace transformers library.
+#   Model: google/siglip-base-patch16-224
+#   Model paper: https://arxiv.org/abs/2303.15343
+#   Huggingface model: https://huggingface.co/google/siglip-base-patch16-224
+#
+# Description:
+# This module provides a class for embedding a query using the text encoder of the
+# SigLIP model. It also provides a method for searching the vector database for
+# similar frames based on the query. The results are returned as a list of
+# dictionaries containing frame information and similarity scores.
+# The module also includes a method for copying the top K frames to a specified
+# output directory.
+#
+# =============================================================================
+
 import torch
 from transformers import SiglipProcessor, SiglipModel
 import numpy as np
@@ -26,7 +49,6 @@ class SigLIPParser:
         self.query = query
         self.output_dir = output_dir
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"device: {self.device}")
         self.siglip_model = SiglipModel.from_pretrained(self.model_name).to(self.device)
         self.siglip_processor = SiglipProcessor.from_pretrained(self.model_name)
         self.collection_name = f"siglip_embeddings_{os.path.basename(video_path)}"
@@ -40,7 +62,14 @@ class SigLIPParser:
         )
     
     def get_query_embedding(self, text):
-        """Generate embedding for a text query"""
+        """
+        Generate embedding for a text query
+        
+        Args:
+            text: Text query to embed
+        Returns:
+            torch.Tensor: Text embedding
+        """
         # Check if the query is a list of strings
         query_list = [text] if isinstance(text, str) else text
         text_inputs = self.siglip_processor(text=query_list, return_tensors="pt", padding=True).to(self.device)
@@ -76,7 +105,6 @@ class SigLIPParser:
         similarities = 1 / (1 + np.array(distances))
         # Get metadata
         metadata = results['metadatas'][0]
-        print(f'Metadata: {metadata}')
 
         self.top_frames = self.copy_top_k_frames(metadata)
 
