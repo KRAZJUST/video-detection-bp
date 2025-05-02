@@ -1,6 +1,23 @@
-# This code uses ByteTrack algorithm implemented in the Supervision library
-# ByteTrack citation: Zhang, Y., et al. (2022). ByteTrack: Multi-Object Tracking by Associating Every Detection Box. ECCV 2022.
-# Supervision library: https://github.com/roboflow/supervision
+# =============================================================================
+# File: byte_track_tracker.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses ByteTrack algorithm implemented in the Supervision library.
+#   ByteTrack paper: Zhang, Yifu, et al. "ByteTrack: Multi-Object Tracking by Associating Every Detection Box."
+#   ECCV 2022. https://arxiv.org/abs/2110.06864
+#   Supervision library: https://github.com/roboflow/supervision
+#
+# Description:
+# This module implements the ByteTrackTracker class, which uses the ByteTrack
+# algorithm for multi-object tracking. The class is designed to work with
+# YOLO detection results and inherits from the BaseTracker class.
+#
+# =============================================================================
 
 from typing import Any, Dict, List, Tuple
 import numpy as np

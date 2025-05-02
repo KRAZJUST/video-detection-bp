@@ -1,3 +1,22 @@
+# =============================================================================
+# File: video_processor.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a class for handling video processing tasks. It includes
+# methods for extracting frames, performing object detection and tracking, and
+# managing the database. The class is designed to work with different models
+# (YOLO, ByteTrack, X-CLIP, SigLIP) and can be configured to use segmentation
+# and skip SigLIP processing with YOLO. The class also includes progress tracking
+# and termination handling.
+#
+# =============================================================================
+
 import os
 import torch
 import subprocess

@@ -1,6 +1,27 @@
-# This code uses Microsoft's X-CLIP model from Huggingface transformers
-# Citation: Ni, Bolin, et al. "Expanding Language-Image Pretrained Models for General Video Recognition." availible at: https://arxiv.org/abs/2208.02816
-# Model: microsoft/xclip-base-patch32 (https://huggingface.co/microsoft/xclip-base-patch32)
+# =============================================================================
+# File: xclip_parser.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses the SigLIP model from HuggingFace transformers library.
+#   Model: microsoft/xclip-base-patch32
+#   Model paper: https://arxiv.org/abs/2208.02816
+#   Official model repository: https://github.com/microsoft/VideoX/tree/master/X-CLIP
+#   Huggingface model: https://huggingface.co/microsoft/xclip-base-patch32
+#
+# Description:
+# This module provides a class for embedding a query using the text encoder of the
+# X-CLIP model. It also provides a method for searching the vector database for
+# similar frames based on the query. The results are returned as a list of
+# dictionaries containing frame information and similarity scores.
+# The module also includes a method for copying the top K frames to a specified
+# output directory.
+#
+# =============================================================================
 
 import torch
 from transformers import XCLIPProcessor, XCLIPModel
@@ -56,6 +77,12 @@ class XClipParser:
         self.top_frames = []
 
     def get_query_embeddings(self):
+        """
+        Generate embeddings for the query text using the X-CLIP model.
+
+        Returns:
+            torch.Tensor: The generated text embeddings.
+        """
         try:
             print(f'Query: {self.query}')
             # Check if the query is a list of strings
@@ -118,6 +145,12 @@ class XClipParser:
     def copy_top_k_frames(self, metadata):
         """
         Copy top-k found frames to a found_frames directory
+
+        Args:
+            metadata (list): List of metadata dictionaries containing frame paths
+        Returns:
+            dict: Dictionary with frame paths as keys and empty lists as values in 
+                    a format to match other parsers
         """
 
         # Ensure found_frames directory exists

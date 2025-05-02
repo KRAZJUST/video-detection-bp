@@ -1,7 +1,27 @@
-# This code uses Facebook's BART model for zero-shot text classification
-# from Huggingface transformers
-# Citation: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension. ACL 2020. https://arxiv.org/abs/1910.13461
-# Model: facebook/bart-large-mnli (https://huggingface.co/facebook/bart-large-mnli)
+# =============================================================================
+# File: query_parser.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses Facebook's BART model for zero-shot text classification
+#   accessed through Huggingface Transformers.
+#   Citation: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training
+#   for Natural Language Generation, Translation, and Comprehension. ACL 2020.
+#       https://arxiv.org/abs/1910.13461
+#   Model: facebook/bart-large-mnli (https://huggingface.co/facebook/bart-large-mnli)
+#
+# Description:
+# This module provides a class for parsing user queries into structured
+# categories such as colors, objects, directions, quadrants, and interactions.
+# And then uses these categories to filter the results from the database.
+# The parsing is done using Facebook's BART model for zero-shot text classification
+# accessed through Huggingface Transformers.
+#
+# =============================================================================
 
 from transformers import pipeline
 from constants.constants import COLORS, OBJECTS, DIRECTIONS, QUADRANTS, INTERACTIONS

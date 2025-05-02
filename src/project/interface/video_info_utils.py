@@ -1,3 +1,27 @@
+# =============================================================================
+# File: video_info_utils.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses open-source FFprobe program that is a part of
+#   FFmpeg project. FFmpeg is a complete, cross-platform solution to record,
+#   convert and stream audio and video. FFprobe is a tool to analyze multimedia
+#   files and streams.
+#   Available at: https://ffmpeg.org/
+#   FFmpeg documentation: https://ffmpeg.org/documentation.html
+#
+# Description:
+# This module provides utility functions for extracting video metadata using
+# FFmpeg and FFprobe. It includes functions to get video duration, frame rate,
+# frame count, resolution, codec, bitrate, and file size. The metadata is
+# then returned as a structured object to be used in the application.
+#
+# =============================================================================
+
 import subprocess
 import json
 from dataclasses import dataclass

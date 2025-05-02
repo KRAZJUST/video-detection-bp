@@ -1,5 +1,20 @@
+# =============================================================================
+# File: detection_parser.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module is responsible for parsing the detection results from the database
+# and filtering them based on the query. It then saves the annotated frames found 
+# based on the query.
+#
+# =============================================================================
+
 import os
-import json
 import cv2
 import shutil
 from typing import Any

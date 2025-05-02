@@ -1,7 +1,22 @@
+# =============================================================================
+# File: sqlite_database.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a SQLite database interface for storing and managing
+# video detection data. It includes methods for creating tables, inserting
+# data, and querying the database. The database is designed to handle
+# video metadata, frames, YOLO detections, and ByteTrack refined detections.
+#
+# =============================================================================
+
 import sqlite3
 from typing import List, Tuple, Any, Dict, Optional
-from detectors.detection import Detection
-import time
 import logging
 
 # Configure logging

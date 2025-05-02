@@ -1,3 +1,20 @@
+# =============================================================================
+# File: app.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module implements the main application window. It is divded into several
+# sections and uses PyQt6 for the UI. It also uses several workers classes from
+# the interface directory to handle video processing, querying, and displaying
+# results.
+#
+# =============================================================================
+
 import os
 import cv2
 import numpy as np

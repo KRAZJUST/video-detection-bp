@@ -1,5 +1,24 @@
-# This code uses YOLOv11 from Ultralytics for object detection
-# Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11. https://docs.ultralytics.com/models/yolo11/
+# =============================================================================
+# File: yolo_detector.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses YOLOv11 from Ultralytics for object detection.
+#   Model from ultralytics: https://docs.ultralytics.com/models/yolo11/ 
+#
+# Description:
+# This module implements the YOLODetector class, which uses YOLOv11 from
+# Ultralytics for object detection. The class is designed to detect objects
+# in a given frame and return the detection results. The model's weights are
+# loaded from a specified file path. The class also includes a color filter
+# to analyze the dominant color of detected objects. The class can use
+# segmentation when calculating the color of the detected objects.
+#
+# =============================================================================
 
 from typing import Any, Dict, List
 from ultralytics import YOLO

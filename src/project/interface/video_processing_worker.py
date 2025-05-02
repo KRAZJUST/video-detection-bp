@@ -1,3 +1,19 @@
+# =============================================================================
+# File: video_processing_worker.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a worker class for processing video files in a separate
+# thread. It uses the VideoProcessor class to handle the video processing
+# tasks. The worker emits signals to indicate progress, completion, or errors.
+#
+# =============================================================================
+
 from profiling_utils.profiling_utils import profile_time_usage
 from PyQt6.QtCore import QThread, pyqtSignal
 from processors.video_processor import VideoProcessor
