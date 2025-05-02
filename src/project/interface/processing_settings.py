@@ -1,3 +1,19 @@
+# =============================================================================
+# File: processing_settings.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a dialog for processing settings in the application UI.
+# The user can select whether to use segmentation and skip SigLIP frames based 
+# on YOLO detections.
+#
+# =============================================================================
+
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QCheckBox, QDialogButtonBox
 
 class ProcessingSettings(QDialog):

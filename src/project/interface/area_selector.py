@@ -1,3 +1,20 @@
+# =============================================================================
+# File: area_selector.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a dialog for interactively selecting an area of interest
+# in a video frame. The user can click and drag to create a selection rectangle,
+# and the selected area can be confirmed with a button. The selected area is
+# emitted as a QRect object.
+#
+# =============================================================================
+
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton    # type: ignore
 from PyQt6.QtCore import Qt, QRect, pyqtSignal                           # type: ignore
 from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QRegion         # type: ignore

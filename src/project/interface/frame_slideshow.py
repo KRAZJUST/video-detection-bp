@@ -1,3 +1,20 @@
+# =============================================================================
+# File: frame_slideshow.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a class for displaying a informations about the selected frame
+# with the option to play a slideshow of frames. It allows the user to navigate
+# through frames, view their timestamps, and export them. The class also includes
+# functionality to open the video at the current frame in the system's default video player.
+#
+# =============================================================================
+
 import os
 import re
 import shutil

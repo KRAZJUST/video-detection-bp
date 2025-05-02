@@ -1,3 +1,22 @@
+# =============================================================================
+# File: vector_database.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses open-source vector database ChromaDB.
+#   Available at: https://www.trychroma.com/
+#
+# Description:
+# This module provides a class for managing a vector database using ChromaDB.
+# It includes methods for adding, querying, and managing embeddings and their 
+# metadata.
+#
+# =============================================================================
+
 import os
 import chromadb
 import torch

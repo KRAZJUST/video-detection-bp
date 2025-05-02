@@ -1,6 +1,17 @@
-"""
-This module contains the ColorFilter class, which is used to detect the dominant color within a bounding box of an image.
-"""
+# =============================================================================
+# File: color_filter.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module implements the ColorFilter class, which is reponsible for
+# calculation of dominant color of the object in the bounding box.
+#
+# =============================================================================
 
 import numpy as np
 import cv2

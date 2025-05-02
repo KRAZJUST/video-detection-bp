@@ -1,3 +1,25 @@
+# =============================================================================
+# File: siglip_model.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# IMPORTANT: This module uses the SigLIP model from HuggingFace transformers library.
+#   Model: google/siglip-base-patch16-224
+#   Model paper: https://arxiv.org/abs/2303.15343
+#   Huggingface model: https://huggingface.co/google/siglip-base-patch16-224
+#
+# Description:
+# This module provides a wrapper for the SigLIP model from Hugging Face.
+# It includes methods for loading the model, processing images, and extracting
+# embeddings. The model is used for generating image embeddings for further
+# processing and analysis.
+#
+# =============================================================================
+
 import torch
 from PIL import Image
 from transformers import SiglipProcessor, SiglipModel
@@ -7,7 +29,10 @@ from profiling_utils.profiling_utils import profile_time_usage
 class SigLIPModel:
     def __init__(self, model_name="google/siglip-base-patch16-224"):
         """
-        Initialize SigLIP model for generating image embeddings.
+        Module is using the SigLIP model from HuggingFace transformers library.
+        Model: google/siglip-base-patch16-224
+        Model paper: https://arxiv.org/abs/2303.15343
+        Huggingface model: https://huggingface.co/google/siglip-base-patch16-224
         
         Args:
             model_name (str): Name or path of the SigLIP model to load
@@ -23,7 +48,14 @@ class SigLIPModel:
         
     @torch.no_grad()
     def extract_embedding(self, image):
-        """Extract embedding from a single image"""
+        """
+        Extract embedding from a single image
+        
+        Args:
+            image (np.ndarray or PIL.Image): Input image to process. Can be a numpy array or PIL Image.
+        Returns:
+            torch.Tensor: Extracted image features
+        """
         # Convert to PIL Image if needed
         if not isinstance(image, Image.Image):
             image = Image.fromarray(image)

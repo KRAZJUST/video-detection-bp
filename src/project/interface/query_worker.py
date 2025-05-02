@@ -1,3 +1,21 @@
+# =============================================================================
+# File: query_worker.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This module provides a worker thread for querying video frames based on
+# user input query. It handles different types of queries, including object
+# detection and embedding-based searches. The results are emitted back to
+# the main thread for further processing. It also includes methods for
+# deduplicating result frames.
+#
+# =============================================================================
+
 from PyQt6.QtCore import QThread, pyqtSignal
 from parsers.detection_parser import DetectionParser
 from xclip.xclip_parser import XClipParser
