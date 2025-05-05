@@ -14,8 +14,18 @@
 # =============================================================================
 
 class Detection:
-    """ Data class to store detection information. """
-    def __init__(self, class_name: str, class_id: int, confidence: float, bbox: tuple, timestamp: float, track_id: int = None, dominant_color: str = None):
+    """
+    Data class to store detection information.
+    """
+    def __init__(self, class_name: str, class_id: int, confidence: float,
+                 bbox: tuple, timestamp: float, track_id: int = None, 
+                 dominant_color: str = None):
+        """
+        Initialize the Detection object.
+        Args:
+            class_name (str): Name of the detected class
+            class_id (int): ID of the detected class
+        """
         self.class_name = class_name
         self.class_id = class_id
         self.confidence = confidence
@@ -25,4 +35,12 @@ class Detection:
         self.dominant_color = dominant_color
 
     def get(self, key, default=None):
+        """
+        Get the value of a specific attribute.
+        Args:
+            key: Attribute name
+            default: Default value if attribute does not exist
+        Returns:
+            The value of the attribute or the default value if it does not exist.
+        """
         return getattr(self, key, default)

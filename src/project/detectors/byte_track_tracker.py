@@ -28,7 +28,10 @@ from .base_tracker import BaseTracker
 
 class ByteTrackTracker(BaseTracker):
     """
-    ByteTrackTracker class for tracking objects using ByteTrack from supervision.
+    This class inherits from the BaseTracker class and implements the ByteTrack
+    algorithm for multi-object tracking. It uses the Supervision library's
+    This class is designed to work with YOLO detection results and provides
+    functionality for tracking objects across frames.
 
     ByteTrack paper: Zhang, Yifu, et al. "ByteTrack: Multi-Object Tracking by Associating Every Detection Box." 
     ECCV 2022. https://arxiv.org/abs/2110.06864
@@ -40,6 +43,15 @@ class ByteTrackTracker(BaseTracker):
                  min_frames_for_averaging: int = 2, 
                  frame_width: int = 640, 
                  frame_height: int = 360):
+        """
+        Initialize the ByteTrackTracker.
+
+        Args:
+            output_dir: Directory to save output files
+            min_frames_for_averaging: Minimum number of frames for color averaging
+            frame_width: Width of the video frame
+            frame_height: Height of the video frame
+        """
         super().__init__(output_dir, min_frames_for_averaging, frame_width, frame_height)
         self.tracker = sv.ByteTrack(track_activation_threshold=0.2)
         self.color_filter = ColorFilter()

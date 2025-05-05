@@ -35,7 +35,19 @@ from .advanced_settings import AdvancedSettings
 from .processing_settings import ProcessingSettings
 
 class VideoProcessingApp(QMainWindow):
+    """
+    Main application window for this application.
+    This class is responsible for creating the UI and handling user interactions.
+    It includes sections for input/output, query building, processing settings,
+    video information, and results display.
+    """
     def __init__(self, database_path: str):
+        """
+        Initialize the main application window.
+
+        Args:
+            database_path (str): Path to the database
+        """
         super().__init__()
         self.database_path = database_path
         self.video_path = ""
@@ -78,6 +90,12 @@ class VideoProcessingApp(QMainWindow):
         self.setup_results_section(main_layout)
 
     def setup_io_section(self, parent_layout):
+        """
+        Setup the input and output section of the UI.
+
+        Args:
+            parent_layout: The layout to add the section to
+        """
         io_group = QGroupBox("Input and Output")
         layout = QVBoxLayout()
         
@@ -102,6 +120,12 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(io_group)
 
     def setup_query_section(self, parent_layout):
+        """
+        Setup the query builder section of the UI.
+
+        Args:
+            parent_layout: The layout to add the section to
+        """
         query_group = QGroupBox("Query Builder")
         layout = QVBoxLayout()
         
@@ -147,6 +171,12 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(query_group)
 
     def setup_settings_section(self, parent_layout):
+        """
+        Setup the processing settings section of the UI.
+
+        Args:
+            parent_layout: The layout to add the section to
+        """
         settings_group = QGroupBox("Processing Settings")
         layout = QVBoxLayout()
         
@@ -202,6 +232,12 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(settings_group)
 
     def setup_video_info_section(self, parent_layout):
+        """
+        Setup the video information section of the UI.
+
+        Args:
+            parent_layout: The layout to add the section to
+        """
         video_info_group = QGroupBox("Video Information")
         layout = QVBoxLayout()
         
@@ -231,6 +267,12 @@ class VideoProcessingApp(QMainWindow):
         parent_layout.addWidget(video_info_group)
 
     def setup_results_section(self, parent_layout):
+        """
+        Setup the results section of the UI for displaying found frames.
+
+        Args:
+            parent_layout: The layout to add the section to
+        """
         # Create scroll area for results
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
@@ -258,7 +300,9 @@ class VideoProcessingApp(QMainWindow):
         self.current_batch = 0
 
     def select_video(self):
-
+        """
+        Open a file dialog to select a video file and start the video info worker.
+        """
         # Clear previous results
         self.clear_results_layout()
         
@@ -283,6 +327,12 @@ class VideoProcessingApp(QMainWindow):
             self.video_info_worker.start()
         
     def update_video_info(self, metadata):
+        """
+        Update the video information label with metadata from the video.
+        
+        Args:
+            metadata: Dictionary containing video metadata
+        """
         minutes = int(metadata['duration'] // 60)
         seconds = int(metadata['duration'] % 60)
         
@@ -314,12 +364,18 @@ class VideoProcessingApp(QMainWindow):
         self.extract_first_frame()
 
     def open_advanced_settings(self):
+        """
+        Open the advanced settings dialog for query settings.
+        """
         settings_dialog = AdvancedSettings(self)
         if settings_dialog.exec():
             # Apply the settings when OK button is clicked
             self.apply_advanced_settings(settings_dialog)
 
     def apply_advanced_settings(self, dialog):
+        """
+        Apply the advanced settings from the dialog.
+        """
         # Store all settings
         self.results_batch_count = dialog.batch_count_spinbox.value()
         self.results_frames_count = dialog.frame_count_spinbox.value()
@@ -329,18 +385,29 @@ class VideoProcessingApp(QMainWindow):
         self.use_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
 
     def open_processing_settings(self):
+        """
+        Open the processing settings dialog for video processing.
+        """
         settings_dialog = ProcessingSettings(self)
         if settings_dialog.exec():
             # Apply the settings when OK button is clicked
             self.apply_processing_settings(settings_dialog)
     
     def apply_processing_settings(self, dialog):
+        """
+        Apply the processing settings from the dialog.
+
+        Args:
+            dialog: The dialog containing the settings
+        """
         # Store the processing segmentation value and skip siglip value
         self.processing_segmentation_value = dialog.use_segmentation_checkbox.isChecked()
         self.skip_siglip_with_yolo_value = dialog.skip_siglip_frames_checkbox.isChecked()
 
     def extract_first_frame(self):
-        """Get the first frame of the video for Area of Interest selection"""
+        """
+        Get the first frame of the video for Area of Interest selection
+        """
         try:
             # Extract the first frame of the video
             cap = cv2.VideoCapture(self.video_path)
@@ -359,7 +426,9 @@ class VideoProcessingApp(QMainWindow):
             return False
 
     def select_area_of_interest(self):
-        """ Open the area selector dialog to select an area of interest """
+        """
+        Open the area selector dialog to select an area of interest
+        """
         if not hasattr(self, 'first_frame'):
             if not self.extract_first_frame():
                 print("Error: Could not extract first frame")
@@ -383,7 +452,12 @@ class VideoProcessingApp(QMainWindow):
         self.area_selector.exec()
         
     def on_area_selected(self, area):
-        """ Handle the area selected by the user"""
+        """
+        Handle the area selected by the user
+
+        Args:
+            area: The selected area of interest
+        """
         # Store the selected area
         self.aoi = area
         # Update the area label
@@ -393,7 +467,9 @@ class VideoProcessingApp(QMainWindow):
         self.reset_area_button.setEnabled(True)
 
     def reset_area_of_interest(self):
-        """ Reset the selected area of interest """
+        """
+        Reset the selected area of interest
+        """
         if hasattr(self, 'aoi'):
             delattr(self, 'aoi')
         self.area_label.setText("Area of Interest: Not Selected")
@@ -401,6 +477,11 @@ class VideoProcessingApp(QMainWindow):
         self.aoi = None
 
     def handle_video_info_error(self, error_message):
+        """
+        Handle errors during video information retrieval.
+        Args:
+            error_message: Error message from the worker
+        """
         self.video_info_label.setText(f"Error: {error_message}")
         self.show_loading('video_info', False)
 
@@ -420,6 +501,12 @@ class VideoProcessingApp(QMainWindow):
                 self.output_dir_entry.setText(self.relative_output_dir)
 
     def update_interval_entry(self, tracker):
+        """
+        Update the interval entry based on the selected tracker.
+        
+        Args:
+            tracker: The selected tracker
+        """
         if tracker in ["yolo", "xclip-32", "xclip-16", "siglip"]:
             self.interval_entry.setValue(30)
         else:
@@ -449,6 +536,9 @@ class VideoProcessingApp(QMainWindow):
             button.setEnabled(not show)
 
     def start_video_processing(self):
+        """
+        Start the video processing worker to process the video.
+        """
         # Start processing worker
         self.processing_worker = VideoProcessingWorker(
             self,
@@ -469,6 +559,10 @@ class VideoProcessingApp(QMainWindow):
         self.cancel_button.setVisible(True)
 
     def cancel_video_processing(self):
+        """
+        Cancel the video processing worker if it is running and the cancel
+        button is clicked.
+        """
         if hasattr(self, "processing_worker") and self.processing_worker.isRunning():
             # Don't force terminate the thread, just set the flag to stop
             self.processing_worker.terminate_processing = True
@@ -476,22 +570,39 @@ class VideoProcessingApp(QMainWindow):
             self.reset_processing_ui()
 
     def update_processing_progress(self, message, percentage):
-        """ Update the processing status message in the UI """
+        """
+        Update the processing status message in the UI
+
+        Args:
+            message: The status message to display
+            percentage: The percentage of completion
+        """
         if hasattr(self, 'status_message'):
             self.status_message.setText(f"{message}")
         if hasattr(self, 'processing_progress'):
             self.processing_progress.setValue(percentage)
 
     def handle_processing_error(self, error_message):
+        """
+        Handle errors during video processing.
+
+        Args:
+            error_message: Error message from the worker
+        """
         print(f"Error processing video: {error_message}")
         self.show_loading('video_processing', False)
         self.reset_processing_ui()
 
     def handle_processing_finished(self):
+        """
+        Handle the completion of video processing.
+        """
         self.reset_processing_ui()
 
     def reset_processing_ui(self):
-        """Reset UI elements after processing completes or is cancelled"""
+        """
+        Reset UI elements after processing completes or is cancelled
+        """
         if hasattr(self, 'processing_progress'):
             self.processing_progress.setVisible(False)
         if hasattr(self, 'process_button'):
@@ -500,6 +611,13 @@ class VideoProcessingApp(QMainWindow):
             self.cancel_button.setVisible(False)
 
     def eventFilter(self, obj, event):
+        """
+        Event filter to handle resize events and scroll events in the results section.
+
+        Args:
+            obj: The object that received the event
+            event: The event that occurred
+        """
         # Respond to resize events
         if obj == self.scroll_area.viewport() and event.type() == QEvent.Type.Resize:
             # Do not resize previous results while the new video is being selected
@@ -533,7 +651,11 @@ class VideoProcessingApp(QMainWindow):
         return super().eventFilter(obj, event)
 
     def adjust_image_sizes(self):
-        # TODO: check for Pixmap is a null pixmap error and handle it might not be here
+        """
+        Adjust the sizes of the images in the results section based on the 
+        current viewport size. This method is called when the window is resized or when the
+        scroll area is resized.
+        """
         # Calculate new target width
         available_width = self.scroll_area.viewport().width()
         effective_width = available_width - 5
@@ -558,6 +680,9 @@ class VideoProcessingApp(QMainWindow):
                     break
 
     def start_query(self):
+        """
+        Start the query worker to process the query and display results.
+        """
         self.show_loading('query', True)
 
         # Convert the area of interest to a tuple and add margin to it
@@ -579,10 +704,23 @@ class VideoProcessingApp(QMainWindow):
         self.query_worker.start()
 
     def update_query_feedback(self, message):
+        """
+        Update the query feedback message in the UI.
+
+        Args:
+            message: The feedback message to display
+        """
         if hasattr(self, 'query_feedback'):
             self.query_feedback.setText(message)
 
     def display_query_results(self, results, metadata=None):
+        """
+        Display the results of the query in the results section.
+        
+        Args:
+            results: The results of the query
+            metadata: Metadata associated with the results
+        """
         print(f"Displaying {len(results)} results")
 
         # Ensure results is not None and has a valid length
@@ -609,6 +747,9 @@ class VideoProcessingApp(QMainWindow):
         self.show_loading('query', False)
 
     def clear_results_layout(self):
+        """
+        Clear the results layout and remove all widgets.
+        """
         # Clear existing results
         while self.results_layout.count():
             item = self.results_layout.takeAt(0)
@@ -616,6 +757,11 @@ class VideoProcessingApp(QMainWindow):
                 item.widget().deleteLater()
 
     def load_next_batch(self):
+        """
+        Load the next batch of results into the results section.
+        This method is called when the user scrolls to the bottom of the 
+        results section.
+        """
         # If no more results to load, return
         if self.current_batch * self.batch_size >= len(self.all_results):
             print(f"All batches loaded. Current batch: {self.current_batch}, Total items: {len(self.all_results)}")
@@ -670,6 +816,15 @@ class VideoProcessingApp(QMainWindow):
         self.current_batch += 1
 
     def create_frame_widget(self, frame_path, metadata, target_width):
+        """
+        Create a widget for a single frame.
+
+        Args:
+            frame_path: Path to the frame image
+            metadata: Metadata associated with the frame
+            target_width: Target width for resizing the image
+        """
+
         # Create a frame container
         frame_container = QFrame()
         frame_container.setFrameStyle(QFrame.Shape.Box)
@@ -696,6 +851,17 @@ class VideoProcessingApp(QMainWindow):
         return frame_container
 
     def load_frame_image(self, frame_path, target_width):
+        """
+        Load an image from the given path and resize it to the target width.
+        This method uses PIL to load and resize the image, then converts it to QPixmap.
+        This is done to avoid issues with QPixmap loading large images directly.
+
+        Args:
+            frame_path: Path to the image file
+            target_width: Target width for resizing the image
+        Returns:
+            QPixmap: Resized image as QPixmap
+        """
         try:
             # Ensure frame_path is a string
             if not isinstance(frame_path, str):
@@ -729,7 +895,13 @@ class VideoProcessingApp(QMainWindow):
             return QPixmap((target_width), 100)
 
     def open_video_at_frame(self, frame_path, metadata):
-        """Open frame slideshow starting from the selected frame"""
+        """
+        Open frame slideshow starting from the selected frame
+
+        Args:
+            frame_path: Path to the selected frame
+            metadata: Metadata associated with the selected frame
+        """
         # Determine the directory containing the frames
         frame_dir = os.path.dirname(frame_path)
         
@@ -759,11 +931,24 @@ class VideoProcessingApp(QMainWindow):
         self.slideshow_window.show()
 
     def handle_query_error(self, error_message):
+        """
+        Handle errors during query processing.
+
+        Args:
+            error_message: Error message from the worker
+        """
         print(f"Error running query: {error_message}")
         self.show_loading('query', False)
 
     def closeEvent(self, event):
-        """Handle application close event."""
+        """
+        Handle application close event.
+        This method is called when the user closes the application window.
+        It ensures that any running workers are stopped gracefully.
+
+        Args:
+            event: The close event
+        """
         # Stop any running workers
         if hasattr(self, 'video_info_worker') and self.video_info_worker.isRunning():
             self.video_info_worker.terminate()

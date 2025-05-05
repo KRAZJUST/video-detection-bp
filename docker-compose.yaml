@@ -1,22 +1,20 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  ml-app:
+  app:
     build: .
-    runtime: nvidia  # This will be ignored if nvidia-container-toolkit is not installed
+    image: your-app-image
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
     volumes:
-      - .:/app
-      - ./data:/app/data
-      - ./models:/app/models
-    ports:
-      - "8000:8000"
+      - .:/home/devuser/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    runtime: nvidia
+    network_mode: "host"  # for GUI responsiveness
     deploy:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    stdin_open: true
-    tty: true
-    command: /bin/bash  # Interactive shell for development
+            - capabilities: [gpu]

@@ -56,9 +56,6 @@ class SigLIPModel:
         Returns:
             torch.Tensor: Extracted image features
         """
-        # Convert to PIL Image if needed
-        if not isinstance(image, Image.Image):
-            image = Image.fromarray(image)
             
         # Process the image
         # Padding has to be max_length as the model was trained with max_length

@@ -17,7 +17,18 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QCheckBox, QDialogButtonBox
 
 class ProcessingSettings(QDialog):
+    """
+    Dialog for processing settings in the application UI.
+    This dialog allows the user to select whether to use segmentation
+    and skip SigLIP frames based on YOLO detections.
+    """
     def __init__(self, parent=None):
+        """
+        Initialize the dialog with the parent widget.
+        
+        Args:
+            parent: Parent widget
+        """
         super().__init__(parent)
         self.setWindowTitle("Processing Settings")
         self.setMinimumWidth(400)

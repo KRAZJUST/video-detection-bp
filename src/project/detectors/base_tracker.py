@@ -25,7 +25,17 @@ from .color_filter import ColorFilter
 from constants.constants import COLOR_MAP
 
 class BaseTracker(ABC):
-    def __init__(self, output_dir: str, min_frames_for_averaging: int = 3, frame_width: int = 640, frame_height: int = 360):
+    def __init__(self, output_dir: str, min_frames_for_averaging: int = 3, 
+                 frame_width: int = 640, frame_height: int = 360):
+        """
+        Initialize the base tracker with output directory and parameters.
+
+        Args:
+            output_dir (str): Directory to save annotated images
+            min_frames_for_averaging (int): Minimum frames for color averaging
+            frame_width (int): Width of the video frame
+            frame_height (int): Height of the video frame
+        """
         self.output_dir = output_dir
         self.annotated_images_dir = os.path.join(self.output_dir, "annotated_frames")
         self.track_history = {}
@@ -47,7 +57,9 @@ class BaseTracker(ABC):
         self.color_filter = ColorFilter()
         
     def initialize_output_folders(self):
-        """Initialize output directories for saving annotated images."""
+        """
+        Initialize output directories for saving annotated images.
+        """
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         os.makedirs(self.annotated_images_dir, exist_ok=True)
@@ -203,14 +215,27 @@ class BaseTracker(ABC):
             del self.last_seen_frame[track_id]
 
     def get_centroid(self, bbox: List[float]) -> Tuple[float, float]:
-        """Calculate the centroid of a bounding box."""
+        """
+        Calculate the centroid of a bounding box.
+
+        Args:
+            bbox: Bounding box coordinates [xmin, ymin, xmax, ymax]
+        Returns:
+            Tuple[float, float]: Centroid coordinates (x, y)
+        """
         xmin, ymin, xmax, ymax = bbox
         return ((xmin + xmax) / 2, (ymin + ymax) / 2)
 
     def angle_to_direction(self, angle: float, confidence: float = 1.0) -> Tuple[str, float]:
         """
         Convert angle to direction with confidence score.
-        Higher confidence means we're more certain about the direction.
+        Higher confidence means the confidence in the direction is higher.
+
+        Args:
+            angle: Angle in degrees
+            confidence: Confidence score (0.0 to 1.0)
+        Returns:
+            Tuple[str, float]: Direction name and confidence score
         """
         angle = (angle + 360) % 360
         
@@ -250,6 +275,13 @@ class BaseTracker(ABC):
     def is_leaving_frame(self, centroid: Tuple[float, float], bbox: List[float]) -> bool:
         """
         Check if object is leaving the frame.
+
+        Args:
+            centroid: Centroid coordinates (x, y)
+            bbox: Bounding box coordinates [xmin, ymin, xmax, ymax]
+        Returns:
+            bool: True if object is leaving the frame, False otherwise
+
         TODO: Implement more robust logic for edge cases and take into account the whole bounding box not just the centroid.
         """
         x, y = centroid
@@ -261,7 +293,14 @@ class BaseTracker(ABC):
                 y <= margin or y >= self.frame_height - margin)
 
     def get_exit_direction(self, centroid: Tuple[float, float]) -> Tuple[str, float]:
-        """Get direction based on where object exits frame."""
+        """
+        Get direction based on where object exits frame.
+        
+        Args:
+            centroid: Centroid coordinates (x, y)
+        Returns:
+            Tuple[str, float]: Exit direction and confidence score
+        """
         x, y = centroid
         # 10% of frame dimension
         margin = 0.1
@@ -296,7 +335,15 @@ class BaseTracker(ABC):
 
     def calculate_direction(self, start_point: Tuple[float, float], 
                           end_point: Tuple[float, float]) -> Tuple[str, float]:
-        """Calculate movement direction between points with confidence."""
+        """
+        Calculate movement direction between points with confidence.
+        
+        Args:
+            start_point: Starting point coordinates (x, y)
+            end_point: Ending point coordinates (x, y)
+        Returns:
+            Tuple[str, float]: Direction name and confidence score
+        """
         dx = end_point[0] - start_point[0]
         dy = start_point[1] - end_point[1]
         
@@ -316,8 +363,15 @@ class BaseTracker(ABC):
 
     def update_track_history(self, track_id: int, bbox: List[float], frame_number: int) -> str:
         """
-            Update tracking history and calculate direction 
-            based on recent movement and exit points.
+        Update tracking history and calculate direction 
+        based on recent movement and exit points.
+
+        Args:
+            track_id: The ID of the tracked object
+            bbox: Bounding box coordinates [xmin, ymin, xmax, ymax]
+            frame_number: Current frame number
+        Returns:
+            str: Updated direction of movement or exit direction
         """
         centroid = self.get_centroid(bbox)
         
@@ -427,5 +481,15 @@ class BaseTracker(ABC):
 
     @abstractmethod
     def update_tracks(self, detections, frame: np.ndarray, frame_number: int) -> List[Dict[str, Any]]:
-        """Abstract method different for the ByteTrack and deepSORT."""
+        """
+        Abstract method to update tracks based on detections.
+        This method is different for each tracker implementation.
+
+        Args:
+            detections: List of detection dictionaries containing 'bbox', 'class_name', etc.
+            frame: Current video frame (BGR format)
+            frame_number: Current frame number
+        Returns:
+            List[Dict[str, Any]]: Updated list of detections with track IDs and directions
+        """
         pass

@@ -30,20 +30,29 @@ logger = logging.getLogger("DatabaseOperations")
 
 class Database:
     def __init__(self, db_path: str = "detections.db"):
+        """
+        Initialize the database connection and create tables if they don't exist.
+        Args:
+            db_path (str): Path to the SQLite database file.
+        """
+
         self.db_path = db_path
         self.connection = None
         self.connect()
         self.create_tables()
 
     def __enter__(self):
+        """Context manager for database connection."""
         self.connect()
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Close the database connection when exiting the context."""
         self.close()
 
     def connect(self):
         """Connect to the database."""
+
         logger.info(f"Connecting to database at {self.db_path}")
         self.connection = sqlite3.connect(self.db_path)
         # add PRAGMA statements
@@ -58,6 +67,7 @@ class Database:
 
     def create_tables(self):
         """Create the necessary tables in the database."""
+
         # Videos table
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS videos (
@@ -136,7 +146,11 @@ class Database:
     def add_video(self, video_name: str) -> int:
         """
         Add a new video to the database or get the ID if it already exists.
-        Returns the video_id.
+
+        Args:
+            video_name (str): The name of the video to add.
+        Returns:
+            int: The ID of the video in the database.
         """
         try:
             self.cursor.execute("""
@@ -153,7 +167,14 @@ class Database:
             return self.cursor.fetchone()[0]
 
     def get_video_id(self, video_name: str) -> Optional[int]:
-        """Get video_id by video_name."""
+        """
+        Get video_id by video_name.
+        
+        Args:
+            video_name (str): The name of the video to search for.
+        Returns:
+            Optional[int]: The ID of the video if found, otherwise None.
+        """
         self.cursor.execute("""
             SELECT video_id FROM videos WHERE video_name = ?
         """, (video_name,))
@@ -164,6 +185,13 @@ class Database:
     def insert_yolo_frame(self, video_name: str, frame_number: int, timestamp: float) -> int:
         """
         Insert a frame for YOLO detection processing.
+
+        Args:
+            video_name (str): The name of the video.
+            frame_number (int): The frame number to insert.
+            timestamp (float): The timestamp of the frame.
+        Returns:
+            int: The ID of the inserted frame.
         """
         # Ensure the video exists
         video_id = self.add_video(video_name)
@@ -190,6 +218,12 @@ class Database:
     def get_yolo_frame_id(self, video_id: int, frame_number: int) -> Optional[int]:
         """
         Get the frame_id for a YOLO frame.
+
+        Args:
+            video_id (int): The ID of the video.
+            frame_number (int): The frame number to search for.
+        Returns:
+            Optional[int]: The ID of the frame if found, otherwise None.
         """
         self.cursor.execute("""
             SELECT frame_id FROM yolo_frames 
@@ -201,7 +235,14 @@ class Database:
     # ByteTrack frame methods
     def insert_bytetrack_frame(self, video_name: str, frame_number: int, timestamp: float) -> int:
         """
-        Insert a frame for ByteTrack refinement processing.
+        Insert a frame for ByteTrack processing.
+
+        Args:
+            video_name (str): The name of the video.
+            frame_number (int): The frame number to insert.
+            timestamp (float): The timestamp of the frame.
+        Returns:
+            int: The ID of the inserted frame.
         """
         # Ensure the video exists
         video_id = self.add_video(video_name)
@@ -228,6 +269,12 @@ class Database:
     def get_bytetrack_frame_id(self, video_id: int, frame_number: int) -> Optional[int]:
         """
         Get the frame_id for a ByteTrack frame.
+
+        Args:
+            video_id (int): The ID of the video.
+            frame_number (int): The frame number to search for.
+        Returns:
+            Optional[int]: The ID of the frame if found, otherwise None.
         """
         self.cursor.execute("""
             SELECT frame_id FROM bytetrack_frames 
@@ -237,7 +284,17 @@ class Database:
         return result[0] if result else None
 
     def bulk_insert_detections(self, video_name: str, detections: List[dict]):
-        """Bulk insert detections for YOLO frames."""
+        """
+        Bulk insert detections for YOLO frames.
+        
+        Args:
+            video_name (str): The name of the video.
+            detections (List[dict]): List of detection dictionaries containing
+                'frame_number', 'class_name', 'confidence', 'bbox', etc.
+        
+        Returns:
+            None
+        """
         # Get video_id
         video_id = self.get_video_id(video_name)
         if not video_id:
@@ -267,6 +324,14 @@ class Database:
     def bulk_insert_refined_detections(self, video_name: str, detections: List[dict]):
         """
         Bulk insert refined detections from ByteTrack.
+
+        Args:
+            video_name (str): The name of the video.
+            detections (List[dict]): List of detection dictionaries containing
+                'frame_number', 'track_id', 'class_name', 'confidence', 'bbox', etc.
+        
+        Returns:
+            None
         """
         # Get video_id
         video_id = self.get_video_id(video_name)
@@ -294,7 +359,14 @@ class Database:
         self.connection.commit()
 
     def reset_video_yolo(self, video_name: str):
-        """Function to clear YOLO detections for a specific video."""
+        """
+        Function to clear YOLO detections for a specific video.
+        
+        Args:
+            video_name (str): The name of the video to clear.
+        Returns:
+            None
+        """
         # Get video_id
         video_id = self.get_video_id(video_name)
         if not video_id:
@@ -327,7 +399,14 @@ class Database:
         print(f"YOLO detections for video '{video_name}' cleared successfully.")
 
     def reset_video_bytetrack(self, video_name: str):
-        """Function to clear ByteTrack refined detections for a specific video."""
+        """
+        Function to clear ByteTrack refined detections for a specific video.
+        
+        Args:
+            video_name (str): The name of the video to clear.
+        Returns:
+            None
+        """
         # Get video_id
         video_id = self.get_video_id(video_name)
         if not video_id:
@@ -359,7 +438,19 @@ class Database:
     def get_yolo_frames_with_detections(self, video_name: str, filter_objects=None, filter_colors=None,
                                       filter_directions=None, area_filter=None):
         """
-        Fetch unique frames with matching YOLO detections from the database for a specific video.
+        Fetch unique frames with matching YOLO detections from the database 
+        for a specific video.
+
+        Args:
+            video_name (str): The name of the video to fetch frames for.
+            filter_objects (List[str]): List of object classes to filter by.
+            filter_colors (List[str]): List of colors to filter by.
+            filter_directions (List[str]): List of directions to filter by.
+            area_filter (Tuple[int, int, int, int, int]): Area filter defined by
+                (x1, y1, x2, y2, margin).
+        Returns:
+            Dict[int, Dict[str, Any]]: A dictionary where keys are frame numbers
+                and values are dictionaries containing detection data.
         """
         # Get video_id
         video_id = self.get_video_id(video_name)
@@ -469,7 +560,19 @@ class Database:
     def get_bytetrack_frames_with_detections(self, video_name: str, filter_objects=None, filter_colors=None,
                                            filter_directions=None, area_filter=None):
         """
-        Fetch unique frames with matching ByteTrack refined detections from the database for a specific video.
+        Fetch unique frames with matching ByteTrack refined detections from 
+        the database for a specific video.
+
+        Args:
+            video_name (str): The name of the video to fetch frames for.
+            filter_objects (List[str]): List of object classes to filter by.
+            filter_colors (List[str]): List of colors to filter by.
+            filter_directions (List[str]): List of directions to filter by.
+            area_filter (Tuple[int, int, int, int, int]): Area filter defined by
+                (x1, y1, x2, y2, margin).
+        Returns:
+            Dict[int, Dict[str, Any]]: A dictionary where keys are frame numbers
+                and values are dictionaries containing detection data.
         """
         # Get video_id
         video_id = self.get_video_id(video_name)
@@ -544,7 +647,14 @@ class Database:
         return frames
     
     def get_number_of_frames_yolo(self, video_name: str) -> int:
-        """Get the number of frames for a specific video in YOLO frames."""
+        """
+        Get the number of frames for a specific video in YOLO frames.
+        
+        Args:
+            video_name (str): The name of the video to count frames for.
+        Returns:
+            int: The number of frames for the video.
+        """
         video_id = self.get_video_id(video_name)
         if not video_id:
             return 0
@@ -555,7 +665,14 @@ class Database:
         return self.cursor.fetchone()[0]
     
     def get_number_of_frames_bytetrack(self, video_name: str) -> int:
-        """Get the number of frames for a specific video in ByteTrack frames."""
+        """
+        Get the number of frames for a specific video in ByteTrack frames.
+        
+        Args:
+            video_name (str): The name of the video to count frames for.
+        Returns:
+            int: The number of frames for the video.
+        """
         video_id = self.get_video_id(video_name)
         if not video_id:
             return 0
@@ -566,7 +683,12 @@ class Database:
         return self.cursor.fetchone()[0]
 
     def get_videos(self) -> List[Tuple[int, str]]:
-        """Get a list of all videos in the database."""
+        """
+        Get a list of all videos in the database.
+        
+        Returns:
+            List[Tuple[int, str]]: A list of tuples containing video_id and video_name.
+        """
         self.cursor.execute("""
             SELECT video_id, video_name FROM videos ORDER BY created_at DESC
         """)
@@ -575,6 +697,13 @@ class Database:
     def get_frame_timestamp(self, video_name: str, frame_number: int, tracker: str) -> Optional[float]:
         """
         Get the timestamp of a specific frame in a video.
+
+        Args:
+            video_name (str): The name of the video.
+            frame_number (int): The frame number to get the timestamp for.
+            tracker (str): The tracker used ('yolo' or 'bytetrack').
+        Returns:
+            Optional[float]: The timestamp of the frame if found, otherwise None.
         """
         video_id = self.get_video_id(video_name)
         if not video_id:
@@ -594,12 +723,16 @@ class Database:
         return result[0] if result else None
       
     def close(self):
-        """Close the database connection."""
+        """
+        Close the database connection.
+        """
         if self.connection:
             self.connection.close()
 
     def reset_database(self):
-        """Function to clear all data from the database."""
+        """
+        Clear all data from the database.
+        """
         self.cursor.execute("DELETE FROM detections")
         self.cursor.execute("DELETE FROM refined_detections")
         self.cursor.execute("DELETE FROM yolo_frames")
@@ -609,7 +742,9 @@ class Database:
         print("Database reset complete.")
 
     def drop_tables(self):
-        """Drop the tables in the database."""
+        """
+        Drop the tables in the database.
+        """
         self.cursor.execute("DROP TABLE IF EXISTS detections")
         self.cursor.execute("DROP TABLE IF EXISTS refined_detections")
         self.cursor.execute("DROP TABLE IF EXISTS yolo_frames")

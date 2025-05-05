@@ -76,6 +76,8 @@ class VectorDatabaseManager:
             batch_metadata (List[Dict]): Metadata for all frames in the batch
             embedding_strategy (str): Strategy to handle batch embedding 
                                      Options: 'mean', 'first', 'last'
+        Returns:
+            str: Unique ID for the added batch
         """
         # Validate input
         if batch_embeddings.dim() > 2:
@@ -133,6 +135,8 @@ class VectorDatabaseManager:
             frame_path (str): Path to the frame file
             frame_number (int): Frame number in the video
             timestamp (float): Timestamp of the frame in the video
+        Returns:
+            str: Unique ID for the added frame
         """
         # Ensure embedding is in the right format (1D)
         if embedding.dim() > 1:

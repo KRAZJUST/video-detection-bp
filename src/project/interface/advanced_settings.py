@@ -16,7 +16,17 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QSpinBox, QCheckBox, QDialogButtonBox
 
 class AdvancedSettings(QDialog):
+    """
+    Dialog for advanced settings when querying for results.
+    This dialog allows the user to set parameters for XCLIP batch count,
+    SigLIP frame count, deduplication of frames, and segmentation usage.
+    """
     def __init__(self, parent=None):
+        """
+        Initialize the dialog with the parent widget.
+        Args:
+            parent: Parent widget
+        """
         super().__init__(parent)
         self.setWindowTitle("Query Settings")
         self.setMinimumWidth(400)

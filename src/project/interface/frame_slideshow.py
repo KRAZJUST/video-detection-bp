@@ -27,6 +27,12 @@ from database.sqlite_database import Database
 from database.vector_database import VectorDatabaseManager
 
 class FrameSlideshow(QMainWindow):
+    """
+    This class provides a GUI for displaying a slideshow of frames from a video.
+    It allows the user to navigate through frames, view their timestamps, and export them.
+    The class also includes functionality to open the video at the current frame in 
+    the system's default video player.
+    """
     def __init__(self, 
                  parent, 
                  starting_frame_path, 
@@ -41,6 +47,23 @@ class FrameSlideshow(QMainWindow):
                  database_path=None,
                  tracker=None,
                  metadata=None):
+        """
+        Initialize the FrameSlideshow class.
+        Args:
+            parent: Parent widget
+            starting_frame_path (str): Path to the starting frame
+            frame_dir (str): Directory containing annotated frames
+            extracted_frames_dir (str): Directory containing extracted frames
+            context_frames (int): Number of frames to show before the current frame
+            forward_frames (int): Number of frames to show after the current frame
+            interval (int): milliseconds between frames in slideshow
+            fps (int): Frame rate of the video
+            frame_interval (int): Interval between frames in seconds
+            input_video_path (str): Path to the input video file
+            database_path (str): Path to the database file
+            tracker (str): Tracker name for database connection
+            metadata (list): Metadata for timestamps if available
+        """
         super().__init__()
         self.parent = parent
         self.frame_dir = frame_dir
@@ -238,7 +261,12 @@ class FrameSlideshow(QMainWindow):
         return float(frame_num) * float(self.frame_interval) / float(self.fps)
 
     def format_timestamp(self, seconds):
-        """Format seconds into MM:SS.mmm"""
+        """
+        Format the timestamp in HH:MM:SS.mmm
+
+        Args:
+            seconds (float): The timestamp in seconds.
+        """
         if seconds > 3600:
             hours = int(seconds // 3600)
             seconds %= 3600
@@ -256,7 +284,9 @@ class FrameSlideshow(QMainWindow):
             return f"00:{remaining_seconds:06.3f}"
     
     def find_frames(self):
-        """Find all frames in both directories and organize them"""
+        """
+        Find all frames in both directories and organize them
+        """
         # Dictionary to store all available frames by frame number
         self.all_frames = {}
         self.annotated_frames = {}
@@ -287,7 +317,9 @@ class FrameSlideshow(QMainWindow):
         self.frame_numbers = sorted(self.all_frames.keys())
     
     def find_starting_index(self, starting_frame_path):
-        """Find the index of the starting frame in our frame list"""
+        """
+        Find the index of the starting frame in our frame list
+        """
         # Extract frame number from starting_frame_path using the frame_%5d.jpg format
         match = re.search(r'frame_(\d+)', os.path.basename(starting_frame_path))
         if match:
@@ -299,7 +331,9 @@ class FrameSlideshow(QMainWindow):
         return 0
     
     def update_visible_frames(self):
-        """Update the list of frames visible in the slideshow based on context"""
+        """
+        Update the list of frames visible in the slideshow based on context
+        """
         if not self.frame_numbers:
             return
         
@@ -335,7 +369,9 @@ class FrameSlideshow(QMainWindow):
         self.show_frame_at_visible_index(self.current_frame_index)
     
     def show_frame_at_visible_index(self, index):
-        """Display the frame at the given visible index"""
+        """
+        Display the frame at the given visible index
+        """
         if not self.visible_frame_paths or index < 0 or index >= len(self.visible_frame_paths):
             return
         
@@ -371,14 +407,18 @@ class FrameSlideshow(QMainWindow):
         )
     
     def show_frame_at_index(self, index):
-        """Handle when user changes the slider"""
+        """
+        Handle when user changes the slider
+        """
         if 0 <= index < len(self.visible_frame_paths):
             self.current_frame_index = index
             # Show the frame
             self.show_frame_at_visible_index(index)
     
     def next_frame(self):
-        """Show the next frame in the visible sequence"""
+        """
+        Show the next frame in the visible sequence
+        """
         next_index = (self.current_frame_index + 1) % len(self.visible_frame_paths)
         self.show_frame_at_visible_index(next_index)
         
@@ -393,7 +433,9 @@ class FrameSlideshow(QMainWindow):
         #            self.update_visible_frames()
     
     def toggle_slideshow(self):
-        """Start or stop the slideshow"""
+        """
+        Start or stop the slideshow
+        """
         if self.timer.isActive():
             self.timer.stop()
             self.play_button.setText("Play")
@@ -402,7 +444,9 @@ class FrameSlideshow(QMainWindow):
             self.play_button.setText("Pause")
     
     def update_speed(self):
-        """Update the slideshow speed based on combo box selection"""
+        """
+        Update the slideshow speed based on combo box selection
+        """
         index = self.speed_combo.currentIndex()
         
         if index == 0:  # Slow
@@ -418,7 +462,12 @@ class FrameSlideshow(QMainWindow):
             self.timer.start(self.interval)
     
     def update_context_frames(self, value):
-        """Update the number of context frames to show"""
+        """
+        Update the number of context frames to show
+
+        Args:
+            value (str): The number of context frames to show
+        """
         try:
             self.context_frames = int(value)
             self.update_visible_frames()
@@ -426,7 +475,12 @@ class FrameSlideshow(QMainWindow):
             pass
 
     def update_forward_frames(self, value):
-        """Update the number of forward frames to show"""
+        """
+        Update the number of forward frames to show
+
+        Args:
+            value (str): The number of forward frames to show
+        """
         try:
             self.forward_frames = int(value)
             self.update_visible_frames()
@@ -434,7 +488,11 @@ class FrameSlideshow(QMainWindow):
             pass
     
     def export_current_frame(self):
-        """Export the current frame to a user-selected location"""
+        """
+        Export the current frame to a user-selected location
+        This will suggest a filename based on the frame number and timestamp
+        so the user can easily identify it.
+        """
         if 0 <= self.current_frame_index < len(self.visible_frame_paths):
             source_path = self.visible_frame_paths[self.current_frame_index]
             frame_num = self.visible_frame_numbers[self.current_frame_index]
@@ -458,7 +516,9 @@ class FrameSlideshow(QMainWindow):
                 print(f"Exported frame to {file_path}")
     
     def resizeEvent(self, event):
-        """Handle resize events to scale the image appropriately"""
+        """
+        Handle resize events to scale the image appropriately
+        """
         super().resizeEvent(event)
         
         # Update the displayed image to fit the new size

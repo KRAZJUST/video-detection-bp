@@ -45,6 +45,15 @@ class YOLODetector:
                  device: str = 'auto',
                  use_segmentation: bool = False,
                  skip_color_analysis: bool = False):
+        """
+        Initialize the YOLO Detector.
+        
+        Args:
+            model_path (str): Path to the YOLOv11 model weights
+            device (str): Device to run the model on ('auto', 'cpu', 'cuda')
+            use_segmentation (bool): Whether to use segmentation for color analysis
+            skip_color_analysis (bool): Whether to skip color analysis for detected objects
+        """
         self.model = YOLO(model_path)
         self.color_filter = ColorFilter()
         self.skip_color_analysis = skip_color_analysis

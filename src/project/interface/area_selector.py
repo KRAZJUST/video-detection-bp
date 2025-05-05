@@ -21,10 +21,22 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QRegion         # type:
 import os
 
 class AreaSelector(QDialog):
+    """
+    This class provides a dialog for interactively selecting an area of interest
+    in a video frame. The user can click and drag to create a selection rectangle,
+    and the selected area can be confirmed with a button. The selected area is
+    emitted as a QRect object.
+    """
     # Signal to emit when selection is confirmed
     area_selected = pyqtSignal(QRect)
     
     def __init__(self, parent=None):
+        """
+        Initialize the dialog with the parent widget.
+
+        Args:
+            parent: Parent widget
+        """
         super().__init__(parent)
         self.setWindowTitle("Select Area of Interest")
         self.setMinimumSize(800, 600)
@@ -54,10 +66,21 @@ class AreaSelector(QDialog):
         self.selection = QRect()
 
     def set_pixmap(self, pixmap):
-        """Set the pixmap from a QPixmap object"""
+        """
+        Set the pixmap from a QPixmap object
+        
+        Args:
+            pixmap (QPixmap): The pixmap to be displayed
+        """
         self.pixmap = pixmap
 
     def paintEvent(self, event):
+        """
+        Override the paint event to draw the image and selection rectangle.
+
+        Args:
+            event: The paint event
+        """
         super().paintEvent(event)
     
         if not self.pixmap:
@@ -122,6 +145,12 @@ class AreaSelector(QDialog):
             painter.drawRect(window_selection)
     
     def mousePressEvent(self, event):
+        """
+        Handle mouse press event to start selection.
+
+        Args:
+            event: The mouse press event
+        """
         if (event.button() == Qt.MouseButton.LeftButton and 
                 self.image_rect.contains(event.position().toPoint())):
             self.is_selecting = True
@@ -130,12 +159,24 @@ class AreaSelector(QDialog):
             self.update_selection()
     
     def mouseMoveEvent(self, event):
+        """
+        Handle mouse move event to update selection rectangle.
+
+        Args:
+            event: The mouse move event
+        """
         if self.is_selecting:
             self.end_point = event.position().toPoint()
             self.update_selection()
             self.update()
     
     def mouseReleaseEvent(self, event):
+        """
+        Handle mouse release event to finalize selection.
+
+        Args:
+            event: The mouse release event
+        """
         if event.button() == Qt.MouseButton.LeftButton and self.is_selecting:
             self.is_selecting = False
             self.end_point = event.position().toPoint()
@@ -144,6 +185,11 @@ class AreaSelector(QDialog):
             self.update()
     
     def update_selection(self):
+        """
+        Update the selection rectangle based on the start and end points.
+        This method calculates the selection rectangle in the image coordinates
+        and ensures it is within the bounds of the image.
+        """
         if not self.start_point or not self.end_point or not self.image_rect:
             return
             
@@ -175,6 +221,9 @@ class AreaSelector(QDialog):
         )
     
     def confirm_selection(self):
+        """
+        Confirm the selection and emit the area_selected signal.
+        """
         if not self.selection.isEmpty():
             self.area_selected.emit(self.selection)
             self.accept()
