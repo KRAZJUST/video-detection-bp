@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.database package &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="project.detectors package" href="project.detectors.html" />
+    <link rel="prev" title="project package" href="project.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">project</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="project.html">project package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="project.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">project.database package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html">project.detectors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html">project.interface package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html">project.parsers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.processors.html">project.processors package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project.main">project.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">project</a></li>
+          <li class="breadcrumb-item"><a href="project.html">project package</a></li>
+      <li class="breadcrumb-item active">project.database package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project.database.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-database-package">
+<h1>project.database package<a class="headerlink" href="#project-database-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-project.database.sqlite_database">
+<span id="project-database-sqlite-database-module"></span><h2>project.database.sqlite_database module<a class="headerlink" href="#module-project.database.sqlite_database" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.database.sqlite_database.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'detections.db'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.add_video">
+<span class="sig-name descname"><span class="pre">add_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.add_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.add_video" title="Link to this definition"></a></dt>
+<dd><p>Add a new video to the database or get the ID if it already exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to add.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the video in the database.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.bulk_insert_detections">
+<span class="sig-name descname"><span class="pre">bulk_insert_detections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.bulk_insert_detections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.bulk_insert_detections" title="Link to this definition"></a></dt>
+<dd><p>Bulk insert detections for YOLO frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video.</p></li>
+<li><p><strong>detections</strong> (<em>List</em><em>[</em><em>dict</em><em>]</em>) – List of detection dictionaries containing
+‘frame_number’, ‘class_name’, ‘confidence’, ‘bbox’, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.bulk_insert_refined_detections">
+<span class="sig-name descname"><span class="pre">bulk_insert_refined_detections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.bulk_insert_refined_detections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.bulk_insert_refined_detections" title="Link to this definition"></a></dt>
+<dd><p>Bulk insert refined detections from ByteTrack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video.</p></li>
+<li><p><strong>detections</strong> (<em>List</em><em>[</em><em>dict</em><em>]</em>) – List of detection dictionaries containing
+‘frame_number’, ‘track_id’, ‘class_name’, ‘confidence’, ‘bbox’, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.close" title="Link to this definition"></a></dt>
+<dd><p>Close the database connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.connect" title="Link to this definition"></a></dt>
+<dd><p>Connect to the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.create_tables">
+<span class="sig-name descname"><span class="pre">create_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.create_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.create_tables" title="Link to this definition"></a></dt>
+<dd><p>Create the necessary tables in the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.drop_tables">
+<span class="sig-name descname"><span class="pre">drop_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.drop_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.drop_tables" title="Link to this definition"></a></dt>
+<dd><p>Drop the tables in the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_bytetrack_frame_id">
+<span class="sig-name descname"><span class="pre">get_bytetrack_frame_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_bytetrack_frame_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_bytetrack_frame_id" title="Link to this definition"></a></dt>
+<dd><p>Get the frame_id for a ByteTrack frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_id</strong> (<em>int</em>) – The ID of the video.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The frame number to search for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the frame if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_bytetrack_frames_with_detections">
+<span class="sig-name descname"><span class="pre">get_bytetrack_frames_with_detections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_directions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_bytetrack_frames_with_detections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_bytetrack_frames_with_detections" title="Link to this definition"></a></dt>
+<dd><p>Fetch unique frames with matching ByteTrack refined detections from
+the database for a specific video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video to fetch frames for.</p></li>
+<li><p><strong>filter_objects</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of object classes to filter by.</p></li>
+<li><p><strong>filter_colors</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of colors to filter by.</p></li>
+<li><p><strong>filter_directions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of directions to filter by.</p></li>
+<li><p><strong>area_filter</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – Area filter defined by
+(x1, y1, x2, y2, margin).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary where keys are frame numbers</dt><dd><p>and values are dictionaries containing detection data.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[int, Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_frame_timestamp">
+<span class="sig-name descname"><span class="pre">get_frame_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_frame_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_frame_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Get the timestamp of a specific frame in a video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The frame number to get the timestamp for.</p></li>
+<li><p><strong>tracker</strong> (<em>str</em>) – The tracker used (‘yolo’ or ‘bytetrack’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The timestamp of the frame if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_frames_with_yolo_detections">
+<span class="sig-name descname"><span class="pre">get_frames_with_yolo_detections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_frames_with_yolo_detections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_frames_with_yolo_detections" title="Link to this definition"></a></dt>
+<dd><p>Function to fetch the numbers of frames containing YOLO detections
+for a specific video.
+Used to filter out frames with no detections when processing with SigLIP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to fetch frames for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A set of frame numbers containing YOLO detections.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Set[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_number_of_frames_bytetrack">
+<span class="sig-name descname"><span class="pre">get_number_of_frames_bytetrack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_number_of_frames_bytetrack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_number_of_frames_bytetrack" title="Link to this definition"></a></dt>
+<dd><p>Get the number of frames for a specific video in ByteTrack frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to count frames for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of frames for the video.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_number_of_frames_yolo">
+<span class="sig-name descname"><span class="pre">get_number_of_frames_yolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_number_of_frames_yolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_number_of_frames_yolo" title="Link to this definition"></a></dt>
+<dd><p>Get the number of frames for a specific video in YOLO frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to count frames for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of frames for the video.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_video_id">
+<span class="sig-name descname"><span class="pre">get_video_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_video_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_video_id" title="Link to this definition"></a></dt>
+<dd><p>Get video_id by video_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to search for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the video if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_videos">
+<span class="sig-name descname"><span class="pre">get_videos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_videos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_videos" title="Link to this definition"></a></dt>
+<dd><p>Get a list of all videos in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of tuples containing video_id and video_name.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Tuple[int, str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_yolo_frame_id">
+<span class="sig-name descname"><span class="pre">get_yolo_frame_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_yolo_frame_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_yolo_frame_id" title="Link to this definition"></a></dt>
+<dd><p>Get the frame_id for a YOLO frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_id</strong> (<em>int</em>) – The ID of the video.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The frame number to search for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the frame if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.get_yolo_frames_with_detections">
+<span class="sig-name descname"><span class="pre">get_yolo_frames_with_detections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_directions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.get_yolo_frames_with_detections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.get_yolo_frames_with_detections" title="Link to this definition"></a></dt>
+<dd><p>Fetch unique frames with matching YOLO detections from the database
+for a specific video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video to fetch frames for.</p></li>
+<li><p><strong>filter_objects</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of object classes to filter by.</p></li>
+<li><p><strong>filter_colors</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of colors to filter by.</p></li>
+<li><p><strong>filter_directions</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of directions to filter by.</p></li>
+<li><p><strong>area_filter</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – Area filter defined by
+(x1, y1, x2, y2, margin).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary where keys are frame numbers</dt><dd><p>and values are dictionaries containing detection data.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[int, Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.insert_bytetrack_frame">
+<span class="sig-name descname"><span class="pre">insert_bytetrack_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.insert_bytetrack_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.insert_bytetrack_frame" title="Link to this definition"></a></dt>
+<dd><p>Insert a frame for ByteTrack processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The frame number to insert.</p></li>
+<li><p><strong>timestamp</strong> (<em>float</em>) – The timestamp of the frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the inserted frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.insert_yolo_frame">
+<span class="sig-name descname"><span class="pre">insert_yolo_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.insert_yolo_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.insert_yolo_frame" title="Link to this definition"></a></dt>
+<dd><p>Insert a frame for YOLO detection processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_name</strong> (<em>str</em>) – The name of the video.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The frame number to insert.</p></li>
+<li><p><strong>timestamp</strong> (<em>float</em>) – The timestamp of the frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the inserted frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.reset_database">
+<span class="sig-name descname"><span class="pre">reset_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.reset_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.reset_database" title="Link to this definition"></a></dt>
+<dd><p>Clear all data from the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.reset_video_bytetrack">
+<span class="sig-name descname"><span class="pre">reset_video_bytetrack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.reset_video_bytetrack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.reset_video_bytetrack" title="Link to this definition"></a></dt>
+<dd><p>Function to clear ByteTrack refined detections for a specific video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to clear.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.sqlite_database.Database.reset_video_yolo">
+<span class="sig-name descname"><span class="pre">reset_video_yolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/sqlite_database.html#Database.reset_video_yolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.sqlite_database.Database.reset_video_yolo" title="Link to this definition"></a></dt>
+<dd><p>Function to clear YOLO detections for a specific video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_name</strong> (<em>str</em>) – The name of the video to clear.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.database.vector_database">
+<span id="project-database-vector-database-module"></span><h2>project.database.vector_database module<a class="headerlink" href="#module-project.database.vector_database" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.database.vector_database.VectorDatabaseManager">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.database.vector_database.</span></span><span class="sig-name descname"><span class="pre">VectorDatabaseManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'video_embeddings'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persist_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/vector_database.html#VectorDatabaseManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.vector_database.VectorDatabaseManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.vector_database.VectorDatabaseManager.add_batch_embeddings">
+<span class="sig-name descname"><span class="pre">add_batch_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/vector_database.html#VectorDatabaseManager.add_batch_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.vector_database.VectorDatabaseManager.add_batch_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Add embeddings from a batch of frames with associated metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_embeddings</strong> (<em>torch.Tensor</em>) – Tensor of embeddings, typically 1 embedding for the batch</p></li>
+<li><p><strong>batch_metadata</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em>) – Metadata for all frames in the batch</p></li>
+<li><p><strong>embedding_strategy</strong> (<em>str</em>) – Strategy to handle batch embedding
+Options: ‘mean’, ‘first’, ‘last’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Unique ID for the added batch</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.vector_database.VectorDatabaseManager.add_single_frame_embedding">
+<span class="sig-name descname"><span class="pre">add_single_frame_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/vector_database.html#VectorDatabaseManager.add_single_frame_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.vector_database.VectorDatabaseManager.add_single_frame_embedding" title="Link to this definition"></a></dt>
+<dd><p>Add embedding for a single frame with metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embedding</strong> (<em>torch.Tensor</em>) – Tensor of embeddings for a single frame</p></li>
+<li><p><strong>frame_path</strong> (<em>str</em>) – Path to the frame file</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – Frame number in the video</p></li>
+<li><p><strong>timestamp</strong> (<em>float</em>) – Timestamp of the frame in the video</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Unique ID for the added frame</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.vector_database.VectorDatabaseManager.clear_collection">
+<span class="sig-name descname"><span class="pre">clear_collection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/vector_database.html#VectorDatabaseManager.clear_collection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.vector_database.VectorDatabaseManager.clear_collection" title="Link to this definition"></a></dt>
+<dd><p>Clear all embeddings from the current collection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.database.vector_database.VectorDatabaseManager.query_batch_embeddings">
+<span class="sig-name descname"><span class="pre">query_batch_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/database/vector_database.html#VectorDatabaseManager.query_batch_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.database.vector_database.VectorDatabaseManager.query_batch_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Query the vector database for similar batch embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_embedding</strong> (<em>torch.Tensor</em>) – Embedding to query against</p></li>
+<li><p><strong>n_results</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of results to return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict containing query results with distances, metadata, etc.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.database">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-project.database" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="project.html" class="btn btn-neutral float-left" title="project package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project.detectors.html" class="btn btn-neutral float-right" title="project.detectors package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

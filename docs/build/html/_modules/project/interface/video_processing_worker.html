@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.interface.video_processing_worker &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.interface.video_processing_worker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.interface.video_processing_worker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: video_processing_worker.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module provides a worker class for processing video files in a separate</span>
+<span class="c1"># thread. It uses the VideoProcessor class to handle the video processing</span>
+<span class="c1"># tasks. The worker emits signals to indicate progress, completion, or errors.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">profiling_utils.profiling_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_time_usage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt6.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">pyqtSignal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">processors.video_processor</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoProcessor</span>
+
+<div class="viewcode-block" id="VideoProcessingWorker">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VideoProcessingWorker</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">finished</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> <span class="n">database_path</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> 
+                 <span class="n">interval</span><span class="p">,</span> <span class="n">tracker</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the worker with the necessary parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app: Reference to the main application</span>
+<span class="sd">            video_path: Path to the video file</span>
+<span class="sd">            database_path: Path to the database file</span>
+<span class="sd">            output_dir: Directory for output files</span>
+<span class="sd">            interval: Interval for processing frames</span>
+<span class="sd">            tracker: Tracker model name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_path</span> <span class="o">=</span> <span class="n">video_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_path</span> <span class="o">=</span> <span class="n">database_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="n">tracker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminate_processing</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@profile_time_usage</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the worker thread to process the video.</span>
+<span class="sd">        This method is executed in a separate thread.</span>
+<span class="sd">        It emits the finished signal when processing is complete,</span>
+<span class="sd">        or the error signal if an error occurs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Progress fallback that emits message and perecentage</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">progress_callback</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">percentage</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">percentage</span><span class="p">)</span>
+                <span class="c1"># Check termination flag during progress updates</span>
+                <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate_processing</span>
+
+            <span class="n">processor</span> <span class="o">=</span> <span class="n">VideoProcessor</span><span class="p">(</span>
+                <span class="n">video_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+                <span class="n">database_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">,</span>
+                <span class="n">use_segmentation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processing_segmentation_value</span><span class="p">,</span>
+                <span class="n">skip_siglip_with_yolo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">skip_siglip_with_yolo_value</span><span class="p">,</span>
+                <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">,</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Check if processing was terminated</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate_processing</span><span class="p">:</span>
+                <span class="n">processor</span><span class="o">.</span><span class="n">process_video</span><span class="p">()</span>
+
+            <span class="c1"># Emit finished signal</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

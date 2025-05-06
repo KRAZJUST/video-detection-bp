@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.parsers.yolo_segmenter &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.parsers.yolo_segmenter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.parsers.yolo_segmenter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: yolo_segmenter.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># IMPORTANT: This module uses YOLOv11-seg from Ultralytics for object instance segmentation.</span>
+<span class="c1">#   Model from ultralytics: https://docs.ultralytics.com/models/yolo11/</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module implements the YOLOSegmenter class, which uses YOLOv11-seg from</span>
+<span class="c1"># Ultralytics for object instance segmentation of the object. The model&#39;s </span>
+<span class="c1"># weights are loaded from a specified file path. It also provides method for</span>
+<span class="c1"># annotating the image with segmentation masks and labels based on existing</span>
+<span class="c1"># detections. </span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ultralytics</span><span class="w"> </span><span class="kn">import</span> <span class="n">YOLO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">constants.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">COLOR_MAP</span>
+
+<div class="viewcode-block" id="YOLOSegmenter">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">YOLOSegmenter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Module using the YOLOv11-seg model for object instance segmentation.</span>
+<span class="sd">    The model&#39;s weights are loaded from a specified file path.</span>
+
+<span class="sd">    The segmentation architecture builds on YOLOv11&#39;s detection capabilities with an additional</span>
+<span class="sd">    segmentation head that produces high-quality instance masks.</span>
+
+<span class="sd">    Original YOLO architecture by Joseph Redmon et al.</span>
+<span class="sd">    Model: yolov11n-seg.pt (YOLOv11 with segmentation head)</span>
+<span class="sd">    Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11-seg. https://docs.ultralytics.com/models/yolo11/</span>
+<span class="sd">    Repository: https://github.com/ultralytics/ultralytics</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;yolo11n-seg.pt&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the YOLO Segmenter.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            model_path: Path to the YOLOv11-seg model weights</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Load YOLO model with segmentation head</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">YOLO</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;YOLO model loaded on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="YOLOSegmenter.segment_region">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.segment_region">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">segment_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply YOLOv11-seg only to a specific region defined by the bounding box.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            image: RGB image array</span>
+<span class="sd">            bbox: Bounding box coordinates [x1, y1, x2, y2]</span>
+<span class="sd">            padding: Extra padding around the bbox to ensure complete object capture</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Binary mask for the object in the bounding box</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract bbox coordinates and ensure they&#39;re integers</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span>
+        
+        <span class="c1"># Add padding but stay within image boundaries</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">x1_pad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">padding</span><span class="p">)</span>
+        <span class="n">y1_pad</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">padding</span><span class="p">)</span>
+        <span class="n">x2_pad</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x2</span> <span class="o">+</span> <span class="n">padding</span><span class="p">)</span>
+        <span class="n">y2_pad</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y2</span> <span class="o">+</span> <span class="n">padding</span><span class="p">)</span>
+        
+        <span class="c1"># Crop the region</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y1_pad</span><span class="p">:</span><span class="n">y2_pad</span><span class="p">,</span> <span class="n">x1_pad</span><span class="p">:</span><span class="n">x2_pad</span><span class="p">]</span>
+        
+        <span class="c1"># Skip empty regions</span>
+        <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="c1"># Create full-size mask</span>
+        <span class="n">full_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        
+        <span class="c1"># Run segmentation on just the region</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">masks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">masks</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Get the first mask (should be the best one for a cropped region)</span>
+            <span class="n">mask_points</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">masks</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="c1"># Adjust coordinates to full image space</span>
+            <span class="n">mask_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x1_pad</span>
+            <span class="n">mask_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y1_pad</span>
+            
+            <span class="c1"># Draw the polygon on the full mask</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">fillPoly</span><span class="p">(</span><span class="n">full_mask</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mask_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="mi">255</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">full_mask</span></div>
+
+
+<div class="viewcode-block" id="YOLOSegmenter.annotate_image">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.annotate_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">detections</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Annotate image with segmentation masks and labels based on existing detections.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            image: BGR image array</span>
+<span class="sd">            detections: List of detection dictionaries containing &#39;bbox&#39;, &#39;class_name&#39;, etc.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Annotated image with masks and labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert BGR to RGB for processing</span>
+        <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        
+        <span class="c1"># Create a copy for drawing</span>
+        <span class="n">annotated_image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
+            <span class="c1"># Get bounding box coordinates and class</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">detection</span><span class="p">[</span><span class="s1">&#39;bbox&#39;</span><span class="p">]</span>
+            <span class="n">class_name</span> <span class="o">=</span> <span class="n">detection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class_name&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+            <span class="n">dominant_color</span> <span class="o">=</span> <span class="n">detection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dominant_color&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Generate mask for this region only</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_region</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Get color for this class</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">COLOR_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dominant_color</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                
+                <span class="c1"># Create colored overlay</span>
+                <span class="n">colored_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">colored_mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mask</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span> <span class="o">*</span> <span class="n">color</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                
+                <span class="c1"># Blend the mask with the original image</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span>
+                <span class="n">annotated_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">addWeighted</span><span class="p">(</span>
+                    <span class="n">annotated_image</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">colored_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">alpha</span><span class="p">,</span>
+                    <span class="mi">0</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Draw contours around the mask</span>
+                <span class="n">contours</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span>
+                    <span class="n">mask</span><span class="p">,</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span>
+                <span class="p">)</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">annotated_image</span><span class="p">,</span> <span class="n">contours</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+                <span class="c1"># Add a label to the object</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dominant_color</span><span class="si">}</span><span class="s2">&quot;</span>
+                
+                <span class="c1"># Get the size of the text to determine rectangle size</span>
+                <span class="p">(</span><span class="n">text_width</span><span class="p">,</span> <span class="n">text_height</span><span class="p">),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span>
+                    <span class="n">label</span><span class="p">,</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+                    <span class="mf">0.5</span><span class="p">,</span>
+                    <span class="mi">2</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Calculate rectangle coordinates</span>
+                <span class="n">rect_x</span> <span class="o">=</span> <span class="n">xmin</span>
+                <span class="n">rect_y</span> <span class="o">=</span> <span class="n">ymin</span> <span class="o">-</span> <span class="n">text_height</span> <span class="o">-</span> <span class="mi">15</span>
+                <span class="n">rect_w</span> <span class="o">=</span> <span class="n">text_width</span> <span class="o">+</span> <span class="mi">10</span>
+                <span class="n">rect_h</span> <span class="o">=</span> <span class="n">text_height</span> <span class="o">+</span> <span class="mi">10</span>
+                
+                <span class="c1"># Create overlay for text background</span>
+                <span class="n">overlay</span> <span class="o">=</span> <span class="n">annotated_image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+                    <span class="n">overlay</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">rect_x</span> <span class="o">+</span> <span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">+</span> <span class="n">rect_h</span><span class="p">),</span>
+                    <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>  <span class="c1"># Dark gray</span>
+                    <span class="o">-</span><span class="mi">1</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Blend overlay</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.8</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">addWeighted</span><span class="p">(</span><span class="n">overlay</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">annotated_image</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">annotated_image</span><span class="p">)</span>
+                
+                <span class="c1"># Add text</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span>
+                    <span class="n">annotated_image</span><span class="p">,</span>
+                    <span class="n">label</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">rect_x</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">+</span> <span class="n">text_height</span> <span class="o">+</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+                    <span class="mf">0.5</span><span class="p">,</span>
+                    <span class="n">color</span><span class="p">,</span>
+                    <span class="mi">2</span>
+                <span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">annotated_image</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

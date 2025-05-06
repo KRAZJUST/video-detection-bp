@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.detectors.byte_track_tracker &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.detectors.byte_track_tracker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.detectors.byte_track_tracker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: byte_track_tracker.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># IMPORTANT: This module uses ByteTrack algorithm implemented in the Supervision library.</span>
+<span class="c1">#   ByteTrack paper: Zhang, Yifu, et al. &quot;ByteTrack: Multi-Object Tracking by Associating Every Detection Box.&quot;</span>
+<span class="c1">#   ECCV 2022. https://arxiv.org/abs/2110.06864</span>
+<span class="c1">#   Supervision library: https://github.com/roboflow/supervision</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module implements the ByteTrackTracker class, which uses the ByteTrack</span>
+<span class="c1"># algorithm for multi-object tracking. The class is designed to work with</span>
+<span class="c1"># YOLO detection results and inherits from the BaseTracker class.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">supervision</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.color_filter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_tracker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTracker</span>
+
+
+<div class="viewcode-block" id="ByteTrackTracker">
+<a class="viewcode-back" href="../../../project.detectors.html#project.detectors.byte_track_tracker.ByteTrackTracker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ByteTrackTracker</span><span class="p">(</span><span class="n">BaseTracker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class inherits from the BaseTracker class and implements the ByteTrack</span>
+<span class="sd">    algorithm for multi-object tracking. It uses the Supervision library&#39;s</span>
+<span class="sd">    This class is designed to work with YOLO detection results and provides</span>
+<span class="sd">    functionality for tracking objects across frames.</span>
+
+<span class="sd">    ByteTrack paper: Zhang, Yifu, et al. &quot;ByteTrack: Multi-Object Tracking by Associating Every Detection Box.&quot; </span>
+<span class="sd">    ECCV 2022. https://arxiv.org/abs/2110.06864</span>
+
+<span class="sd">    Supervision implementation: https://github.com/roboflow/supervision</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                 <span class="n">min_frames_for_averaging</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+                 <span class="n">frame_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">640</span><span class="p">,</span> 
+                 <span class="n">frame_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">360</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the ByteTrackTracker.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir: Directory to save output files</span>
+<span class="sd">            min_frames_for_averaging: Minimum number of frames for color averaging</span>
+<span class="sd">            frame_width: Width of the video frame</span>
+<span class="sd">            frame_height: Height of the video frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">min_frames_for_averaging</span><span class="p">,</span> <span class="n">frame_width</span><span class="p">,</span> <span class="n">frame_height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="n">sv</span><span class="o">.</span><span class="n">ByteTrack</span><span class="p">(</span><span class="n">track_activation_threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_filter</span> <span class="o">=</span> <span class="n">ColorFilter</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ByteTrackTracker.update_tracks">
+<a class="viewcode-back" href="../../../project.detectors.html#project.detectors.byte_track_tracker.ByteTrackTracker.update_tracks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_tracks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frame_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Passes the YOLO results to the ByteTrack tracker and updates the tracks.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results: YOLO detection results</span>
+<span class="sd">            frame: The current frame being processed</span>
+<span class="sd">            frame_number: The current frame number</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Dict[str, Any]]: A list of dictionaries containing detection results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Convert YOLO results to Detections format</span>
+        <span class="n">sv_detections</span> <span class="o">=</span> <span class="n">sv</span><span class="o">.</span><span class="n">Detections</span><span class="o">.</span><span class="n">from_ultralytics</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        
+        <span class="c1"># Update ByteTrack with detections</span>
+        <span class="n">tracked_detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">update_with_detections</span><span class="p">(</span><span class="n">sv_detections</span><span class="p">)</span>
+        
+        <span class="c1"># Cleanup old tracks that haven&#39;t been seen for a while to save memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_old_tracks</span><span class="p">(</span><span class="n">frame_number</span><span class="p">)</span>
+        
+        <span class="c1"># Parse detections</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tracked_detections</span><span class="o">.</span><span class="n">tracker_id</span><span class="p">)):</span>
+            <span class="n">track_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tracked_detections</span><span class="o">.</span><span class="n">tracker_id</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">tracked_detections</span><span class="o">.</span><span class="n">xyxy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            
+            <span class="c1"># Calculate direction</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_track_history</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">frame_number</span><span class="p">)</span>
+            <span class="c1"># Process colors with lifetime history and averaging</span>
+            <span class="n">dominant_color</span><span class="p">,</span> <span class="n">color_percentages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_detection_colors</span><span class="p">(</span>
+                <span class="n">track_id</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">frame_number</span>
+            <span class="p">)</span>
+            
+            <span class="c1"># Create detection dictionary</span>
+            <span class="n">detection_info</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;track_id&#39;</span><span class="p">:</span> <span class="n">track_id</span><span class="p">,</span>
+                <span class="s1">&#39;bbox&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">bbox</span><span class="p">],</span>
+                <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">tracked_detections</span><span class="o">.</span><span class="n">confidence</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                <span class="s1">&#39;class_id&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">tracked_detections</span><span class="o">.</span><span class="n">class_id</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                <span class="s1">&#39;class_name&#39;</span><span class="p">:</span> <span class="n">tracked_detections</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;class_name&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="n">direction</span><span class="p">,</span>
+                <span class="s1">&#39;dominant_color&#39;</span><span class="p">:</span> <span class="n">dominant_color</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">detections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">detection_info</span><span class="p">)</span>
+
+        <span class="c1"># Save annotated frame</span>
+        <span class="c1">#self.save_annotated_frame(frame, detections, frame_number)</span>
+        
+        <span class="k">return</span> <span class="n">detections</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

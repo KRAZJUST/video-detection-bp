@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.interface.video_info_utils &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.interface.video_info_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.interface.video_info_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: video_info_utils.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># IMPORTANT: This module uses open-source FFprobe program that is a part of</span>
+<span class="c1">#   FFmpeg project. FFmpeg is a complete, cross-platform solution to record,</span>
+<span class="c1">#   convert and stream audio and video. FFprobe is a tool to analyze multimedia</span>
+<span class="c1">#   files and streams.</span>
+<span class="c1">#   Available at: https://ffmpeg.org/</span>
+<span class="c1">#   FFmpeg documentation: https://ffmpeg.org/documentation.html</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module provides utility functions for extracting video metadata using</span>
+<span class="c1"># FFmpeg and FFprobe. It includes functions to get video duration, frame rate,</span>
+<span class="c1"># frame count, resolution, codec, bitrate, and file size. The metadata is</span>
+<span class="c1"># then returned as a structured object to be used in the application.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<div class="viewcode-block" id="VideoMetadata">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.video_info_utils.VideoMetadata">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VideoMetadata</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data class to hold video metadata information.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        duration (float): Duration of the video in seconds</span>
+<span class="sd">        fps (float): Frames per second</span>
+<span class="sd">        frame_count (int): Total number of frames</span>
+<span class="sd">        width (int): Width of the video in pixels</span>
+<span class="sd">        height (int): Height of the video in pixels</span>
+<span class="sd">        codec (str): Video codec used</span>
+<span class="sd">        bitrate (str): Bitrate of the video</span>
+<span class="sd">        size (str): Size of the video file in human-readable format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">frame_count</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">bitrate</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="VideoInfoUtils">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.video_info_utils.VideoInfoUtils">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VideoInfoUtils</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_ffprobe</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run ffprobe command to get video information in JSON format.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            video_path (str): Path to the video file</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[Dict]: FFprobe output as dictionary if successful, None if failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;ffprobe&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;quiet&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-print_format&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-show_format&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-show_streams&#39;</span><span class="p">,</span>
+                <span class="n">video_path</span>
+            <span class="p">]</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FFprobe error: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+                
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running ffprobe: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_frame_count</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get exact frame count using ffprobe frame counting.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            video_path (str): Path to the video file</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[int]: Frame count if successful, None if failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;ffprobe&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-select_streams&#39;</span><span class="p">,</span> <span class="s1">&#39;v:0&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-count_packets&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-show_entries&#39;</span><span class="p">,</span> <span class="s1">&#39;stream=nb_read_packets&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-of&#39;</span><span class="p">,</span> <span class="s1">&#39;csv=p=0&#39;</span><span class="p">,</span>
+                <span class="n">video_path</span>
+            <span class="p">]</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            
+            <span class="k">return</span> <span class="kc">None</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error counting frames: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="VideoInfoUtils.get_video_info">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.video_info_utils.VideoInfoUtils.get_video_info">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_video_info</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VideoMetadata</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract comprehensive information from a video file using FFmpeg.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            video_path (str): Path to the video file</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[VideoMetadata]: Video metadata if successful, None if failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">probe_data</span> <span class="o">=</span> <span class="n">VideoInfoUtils</span><span class="o">.</span><span class="n">_run_ffprobe</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">probe_data</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+                
+            <span class="c1"># Find the video stream</span>
+            <span class="n">video_stream</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">stream</span> <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">probe_data</span><span class="p">[</span><span class="s1">&#39;streams&#39;</span><span class="p">]</span> 
+                 <span class="k">if</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;codec_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;video&#39;</span><span class="p">),</span>
+                <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">video_stream</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">video_stream</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+                
+            <span class="c1"># Parse frame rate from the ratio format (xxxxx/yyyyy)</span>
+            <span class="n">fps_str</span> <span class="o">=</span> <span class="n">video_stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;avg_frame_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;0/1&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fps_str</span><span class="p">)</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+            <span class="k">if</span> <span class="n">fps_str</span> <span class="ow">and</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">fps_str</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">num</span><span class="p">,</span> <span class="n">den</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">fps_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
+                    <span class="n">fps</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">num</span> <span class="o">/</span> <span class="n">den</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">den</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;unknown&#39;</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">ZeroDivisionError</span><span class="p">):</span>
+                    <span class="n">fps</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+            <span class="k">elif</span> <span class="n">fps_str</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fps</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fps_str</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">fps</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+                
+            <span class="c1"># Get duration from format section if available, otherwise from stream</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">probe_data</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">,</span> 
+                           <span class="n">video_stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+                
+            <span class="c1"># Get frame count or calculate it</span>
+            <span class="n">frame_count</span> <span class="o">=</span> <span class="n">VideoInfoUtils</span><span class="o">.</span><span class="n">_get_frame_count</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">frame_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">frame_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span>
+                
+            <span class="c1"># Get file size in human-readable format</span>
+            <span class="n">size_bytes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">probe_data</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">VideoInfoUtils</span><span class="o">.</span><span class="n">_format_size</span><span class="p">(</span><span class="n">size_bytes</span><span class="p">)</span>
+                
+            <span class="k">return</span> <span class="n">VideoMetadata</span><span class="p">(</span>
+                <span class="n">duration</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">duration</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">fps</span><span class="o">=</span> <span class="s1">&#39;unknown&#39;</span> <span class="k">if</span> <span class="n">fps</span> <span class="o">==</span> <span class="s1">&#39;unknown&#39;</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fps</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">frame_count</span><span class="o">=</span><span class="n">frame_count</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">video_stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">video_stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="n">codec</span><span class="o">=</span><span class="n">video_stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;codec_name&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">),</span>
+                <span class="n">bitrate</span><span class="o">=</span><span class="n">probe_data</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bit_rate&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">),</span>
+                <span class="n">size</span><span class="o">=</span><span class="n">size</span>
+            <span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error getting video info: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_size</span><span class="p">(</span><span class="n">size_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert bytes to human readable format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size_bytes (int): Size in bytes</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Human readable size</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;KB&#39;</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="s1">&#39;GB&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">size_bytes</span> <span class="o">&lt;</span> <span class="mi">1024</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">size_bytes</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">size_bytes</span> <span class="o">/=</span> <span class="mi">1024</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">size_bytes</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> TB&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

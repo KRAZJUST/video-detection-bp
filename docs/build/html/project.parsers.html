@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.parsers package &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="project.processors package" href="project.processors.html" />
+    <link rel="prev" title="project.interface package" href="project.interface.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">project</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="project.html">project package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="project.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="project.database.html">project.database package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html">project.detectors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html">project.interface package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">project.parsers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.processors.html">project.processors package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project.main">project.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">project</a></li>
+          <li class="breadcrumb-item"><a href="project.html">project package</a></li>
+      <li class="breadcrumb-item active">project.parsers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project.parsers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-parsers-package">
+<h1>project.parsers package<a class="headerlink" href="#project-parsers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-project.parsers.detection_parser">
+<span id="project-parsers-detection-parser-module"></span><h2>project.parsers.detection_parser module<a class="headerlink" href="#module-project.parsers.detection_parser" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.parsers.detection_parser.</span></span><span class="sig-name descname"><span class="pre">DetectionParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_video</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_segmentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">640</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feedback_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.annotate_image">
+<span class="sig-name descname"><span class="pre">annotate_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.annotate_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.annotate_image" title="Link to this definition"></a></dt>
+<dd><p>Annotate the image with bounding boxes and labels for detections.
+The frame is saved only once even if it has multiple detections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_file_path</strong> (<em>str</em>) – Path to the frame image file.</p></li>
+<li><p><strong>detections</strong> (<em>list</em>) – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+<li><p><strong>frame_num</strong> (<em>int</em>) – Frame number for naming the output file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.apply_spatial_filters">
+<span class="sig-name descname"><span class="pre">apply_spatial_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.apply_spatial_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.apply_spatial_filters" title="Link to this definition"></a></dt>
+<dd><p>Apply spatial filters (interactions and quadrants) to frames.
+First, filter frames based on quadrants if specified.
+Then, filter frames based on interactions if specified by checking pairs of objects that should interact.
+Considers both object class and color when specified in queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frames</strong> (<em>dict</em>) – Frames and their detections.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filtered frames based on spatial filters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.calculate_interaction">
+<span class="sig-name descname"><span class="pre">calculate_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.calculate_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.calculate_interaction" title="Link to this definition"></a></dt>
+<dd><p>Calculate the interaction between two bounding boxes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bbox1</strong> (<em>tuple</em>) – Bounding box coordinates (x1, y1, x2, y2)</p></li>
+<li><p><strong>bbox2</strong> (<em>tuple</em>) – Bounding box coordinates (x1, y1, x2, y2)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>‘overlapping’ if the bounding boxes overlap</p></li>
+<li><p>’touching’ if the bounding boxes are touching</p></li>
+<li><p>’near’ if the bounding boxes are near each other</p></li>
+<li><p>’far’ if the bounding boxes are far apart</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>TODO: Implement the interaction calculation based on the bounding box coordinates, make sure to consider the distance between the centers of the bounding boxes</dt><dd><p>and make the thresholds configurable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.check_detection_condition">
+<span class="sig-name descname"><span class="pre">check_detection_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.check_detection_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.check_detection_condition" title="Link to this definition"></a></dt>
+<dd><p>Helper function to check if a detection meets a specific condition.
+:type detection: 
+:param detection: Detection dictionary (e.g., {‘class_name’: ‘car’, ‘dominant_color’: ‘yellow’}).
+:type condition: 
+:param condition: Condition dictionary (e.g., {‘object’: ‘car’, ‘color’: ‘yellow’}).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.filter_detections_in_frames">
+<span class="sig-name descname"><span class="pre">filter_detections_in_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_operator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.filter_detections_in_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.filter_detections_in_frames" title="Link to this definition"></a></dt>
+<dd><p>Filter frames based on detection logic (and/or).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> – Dictionary of frames and their detections.</p></li>
+<li><p><strong>logic_operator</strong> – ‘and’ or ‘or’ for filtering logic.</p></li>
+<li><p><strong>expected_conditions</strong> – List of conditions to match (e.g., [{‘object’: ‘car’, ‘color’: ‘red’}]).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of filtered frames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.get_color_for_object">
+<span class="sig-name descname"><span class="pre">get_color_for_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.get_color_for_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.get_color_for_object" title="Link to this definition"></a></dt>
+<dd><p>Helper method to get color for a specific object from query parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>str</em>) – Object class name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Color associated with the object, or None if not found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.get_frame_quadrant">
+<span class="sig-name descname"><span class="pre">get_frame_quadrant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.get_frame_quadrant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.get_frame_quadrant" title="Link to this definition"></a></dt>
+<dd><p>Determine which quadrant(s) the object is in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bbox</strong> (<em>tuple</em>) – Bounding box coordinates (x1, y1, x2, y2)</p></li>
+<li><p><strong>frame_size</strong> (<em>tuple</em>) – Frame size (width, height)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quadrant (top-left, top-right, bottom-left, bottom-right)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.parse_detections">
+<span class="sig-name descname"><span class="pre">parse_detections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.parse_detections" title="Link to this definition"></a></dt>
+<dd><p>Parse detections in the database and filter based on the query.
+Annotate and save frames without duplicating saves for multiple detections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.detection_parser.DetectionParser.save_frame">
+<span class="sig-name descname"><span class="pre">save_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_file_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/detection_parser.html#DetectionParser.save_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.detection_parser.DetectionParser.save_frame" title="Link to this definition"></a></dt>
+<dd><p>Save annotated frame with detections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_num</strong> (<em>int</em>) – Frame number.</p></li>
+<li><p><strong>detections</strong> (<em>list</em>) – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+<li><p><strong>frame_file_dir</strong> (<em>str</em>) – Directory where the frame files are stored.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.parsers.query_parser">
+<span id="project-parsers-query-parser-module"></span><h2>project.parsers.query_parser module<a class="headerlink" href="#module-project.parsers.query_parser" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.parsers.query_parser.QueryParser">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.parsers.query_parser.</span></span><span class="sig-name descname"><span class="pre">QueryParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/query_parser.html#QueryParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.query_parser.QueryParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Module using Facebook’s BART model for zero-shot text classification
+accessed through Huggingface Transformers.
+This class is designed to parse user queries into structured categories
+such as colors, objects, directions, quadrants, and interactions.</p>
+<p>Model: facebook/bart-large-mnli
+Model Type: BART
+Paper: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training
+for Natural Language Generation, Translation, and Comprehension. ACL 2020.
+<a class="reference external" href="https://arxiv.org/abs/1910.13461">https://arxiv.org/abs/1910.13461</a></p>
+<p>Repository: <a class="reference external" href="https://github.com/facebookresearch/fairseq/tree/main/examples/bart">https://github.com/facebookresearch/fairseq/tree/main/examples/bart</a>
+Huggingface model: <a class="reference external" href="https://huggingface.co/facebook/bart-large-mnli">https://huggingface.co/facebook/bart-large-mnli</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.query_parser.QueryParser.extract_conditions">
+<span class="sig-name descname"><span class="pre">extract_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/query_parser.html#QueryParser.extract_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.query_parser.QueryParser.extract_conditions" title="Link to this definition"></a></dt>
+<dd><p>Extract conditions from the BART model result.</p>
+<p>This function processes the result of the BART model and categorizes
+the labels into different categories such as colors, objects, directions,
+quadrants, interactions, and logic operators. It also handles the
+categorization of unknown labels. The function returns a list of
+structured conditions based on the parsed query.
+The function uses a threshold to filter out low-confidence predictions
+and categorizes the labels based on their type and score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> (<em>dict</em>) – The result from the BART model containing labels and scores.</p></li>
+<li><p><strong>query</strong> (<em>str</em>) – The original query string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of structured conditions extracted from the result.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.query_parser.QueryParser.get_parsed_queries">
+<span class="sig-name descname"><span class="pre">get_parsed_queries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/query_parser.html#QueryParser.get_parsed_queries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.query_parser.QueryParser.get_parsed_queries" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed query structure.
+This function also prints the unused words from the original query
+that were not used in the parsing process. The unused words are
+determined by comparing the original query words with the used words
+identified during the parsing. The unused words are printed in their
+original order as they appeared in the query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of structured conditions extracted from the query.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.query_parser.QueryParser.parse_with_bart">
+<span class="sig-name descname"><span class="pre">parse_with_bart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/query_parser.html#QueryParser.parse_with_bart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.query_parser.QueryParser.parse_with_bart" title="Link to this definition"></a></dt>
+<dd><p>Parse the query using BART model for zero-shot classification.
+This function takes a query string and classifies it into various categories
+such as colors, objects, directions, quadrants, and interactions.
+It returns a structured format of the parsed query.</p>
+<p>Using the huggingface pipeline for zero-shot classification with BART model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>str</em>) – The input query string to be parsed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of structured conditions extracted from the query.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.parsers.yolo_segmenter">
+<span id="project-parsers-yolo-segmenter-module"></span><h2>project.parsers.yolo_segmenter module<a class="headerlink" href="#module-project.parsers.yolo_segmenter" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.parsers.yolo_segmenter.YOLOSegmenter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.parsers.yolo_segmenter.</span></span><span class="sig-name descname"><span class="pre">YOLOSegmenter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yolo11n-seg.pt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/yolo_segmenter.html#YOLOSegmenter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.yolo_segmenter.YOLOSegmenter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Module using the YOLOv11-seg model for object instance segmentation.
+The model’s weights are loaded from a specified file path.</p>
+<p>The segmentation architecture builds on YOLOv11’s detection capabilities with an additional
+segmentation head that produces high-quality instance masks.</p>
+<p>Original YOLO architecture by Joseph Redmon et al.
+Model: yolov11n-seg.pt (YOLOv11 with segmentation head)
+Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11-seg. <a class="reference external" href="https://docs.ultralytics.com/models/yolo11/">https://docs.ultralytics.com/models/yolo11/</a>
+Repository: <a class="reference external" href="https://github.com/ultralytics/ultralytics">https://github.com/ultralytics/ultralytics</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.yolo_segmenter.YOLOSegmenter.annotate_image">
+<span class="sig-name descname"><span class="pre">annotate_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/yolo_segmenter.html#YOLOSegmenter.annotate_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.yolo_segmenter.YOLOSegmenter.annotate_image" title="Link to this definition"></a></dt>
+<dd><p>Annotate image with segmentation masks and labels based on existing detections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – BGR image array</p></li>
+<li><p><strong>detections</strong> – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Annotated image with masks and labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.parsers.yolo_segmenter.YOLOSegmenter.segment_region">
+<span class="sig-name descname"><span class="pre">segment_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/parsers/yolo_segmenter.html#YOLOSegmenter.segment_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.parsers.yolo_segmenter.YOLOSegmenter.segment_region" title="Link to this definition"></a></dt>
+<dd><p>Apply YOLOv11-seg only to a specific region defined by the bounding box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – RGB image array</p></li>
+<li><p><strong>bbox</strong> – Bounding box coordinates [x1, y1, x2, y2]</p></li>
+<li><p><strong>padding</strong> – Extra padding around the bbox to ensure complete object capture</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Binary mask for the object in the bounding box</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.parsers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-project.parsers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="project.interface.html" class="btn btn-neutral float-left" title="project.interface package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project.processors.html" class="btn btn-neutral float-right" title="project.processors package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

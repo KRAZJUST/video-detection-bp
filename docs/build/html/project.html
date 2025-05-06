@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project package &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="project.database package" href="project.database.html" />
+    <link rel="prev" title="project" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">project</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">project package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html">project.database package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html">project.detectors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html">project.interface package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html">project.parsers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.processors.html">project.processors package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-project.main">project.main module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#project.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-project">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">project</a></li>
+      <li class="breadcrumb-item active">project package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-package">
+<h1>project package<a class="headerlink" href="#project-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project.database.html">project.database package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.database.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.database.html#module-project.database.sqlite_database">project.database.sqlite_database module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database"><code class="docutils literal notranslate"><span class="pre">Database</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.add_video"><code class="docutils literal notranslate"><span class="pre">Database.add_video()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.bulk_insert_detections"><code class="docutils literal notranslate"><span class="pre">Database.bulk_insert_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.bulk_insert_refined_detections"><code class="docutils literal notranslate"><span class="pre">Database.bulk_insert_refined_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.close"><code class="docutils literal notranslate"><span class="pre">Database.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.connect"><code class="docutils literal notranslate"><span class="pre">Database.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.create_tables"><code class="docutils literal notranslate"><span class="pre">Database.create_tables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.drop_tables"><code class="docutils literal notranslate"><span class="pre">Database.drop_tables()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_bytetrack_frame_id"><code class="docutils literal notranslate"><span class="pre">Database.get_bytetrack_frame_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_bytetrack_frames_with_detections"><code class="docutils literal notranslate"><span class="pre">Database.get_bytetrack_frames_with_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_frame_timestamp"><code class="docutils literal notranslate"><span class="pre">Database.get_frame_timestamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_frames_with_yolo_detections"><code class="docutils literal notranslate"><span class="pre">Database.get_frames_with_yolo_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_number_of_frames_bytetrack"><code class="docutils literal notranslate"><span class="pre">Database.get_number_of_frames_bytetrack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_number_of_frames_yolo"><code class="docutils literal notranslate"><span class="pre">Database.get_number_of_frames_yolo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_video_id"><code class="docutils literal notranslate"><span class="pre">Database.get_video_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_videos"><code class="docutils literal notranslate"><span class="pre">Database.get_videos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_yolo_frame_id"><code class="docutils literal notranslate"><span class="pre">Database.get_yolo_frame_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.get_yolo_frames_with_detections"><code class="docutils literal notranslate"><span class="pre">Database.get_yolo_frames_with_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.insert_bytetrack_frame"><code class="docutils literal notranslate"><span class="pre">Database.insert_bytetrack_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.insert_yolo_frame"><code class="docutils literal notranslate"><span class="pre">Database.insert_yolo_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.reset_database"><code class="docutils literal notranslate"><span class="pre">Database.reset_database()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.reset_video_bytetrack"><code class="docutils literal notranslate"><span class="pre">Database.reset_video_bytetrack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.sqlite_database.Database.reset_video_yolo"><code class="docutils literal notranslate"><span class="pre">Database.reset_video_yolo()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.database.html#module-project.database.vector_database">project.database.vector_database module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.database.html#project.database.vector_database.VectorDatabaseManager"><code class="docutils literal notranslate"><span class="pre">VectorDatabaseManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.vector_database.VectorDatabaseManager.add_batch_embeddings"><code class="docutils literal notranslate"><span class="pre">VectorDatabaseManager.add_batch_embeddings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.vector_database.VectorDatabaseManager.add_single_frame_embedding"><code class="docutils literal notranslate"><span class="pre">VectorDatabaseManager.add_single_frame_embedding()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.vector_database.VectorDatabaseManager.clear_collection"><code class="docutils literal notranslate"><span class="pre">VectorDatabaseManager.clear_collection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.database.html#project.database.vector_database.VectorDatabaseManager.query_batch_embeddings"><code class="docutils literal notranslate"><span class="pre">VectorDatabaseManager.query_batch_embeddings()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.database.html#module-project.database">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.detectors.html">project.detectors package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors.base_tracker">project.detectors.base_tracker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker"><code class="docutils literal notranslate"><span class="pre">BaseTracker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.angle_to_direction"><code class="docutils literal notranslate"><span class="pre">BaseTracker.angle_to_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.annotate_frame"><code class="docutils literal notranslate"><span class="pre">BaseTracker.annotate_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.calculate_direction"><code class="docutils literal notranslate"><span class="pre">BaseTracker.calculate_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.cleanup_old_tracks"><code class="docutils literal notranslate"><span class="pre">BaseTracker.cleanup_old_tracks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.get_centroid"><code class="docutils literal notranslate"><span class="pre">BaseTracker.get_centroid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.get_dominant_color"><code class="docutils literal notranslate"><span class="pre">BaseTracker.get_dominant_color()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.get_exit_direction"><code class="docutils literal notranslate"><span class="pre">BaseTracker.get_exit_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.initialize_output_folders"><code class="docutils literal notranslate"><span class="pre">BaseTracker.initialize_output_folders()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.is_leaving_frame"><code class="docutils literal notranslate"><span class="pre">BaseTracker.is_leaving_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.process_detection_colors"><code class="docutils literal notranslate"><span class="pre">BaseTracker.process_detection_colors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.save_annotated_frame"><code class="docutils literal notranslate"><span class="pre">BaseTracker.save_annotated_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.update_color_history"><code class="docutils literal notranslate"><span class="pre">BaseTracker.update_color_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.update_track_history"><code class="docutils literal notranslate"><span class="pre">BaseTracker.update_track_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.base_tracker.BaseTracker.update_tracks"><code class="docutils literal notranslate"><span class="pre">BaseTracker.update_tracks()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors.byte_track_tracker">project.detectors.byte_track_tracker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.detectors.html#project.detectors.byte_track_tracker.ByteTrackTracker"><code class="docutils literal notranslate"><span class="pre">ByteTrackTracker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.byte_track_tracker.ByteTrackTracker.update_tracks"><code class="docutils literal notranslate"><span class="pre">ByteTrackTracker.update_tracks()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors.color_filter">project.detectors.color_filter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter"><code class="docutils literal notranslate"><span class="pre">ColorFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter.analyze_object_color"><code class="docutils literal notranslate"><span class="pre">ColorFilter.analyze_object_color()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter.calculate_color_presence"><code class="docutils literal notranslate"><span class="pre">ColorFilter.calculate_color_presence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter.create_circular_mask"><code class="docutils literal notranslate"><span class="pre">ColorFilter.create_circular_mask()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter.create_elliptical_mask"><code class="docutils literal notranslate"><span class="pre">ColorFilter.create_elliptical_mask()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.color_filter.ColorFilter.detect_dominant_color"><code class="docutils literal notranslate"><span class="pre">ColorFilter.detect_dominant_color()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors.detection">project.detectors.detection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.detectors.html#project.detectors.detection.Detection"><code class="docutils literal notranslate"><span class="pre">Detection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.detection.Detection.get"><code class="docutils literal notranslate"><span class="pre">Detection.get()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors.yolo_detector">project.detectors.yolo_detector module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.detectors.html#project.detectors.yolo_detector.YOLODetector"><code class="docutils literal notranslate"><span class="pre">YOLODetector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.detectors.html#project.detectors.yolo_detector.YOLODetector.detect_objects"><code class="docutils literal notranslate"><span class="pre">YOLODetector.detect_objects()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.detectors.html#module-project.detectors">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.interface.html">project.interface package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.advanced_settings">project.interface.advanced_settings module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.advanced_settings.AdvancedSettings"><code class="docutils literal notranslate"><span class="pre">AdvancedSettings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#project-interface-app-module">project.interface.app module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.area_selector">project.interface.area_selector module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector"><code class="docutils literal notranslate"><span class="pre">AreaSelector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.area_selected"><code class="docutils literal notranslate"><span class="pre">AreaSelector.area_selected</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.confirm_selection"><code class="docutils literal notranslate"><span class="pre">AreaSelector.confirm_selection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.mouseMoveEvent"><code class="docutils literal notranslate"><span class="pre">AreaSelector.mouseMoveEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.mousePressEvent"><code class="docutils literal notranslate"><span class="pre">AreaSelector.mousePressEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.mouseReleaseEvent"><code class="docutils literal notranslate"><span class="pre">AreaSelector.mouseReleaseEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.paintEvent"><code class="docutils literal notranslate"><span class="pre">AreaSelector.paintEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.set_pixmap"><code class="docutils literal notranslate"><span class="pre">AreaSelector.set_pixmap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.area_selector.AreaSelector.update_selection"><code class="docutils literal notranslate"><span class="pre">AreaSelector.update_selection()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.frame_slideshow">project.interface.frame_slideshow module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.export_current_frame"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.export_current_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.find_frames"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.find_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.find_starting_index"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.find_starting_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.format_timestamp"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.format_timestamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.get_frame_timestamp"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.get_frame_timestamp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.next_frame"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.next_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.open_in_system_player"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.open_in_system_player()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.resizeEvent"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.resizeEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.show_frame_at_index"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.show_frame_at_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.show_frame_at_visible_index"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.show_frame_at_visible_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.toggle_slideshow"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.toggle_slideshow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_context_frames"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.update_context_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_forward_frames"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.update_forward_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_speed"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.update_speed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_visible_frames"><code class="docutils literal notranslate"><span class="pre">FrameSlideshow.update_visible_frames()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.processing_settings">project.interface.processing_settings module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.processing_settings.ProcessingSettings"><code class="docutils literal notranslate"><span class="pre">ProcessingSettings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#project-interface-query-worker-module">project.interface.query_worker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.video_info_utils">project.interface.video_info_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoInfoUtils"><code class="docutils literal notranslate"><span class="pre">VideoInfoUtils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoInfoUtils.get_video_info"><code class="docutils literal notranslate"><span class="pre">VideoInfoUtils.get_video_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata"><code class="docutils literal notranslate"><span class="pre">VideoMetadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.fps"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.fps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.frame_count"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.frame_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.width"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.height"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.codec"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.codec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.bitrate"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.bitrate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.size"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id0"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.bitrate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id3"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.codec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_utils.VideoMetadata.duration"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.duration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id4"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.fps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id5"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.frame_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id6"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id7"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#id8"><code class="docutils literal notranslate"><span class="pre">VideoMetadata.width</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.video_info_worker">project.interface.video_info_worker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker"><code class="docutils literal notranslate"><span class="pre">VideoInfoWorker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.error"><code class="docutils literal notranslate"><span class="pre">VideoInfoWorker.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.finished"><code class="docutils literal notranslate"><span class="pre">VideoInfoWorker.finished</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.run"><code class="docutils literal notranslate"><span class="pre">VideoInfoWorker.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface.video_processing_worker">project.interface.video_processing_worker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker"><code class="docutils literal notranslate"><span class="pre">VideoProcessingWorker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.error"><code class="docutils literal notranslate"><span class="pre">VideoProcessingWorker.error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.finished"><code class="docutils literal notranslate"><span class="pre">VideoProcessingWorker.finished</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.progress"><code class="docutils literal notranslate"><span class="pre">VideoProcessingWorker.progress</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.run"><code class="docutils literal notranslate"><span class="pre">VideoProcessingWorker.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.interface.html#module-project.interface">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.parsers.html">project.parsers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.parsers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.parsers.html#module-project.parsers.detection_parser">project.parsers.detection_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser"><code class="docutils literal notranslate"><span class="pre">DetectionParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.annotate_image"><code class="docutils literal notranslate"><span class="pre">DetectionParser.annotate_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.apply_spatial_filters"><code class="docutils literal notranslate"><span class="pre">DetectionParser.apply_spatial_filters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.calculate_interaction"><code class="docutils literal notranslate"><span class="pre">DetectionParser.calculate_interaction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.check_detection_condition"><code class="docutils literal notranslate"><span class="pre">DetectionParser.check_detection_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.filter_detections_in_frames"><code class="docutils literal notranslate"><span class="pre">DetectionParser.filter_detections_in_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.get_color_for_object"><code class="docutils literal notranslate"><span class="pre">DetectionParser.get_color_for_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.get_frame_quadrant"><code class="docutils literal notranslate"><span class="pre">DetectionParser.get_frame_quadrant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.parse_detections"><code class="docutils literal notranslate"><span class="pre">DetectionParser.parse_detections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.detection_parser.DetectionParser.save_frame"><code class="docutils literal notranslate"><span class="pre">DetectionParser.save_frame()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.parsers.html#module-project.parsers.query_parser">project.parsers.query_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.parsers.html#project.parsers.query_parser.QueryParser"><code class="docutils literal notranslate"><span class="pre">QueryParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.query_parser.QueryParser.extract_conditions"><code class="docutils literal notranslate"><span class="pre">QueryParser.extract_conditions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.query_parser.QueryParser.get_parsed_queries"><code class="docutils literal notranslate"><span class="pre">QueryParser.get_parsed_queries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.query_parser.QueryParser.parse_with_bart"><code class="docutils literal notranslate"><span class="pre">QueryParser.parse_with_bart()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.parsers.html#module-project.parsers.yolo_segmenter">project.parsers.yolo_segmenter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter"><code class="docutils literal notranslate"><span class="pre">YOLOSegmenter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.annotate_image"><code class="docutils literal notranslate"><span class="pre">YOLOSegmenter.annotate_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.segment_region"><code class="docutils literal notranslate"><span class="pre">YOLOSegmenter.segment_region()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project.parsers.html#module-project.parsers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.processors.html">project.processors package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.processors.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.processors.html#project-processors-video-processor-module">project.processors.video_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.processors.html#module-project.processors">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-project.main">
+<span id="project-main-module"></span><h2>project.main module<a class="headerlink" href="#module-project.main" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="project.main.main">
+<span class="sig-prename descclassname"><span class="pre">project.main.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/main.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.main.main" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-project">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-project" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project.database.html" class="btn btn-neutral float-right" title="project.database package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

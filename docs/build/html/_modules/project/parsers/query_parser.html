@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.parsers.query_parser &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.parsers.query_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.parsers.query_parser</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: query_parser.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># IMPORTANT: This module uses Facebook&#39;s BART model for zero-shot text classification</span>
+<span class="c1">#   accessed through Huggingface Transformers.</span>
+<span class="c1">#   Citation: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training</span>
+<span class="c1">#   for Natural Language Generation, Translation, and Comprehension. ACL 2020.</span>
+<span class="c1">#       https://arxiv.org/abs/1910.13461</span>
+<span class="c1">#   Model: facebook/bart-large-mnli (https://huggingface.co/facebook/bart-large-mnli)</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module provides a class for parsing user queries into structured</span>
+<span class="c1"># categories such as colors, objects, directions, quadrants, and interactions.</span>
+<span class="c1"># And then uses these categories to filter the results from the database.</span>
+<span class="c1"># The parsing is done using Facebook&#39;s BART model for zero-shot text classification</span>
+<span class="c1"># accessed through Huggingface Transformers.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">constants.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">COLORS</span><span class="p">,</span> <span class="n">OBJECTS</span><span class="p">,</span> <span class="n">DIRECTIONS</span><span class="p">,</span> <span class="n">QUADRANTS</span><span class="p">,</span> <span class="n">INTERACTIONS</span>
+
+<div class="viewcode-block" id="QueryParser">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.query_parser.QueryParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QueryParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Module using Facebook&#39;s BART model for zero-shot text classification</span>
+<span class="sd">    accessed through Huggingface Transformers.</span>
+<span class="sd">    This class is designed to parse user queries into structured categories</span>
+<span class="sd">    such as colors, objects, directions, quadrants, and interactions.  </span>
+
+<span class="sd">    Model: facebook/bart-large-mnli</span>
+<span class="sd">    Model Type: BART</span>
+<span class="sd">    Paper: Lewis, M., et al. (2020). BART: Denoising Sequence-to-Sequence Pre-training </span>
+<span class="sd">    for Natural Language Generation, Translation, and Comprehension. ACL 2020.</span>
+<span class="sd">    https://arxiv.org/abs/1910.13461</span>
+<span class="sd">    </span>
+<span class="sd">    Repository: https://github.com/facebookresearch/fairseq/tree/main/examples/bart</span>
+<span class="sd">    Huggingface model: https://huggingface.co/facebook/bart-large-mnli</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_query</span> <span class="o">=</span> <span class="n">query</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bart_model</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;zero-shot-classification&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;facebook/bart-large-mnli&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_queries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_with_bart</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QueryParser.parse_with_bart">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.query_parser.QueryParser.parse_with_bart">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_with_bart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the query using BART model for zero-shot classification.</span>
+<span class="sd">        This function takes a query string and classifies it into various categories</span>
+<span class="sd">        such as colors, objects, directions, quadrants, and interactions.</span>
+<span class="sd">        It returns a structured format of the parsed query.</span>
+
+<span class="sd">        Using the huggingface pipeline for zero-shot classification with BART model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query (str): The input query string to be parsed.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of structured conditions extracted from the query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">possible_labels</span> <span class="o">=</span> <span class="n">OBJECTS</span> <span class="o">+</span> <span class="n">COLORS</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">DIRECTIONS</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;and&#39;</span><span class="p">,</span> <span class="s1">&#39;or&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">QUADRANTS</span> <span class="o">+</span> <span class="n">INTERACTIONS</span>
+
+        <span class="c1"># Get predictions</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bart_model</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">possible_labels</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="c1"># Extract the result into the structured format</span>
+        <span class="n">parsed_conditions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_conditions</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">parsed_conditions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parsed_conditions</span></div>
+
+
+<div class="viewcode-block" id="QueryParser.extract_conditions">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.query_parser.QueryParser.extract_conditions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract conditions from the BART model result.</span>
+
+<span class="sd">        This function processes the result of the BART model and categorizes</span>
+<span class="sd">        the labels into different categories such as colors, objects, directions,</span>
+<span class="sd">        quadrants, interactions, and logic operators. It also handles the</span>
+<span class="sd">        categorization of unknown labels. The function returns a list of</span>
+<span class="sd">        structured conditions based on the parsed query.</span>
+<span class="sd">        The function uses a threshold to filter out low-confidence predictions</span>
+<span class="sd">        and categorizes the labels based on their type and score.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            result (dict): The result from the BART model containing labels and scores.</span>
+<span class="sd">            query (str): The original query string.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of structured conditions extracted from the result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.020</span>
+        
+        <span class="c1"># Initialize categorized collections</span>
+        <span class="n">categorized_results</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;logic_operators&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;interactions&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;directions&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;colors&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;objects&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;quadrants&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;unknowns&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># high interactions threshold as it likes to appear when it is not</span>
+        <span class="c1"># actually present in the query</span>
+        <span class="n">interaction_threshold</span> <span class="o">=</span> <span class="mf">0.37</span>
+        <span class="c1"># Check if interaction word actually appears in the query</span>
+        <span class="n">interaction_words_in_query</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">INTERACTIONS</span> <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        
+        <span class="c1"># Process and categorize all labels</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;scores&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="k">continue</span>
+                
+            <span class="n">label_lower</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">label_lower</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_words</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_lower</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">label_lower</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label_lower</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+                
+            <span class="c1"># Special handling for interactions</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">INTERACTIONS</span><span class="p">:</span>
+                <span class="c1"># Only add interaction if:</span>
+                <span class="c1"># 1. It has very high confidence (&gt; interaction_threshold) OR</span>
+                <span class="c1"># 2. It actually appears in the query AND has decent confidence (&gt; 0.20)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">score</span> <span class="o">&gt;</span> <span class="n">interaction_threshold</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">interaction_words_in_query</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mf">0.20</span><span class="p">):</span>
+                    <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;interactions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">label</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">DIRECTIONS</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mf">0.20</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">label</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">COLORS</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(({</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">},</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">OBJECTS</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;objects&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(({</span><span class="s1">&#39;object&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">},</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">QUADRANTS</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mf">0.25</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;quadrants&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(({</span><span class="s1">&#39;quadrant&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">},</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;and&#39;</span><span class="p">,</span> <span class="s1">&#39;or&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;logic_operators&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">label</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;unknowns&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(({</span><span class="s1">&#39;Unknown&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">},</span> <span class="n">score</span><span class="p">))</span>
+                
+        <span class="c1"># Handle logic operators </span>
+        <span class="n">logic_operators</span> <span class="o">=</span> <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;logic_operators&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">logic_operators</span><span class="p">:</span>
+            <span class="c1"># Get the highest confidence logic operator type</span>
+            <span class="n">logic_operators</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">highest_operator_type</span> <span class="o">=</span> <span class="n">logic_operators</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">highest_score</span> <span class="o">=</span> <span class="n">logic_operators</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="c1"># Count occurrences with regex pattern to get the precise number of</span>
+            <span class="c1"># logic operators in the query</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\b</span><span class="si">{}</span><span class="s1">\b&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">highest_operator_type</span><span class="p">))</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Ensure at least one if detected</span>
+            
+            <span class="c1"># create a list of logic operators with the highest score</span>
+            <span class="n">logic_operators</span> <span class="o">=</span> <span class="p">[(</span><span class="n">highest_operator_type</span><span class="p">,</span> <span class="n">highest_score</span><span class="p">)]</span> <span class="o">*</span> <span class="n">count</span>
+        
+        <span class="c1"># Add default &#39;and&#39; if the interactions are present and no logic operators</span>
+        <span class="c1"># are found</span>
+        <span class="k">if</span> <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;interactions&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">logic_operators</span><span class="p">:</span>
+            <span class="n">logic_operators</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;and&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
+
+        <span class="c1"># Calculate items per category once</span>
+        <span class="n">items_per_category</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">logic_operators</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">logic_operators</span> <span class="k">else</span> <span class="mi">1</span>
+        
+        <span class="c1"># Sort and add top items from each category</span>
+        <span class="k">for</span> <span class="n">category_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">,</span> <span class="s1">&#39;objects&#39;</span><span class="p">,</span> <span class="s1">&#39;quadrants&#39;</span><span class="p">,</span> <span class="s1">&#39;unknowns&#39;</span><span class="p">]:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">categorized_results</span><span class="p">[</span><span class="n">category_name</span><span class="p">]</span>
+            <span class="n">category</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cond</span> <span class="k">for</span> <span class="n">cond</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">category</span><span class="p">[:</span><span class="n">items_per_category</span><span class="p">])</span>
+        
+        <span class="c1"># Add logic operators</span>
+        <span class="k">for</span> <span class="n">logic_op</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">logic_operators</span><span class="p">:</span>
+            <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;logic&#39;</span><span class="p">:</span> <span class="n">logic_op</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">logic_op</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        
+        <span class="c1"># Add top interaction if exists</span>
+        <span class="n">interactions</span> <span class="o">=</span> <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;interactions&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">interactions</span><span class="p">:</span>
+            <span class="n">interactions</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;interaction&#39;</span><span class="p">:</span> <span class="n">interactions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">interactions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        
+        <span class="c1"># Add top direction if exists</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="n">categorized_results</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">directions</span><span class="p">:</span>
+            <span class="n">directions</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="n">directions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">directions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        
+        <span class="k">return</span> <span class="n">conditions</span></div>
+
+
+<div class="viewcode-block" id="QueryParser.get_parsed_queries">
+<a class="viewcode-back" href="../../../project.parsers.html#project.parsers.query_parser.QueryParser.get_parsed_queries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parsed_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the parsed query structure.</span>
+<span class="sd">        This function also prints the unused words from the original query</span>
+<span class="sd">        that were not used in the parsing process. The unused words are</span>
+<span class="sd">        determined by comparing the original query words with the used words</span>
+<span class="sd">        identified during the parsing. The unused words are printed in their</span>
+<span class="sd">        original order as they appeared in the query.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of structured conditions extracted from the query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unused_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">used_words</span>
+        <span class="c1"># Convert back to list and maintain original order</span>
+        <span class="n">unused</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_query</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> 
+                 <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">unused_words</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">unused</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_queries</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

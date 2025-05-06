@@ -1,0 +1,627 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.detectors package &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="project.interface package" href="project.interface.html" />
+    <link rel="prev" title="project.database package" href="project.database.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">project</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="project.html">project package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="project.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="project.database.html">project.database package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">project.detectors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.interface.html">project.interface package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.parsers.html">project.parsers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project.processors.html">project.processors package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project.main">project.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project.html#module-project">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">project</a></li>
+          <li class="breadcrumb-item"><a href="project.html">project package</a></li>
+      <li class="breadcrumb-item active">project.detectors package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/project.detectors.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-detectors-package">
+<h1>project.detectors package<a class="headerlink" href="#project-detectors-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-project.detectors.base_tracker">
+<span id="project-detectors-base-tracker-module"></span><h2>project.detectors.base_tracker module<a class="headerlink" href="#module-project.detectors.base_tracker" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.detectors.base_tracker.</span></span><span class="sig-name descname"><span class="pre">BaseTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frames_for_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">640</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.angle_to_direction">
+<span class="sig-name descname"><span class="pre">angle_to_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.angle_to_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.angle_to_direction" title="Link to this definition"></a></dt>
+<dd><p>Convert angle to direction with confidence score.
+Higher confidence means the confidence in the direction is higher.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Angle in degrees</p></li>
+<li><p><strong>confidence</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Confidence score (0.0 to 1.0)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Direction name and confidence score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.annotate_frame">
+<span class="sig-name descname"><span class="pre">annotate_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.annotate_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.annotate_frame" title="Link to this definition"></a></dt>
+<dd><p>Helper function to annotate the frame with bounding boxes, labels, and colors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>np.ndarray</em>) – The input image in BGR format.</p></li>
+<li><p><strong>detections</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Annotated image with bounding boxes and labels.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.calculate_direction">
+<span class="sig-name descname"><span class="pre">calculate_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_point</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.calculate_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.calculate_direction" title="Link to this definition"></a></dt>
+<dd><p>Calculate movement direction between points with confidence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_point</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Starting point coordinates (x, y)</p></li>
+<li><p><strong>end_point</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Ending point coordinates (x, y)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Direction name and confidence score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.cleanup_old_tracks">
+<span class="sig-name descname"><span class="pre">cleanup_old_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frames_missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.cleanup_old_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.cleanup_old_tracks" title="Link to this definition"></a></dt>
+<dd><p>Clean up color history for tracks that haven’t been seen for a while.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_frame</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Current frame number</p></li>
+<li><p><strong>max_frames_missing</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Maximum number of frames a track can be missing before cleanup</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.get_centroid">
+<span class="sig-name descname"><span class="pre">get_centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.get_centroid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.get_centroid" title="Link to this definition"></a></dt>
+<dd><p>Calculate the centroid of a bounding box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bbox</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Bounding box coordinates [xmin, ymin, xmax, ymax]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Centroid coordinates (x, y)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.get_dominant_color">
+<span class="sig-name descname"><span class="pre">get_dominant_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">avg_colors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.get_dominant_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.get_dominant_color" title="Link to this definition"></a></dt>
+<dd><p>Get dominant color from averaged percentages with noise filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>avg_colors</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Dictionary of averaged color percentages</p></li>
+<li><p><strong>threshold</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Minimum threshold for color presence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the dominant color</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.get_exit_direction">
+<span class="sig-name descname"><span class="pre">get_exit_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centroid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.get_exit_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.get_exit_direction" title="Link to this definition"></a></dt>
+<dd><p>Get direction based on where object exits frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>centroid</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Centroid coordinates (x, y)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Exit direction and confidence score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.initialize_output_folders">
+<span class="sig-name descname"><span class="pre">initialize_output_folders</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.initialize_output_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.initialize_output_folders" title="Link to this definition"></a></dt>
+<dd><p>Initialize output directories for saving annotated images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.is_leaving_frame">
+<span class="sig-name descname"><span class="pre">is_leaving_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centroid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.is_leaving_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.is_leaving_frame" title="Link to this definition"></a></dt>
+<dd><p>Check if object is leaving the frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>centroid</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Centroid coordinates (x, y)</p></li>
+<li><p><strong>bbox</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Bounding box coordinates [xmin, ymin, xmax, ymax]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if object is leaving the frame, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p>TODO: Implement more robust logic for edge cases and take into account the whole bounding box not just the centroid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.process_detection_colors">
+<span class="sig-name descname"><span class="pre">process_detection_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.process_detection_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.process_detection_colors" title="Link to this definition"></a></dt>
+<dd><p>Process color detection for a tracked object using ColorFilter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>track_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The ID of the tracked object</p></li>
+<li><p><strong>frame</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – Current video frame (BGR format)</p></li>
+<li><p><strong>bbox</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Bounding box coordinates [xmin, ymin, xmax, ymax]</p></li>
+<li><p><strong>frame_number</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Current frame number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dominant color and complete color percentages</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.save_annotated_frame">
+<span class="sig-name descname"><span class="pre">save_annotated_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.save_annotated_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.save_annotated_frame" title="Link to this definition"></a></dt>
+<dd><p>Helper function to save the annotated frame to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>np.ndarray</em>) – The input image in BGR format.</p></li>
+<li><p><strong>detections</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – The current frame number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.update_color_history">
+<span class="sig-name descname"><span class="pre">update_color_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.update_color_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.update_color_history" title="Link to this definition"></a></dt>
+<dd><p>Update color history with exponential moving average.</p>
+<p>This method keeps track of the last N frames of color data for each track ID
+and calculates the exponential moving average to smooth out noise in color detection.
+It also resets the history if the track was missing for too long.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>track_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The ID of the tracked object</p></li>
+<li><p><strong>color_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Dictionary of color percentages from current frame</p></li>
+<li><p><strong>frame_number</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Current frame number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Averaged color percentages</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.update_track_history">
+<span class="sig-name descname"><span class="pre">update_track_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.update_track_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.update_track_history" title="Link to this definition"></a></dt>
+<dd><p>Update tracking history and calculate direction
+based on recent movement and exit points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>track_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The ID of the tracked object</p></li>
+<li><p><strong>bbox</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Bounding box coordinates [xmin, ymin, xmax, ymax]</p></li>
+<li><p><strong>frame_number</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Current frame number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated direction of movement or exit direction</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.base_tracker.BaseTracker.update_tracks">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/base_tracker.html#BaseTracker.update_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.base_tracker.BaseTracker.update_tracks" title="Link to this definition"></a></dt>
+<dd><p>Abstract method to update tracks based on detections.
+This method is different for each tracker implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>detections</strong> – List of detection dictionaries containing ‘bbox’, ‘class_name’, etc.</p></li>
+<li><p><strong>frame</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – Current video frame (BGR format)</p></li>
+<li><p><strong>frame_number</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Current frame number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated list of detections with track IDs and directions</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.detectors.byte_track_tracker">
+<span id="project-detectors-byte-track-tracker-module"></span><h2>project.detectors.byte_track_tracker module<a class="headerlink" href="#module-project.detectors.byte_track_tracker" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.detectors.byte_track_tracker.ByteTrackTracker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.detectors.byte_track_tracker.</span></span><span class="sig-name descname"><span class="pre">ByteTrackTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frames_for_averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">640</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/byte_track_tracker.html#ByteTrackTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.byte_track_tracker.ByteTrackTracker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#project.detectors.base_tracker.BaseTracker" title="project.detectors.base_tracker.BaseTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTracker</span></code></a></p>
+<p>This class inherits from the BaseTracker class and implements the ByteTrack
+algorithm for multi-object tracking. It uses the Supervision library’s
+This class is designed to work with YOLO detection results and provides
+functionality for tracking objects across frames.</p>
+<p>ByteTrack paper: Zhang, Yifu, et al. “ByteTrack: Multi-Object Tracking by Associating Every Detection Box.”
+ECCV 2022. <a class="reference external" href="https://arxiv.org/abs/2110.06864">https://arxiv.org/abs/2110.06864</a></p>
+<p>Supervision implementation: <a class="reference external" href="https://github.com/roboflow/supervision">https://github.com/roboflow/supervision</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.byte_track_tracker.ByteTrackTracker.update_tracks">
+<span class="sig-name descname"><span class="pre">update_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/byte_track_tracker.html#ByteTrackTracker.update_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.byte_track_tracker.ByteTrackTracker.update_tracks" title="Link to this definition"></a></dt>
+<dd><p>Passes the YOLO results to the ByteTrack tracker and updates the tracks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> – YOLO detection results</p></li>
+<li><p><strong>frame</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span>) – The current frame being processed</p></li>
+<li><p><strong>frame_number</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – The current frame number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of dictionaries containing detection results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.detectors.color_filter">
+<span id="project-detectors-color-filter-module"></span><h2>project.detectors.color_filter module<a class="headerlink" href="#module-project.detectors.color_filter" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.detectors.color_filter.</span></span><span class="sig-name descname"><span class="pre">ColorFilter</span></span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter.analyze_object_color">
+<span class="sig-name descname"><span class="pre">analyze_object_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmenter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter.analyze_object_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter.analyze_object_color" title="Link to this definition"></a></dt>
+<dd><p>Analyze the color of an object using segmentation (if available) for more precise results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>np.ndarray</em>) – The input image in BGR format</p></li>
+<li><p><strong>bbox</strong> (<em>tuple</em>) – The bounding box coordinates (xmin, ymin, xmax, ymax)</p></li>
+<li><p><strong>segmenter</strong> (<a class="reference internal" href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter" title="project.parsers.yolo_segmenter.YOLOSegmenter"><em>YOLOSegmenter</em></a><em>, </em><em>optional</em>) – The segmenter instance for mask generation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dominant color of the object
+dict: The color presence percentages</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter.calculate_color_presence">
+<span class="sig-name descname"><span class="pre">calculate_color_presence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hsv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter.calculate_color_presence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter.calculate_color_presence" title="Link to this definition"></a></dt>
+<dd><p>Calculate the presence of different colors in the masked HSV image.
+Works in two passes: first detects all colors except gray, then checks for gray presence
+in unclassified pixels if no other colors are dominant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hsv</strong> (<em>np.ndarray</em>) – The HSV image.</p></li>
+<li><p><strong>mask</strong> (<em>np.ndarray</em>) – The mask of the region of interest.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary with color names as keys and their presence as values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter.create_circular_mask">
+<span class="sig-name descname"><span class="pre">create_circular_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter.create_circular_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter.create_circular_mask" title="Link to this definition"></a></dt>
+<dd><p>Create a circular mask for the given width and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>int</em>) – The width of the mask.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – The height of the mask.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The circular mask.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter.create_elliptical_mask">
+<span class="sig-name descname"><span class="pre">create_elliptical_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter.create_elliptical_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter.create_elliptical_mask" title="Link to this definition"></a></dt>
+<dd><p>Create an elliptical mask for the given width and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>int</em>) – The width of the mask.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – The height of the mask.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The elliptical mask.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.color_filter.ColorFilter.detect_dominant_color">
+<span class="sig-name descname"><span class="pre">detect_dominant_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentation_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/color_filter.html#ColorFilter.detect_dominant_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.color_filter.ColorFilter.detect_dominant_color" title="Link to this definition"></a></dt>
+<dd><p>Detect the most prominent color within the bounding box of the image,
+optionally using a segmentation mask for more precise detection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>np.ndarray</em>) – The original frame in BGR format.</p></li>
+<li><p><strong>bbox</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – Bounding box coordinates (xmin, ymin, xmax, ymax).</p></li>
+<li><p><strong>segmentation_mask</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Binary mask of the object. If None, uses shape-based masking.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The name of the most prominent color, or ‘none’ if no color is prominent.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.detectors.detection">
+<span id="project-detectors-detection-module"></span><h2>project.detectors.detection module<a class="headerlink" href="#module-project.detectors.detection" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.detectors.detection.Detection">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.detectors.detection.</span></span><span class="sig-name descname"><span class="pre">Detection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dominant_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/detection.html#Detection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.detection.Detection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.detection.Detection.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/detection.html#Detection.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.detection.Detection.get" title="Link to this definition"></a></dt>
+<dd><p>Get the value of a specific attribute.
+:type key: 
+:param key: Attribute name
+:type default: 
+:param default: Default value if attribute does not exist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The value of the attribute or the default value if it does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.detectors.yolo_detector">
+<span id="project-detectors-yolo-detector-module"></span><h2>project.detectors.yolo_detector module<a class="headerlink" href="#module-project.detectors.yolo_detector" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.detectors.yolo_detector.YOLODetector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.detectors.yolo_detector.</span></span><span class="sig-name descname"><span class="pre">YOLODetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yolo11n.pt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_segmentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_color_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/yolo_detector.html#YOLODetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.yolo_detector.YOLODetector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Module to perform object detection using YOLOv11 model from Ultralytics.
+This class is designed to detect objects in a given frame and return the detection results.
+The model’s weights are loaded from a specified file path.</p>
+<p>Original YOLO architecture by Joseph Redmon et al.
+Model: yolov11n.pt (YOLOv11)
+Citation: Jocher, G., et al. (2023). Ultralytics YOLOv11. <a class="reference external" href="https://docs.ultralytics.com/models/yolo11/">https://docs.ultralytics.com/models/yolo11/</a>
+Repository: <a class="reference external" href="https://github.com/ultralytics/ultralytics">https://github.com/ultralytics/ultralytics</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.detectors.yolo_detector.YOLODetector.detect_objects">
+<span class="sig-name descname"><span class="pre">detect_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/detectors/yolo_detector.html#YOLODetector.detect_objects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.detectors.yolo_detector.YOLODetector.detect_objects" title="Link to this definition"></a></dt>
+<dd><p>Detect objects in the given frame using the YOLO model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>np.ndarray</em>) – The input image in BGR format</p></li>
+<li><p><strong>timestamp</strong> (<em>float</em>) – The timestamp of the frame</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of dictionaries containing detection results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function will only detect people and vehicles. This can be easily
+hanged by modifying the OBJECTS list in constants/constants.py.</p>
+<p>The function will also use segmentation if the use_segmentation flag is set to True.
+The segmentation will be used only for the color calculation of the detected objects
+and not the whole frame – this is done to speed up the process as otherwise the segmentation
+masks would be calculated for all objects in the frame and not just the detected ones.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-project.detectors">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-project.detectors" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="project.database.html" class="btn btn-neutral float-left" title="project.database package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project.interface.html" class="btn btn-neutral float-right" title="project.interface package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
