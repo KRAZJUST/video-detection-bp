@@ -37,6 +37,21 @@ class DetectionParser:
                  frame_height: int = 360, 
                  area_of_interest: tuple = None,
                  feedback_callback: Any = None):
+        """
+        Initialize the DetectionParser with the necessary parameters.
+        
+        Args:
+            query (str): The query string to filter detections.
+            input_video (str): Path to the input video file.
+            output_dir (str): Directory for saving output files.
+            tracker (str): Tracker model name (e.g., 'yolo', 'bytetrack').
+            database_path (str): Path to the SQLite database file.
+            use_segmentation (bool): Flag to use segmentation or not.
+            frame_width (int): Width of the video frames.
+            frame_height (int): Height of the video frames.
+            area_of_interest (tuple): Area of interest for filtering detections.
+            feedback_callback (Any): Callback function for feedback messages.
+        """
         self.db = Database(database_path)
         self.tracker = tracker
         self.use_segmentation = use_segmentation
@@ -83,7 +98,6 @@ class DetectionParser:
             
         TODO: Implement the interaction calculation based on the bounding box coordinates, make sure to consider the distance between the centers of the bounding boxes
               and make the thresholds configurable.
-              REFACTOR THIS!
         """
         x1_1, y1_1, x2_1, y2_1 = bbox1
         x1_2, y1_2, x2_2, y2_2 = bbox2
@@ -393,8 +407,10 @@ class DetectionParser:
 
     def _extract_query_color_objects(self):
         """
-        Extract object-color pairs from the query.
-        Returns a dictionary mapping objects to their specified colors.
+        Helper method to extract object-color pairs from the query.
+        
+        Returns:
+            dict: Dictionary of object-class to color mapping.
         """
         color_objects = {}
         for element in self.query_parser.get_parsed_queries():
@@ -406,8 +422,13 @@ class DetectionParser:
 
     def _find_interactions_between_groups(self, group1, group2):
         """
-        Find interactions between two groups of detections.
-        Returns True on first matching interaction.
+        Helper method to find interactions between two groups of detections.
+        
+        Args:
+            group1 (list): List of detections in the first group.
+            group2 (list): List of detections in the second group.
+        Returns:
+            bool: True if any interaction is found, False otherwise.
         """
         for det1 in group1:
             for det2 in group2:
@@ -418,7 +439,7 @@ class DetectionParser:
 
     def _find_interactions_within_group(self, detections):
         """
-        Find interactions within the same group of detections.
+        Helper method to find interactions within the same group of detections.
         Returns True on first matching interaction.
         """
         for i in range(len(detections)):
@@ -434,7 +455,11 @@ class DetectionParser:
     def get_color_for_object(self, obj):
         """
         Helper method to get color for a specific object from query parser.
-        Returns None if no color specified.
+        
+        Args:
+            obj (str): Object class name.
+        Returns:
+            str: Color associated with the object, or None if not found.
         """
         for element in self.query_parser.get_parsed_queries():
             if 'object' in element and element['object'] == obj and 'color' in element:
@@ -444,10 +469,13 @@ class DetectionParser:
     def filter_detections_in_frames(self, frames, logic_operator=None, expected_conditions=None):
         """
         Filter frames based on detection logic (and/or).
+
         Args:
             frames: Dictionary of frames and their detections.
             logic_operator: 'and' or 'or' for filtering logic.
             expected_conditions: List of conditions to match (e.g., [{'object': 'car', 'color': 'red'}]).
+        Returns:
+            Dictionary of filtered frames.
         """
 
         filtered_frames = {}
@@ -493,6 +521,11 @@ class DetectionParser:
     def save_frame(self, frame_num, detections, frame_file_dir):
         """
         Save annotated frame with detections.
+
+        Args:
+            frame_num (int): Frame number.
+            detections (list): List of detection dictionaries containing 'bbox', 'class_name', etc.
+            frame_file_dir (str): Directory where the frame files are stored.
         """
         frame_file_name = f'frame_{frame_num:06d}.jpg'
         frame_file_path = os.path.join(frame_file_dir, frame_file_name)
@@ -507,6 +540,11 @@ class DetectionParser:
         """
         Annotate the image with bounding boxes and labels for detections.
         The frame is saved only once even if it has multiple detections.
+
+        Args:
+            frame_file_path (str): Path to the frame image file.
+            detections (list): List of detection dictionaries containing 'bbox', 'class_name', etc.
+            frame_num (int): Frame number for naming the output file.
         """
         # Read the image
         image = cv2.imread(frame_file_path)

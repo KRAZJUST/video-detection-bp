@@ -709,7 +709,7 @@ class Database:
         if not video_id:
             return None
         
-        if tracker == 'yolo' or tracker == 'xclip-32' or tracker == 'xclip-16':
+        if tracker == 'yolo' or tracker == 'xclip-32':
             self.cursor.execute("""
                 SELECT timestamp FROM yolo_frames WHERE video_id = ? AND frame_number = ?
             """, (video_id, frame_number))

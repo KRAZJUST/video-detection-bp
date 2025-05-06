@@ -27,6 +27,15 @@ class QueryWorker(QThread):
     feedback = pyqtSignal(str)
 
     def __init__(self, app, query, area_of_interest=None):
+        """
+        Initialize the QueryWorker with the application instance, query string,
+        and optional area of interest.
+
+        Args:
+            app: Application instance
+            query: Query string to search for in the video
+            area_of_interest: Optional area of interest for object detection
+        """
         super().__init__()
         self.app = app
         self.query = query
@@ -34,6 +43,11 @@ class QueryWorker(QThread):
         self.area_of_interest = area_of_interest
 
     def run(self):
+        """
+        Run the query worker thread. This method is executed in a separate thread
+        when the worker is started. It handles the query processing and emits
+        results or errors back to the main thread.
+        """
         try:
             # Feedback fallback that emits message
             def feedback_callback(message):
@@ -65,7 +79,7 @@ class QueryWorker(QThread):
                 # empty metadata for YOLO and ByteTrack
                 metadata = {}
                 
-            elif self.app.tracker_combo.currentText() in ["xclip-32", "xclip-16"]:
+            elif self.app.tracker_combo.currentText() in ["xclip-32"]:
                 xclip_parser = XClipParser(
                     video_path=self.app.video_path,
                     query=self.query,
@@ -93,7 +107,16 @@ class QueryWorker(QThread):
             self.error.emit(str(e))
 
     def deduplicate_tracker_results(self, results, max_frames_interval=15):
-        """Deduplicate results based on tracked object IDs and classes, but keep frames with new objects"""
+        """
+        Deduplicate results based on tracked object IDs and classes, but keep 
+        frames with new objects
+
+        Args:
+            results (dict): Dictionary of frame paths and detection lists
+            max_frames_interval (int): Maximum number of frames to skip before forcing inclusion
+        Returns:
+            dict: Dictionary of unique frames with detections
+        """
         unique_results = {}
         # Objects seen so far, stored as (track_id, class_name) tuples
         seen_objects = set()

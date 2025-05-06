@@ -21,12 +21,6 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QPixmap, QRegion         # type:
 import os
 
 class AreaSelector(QDialog):
-    """
-    This class provides a dialog for interactively selecting an area of interest
-    in a video frame. The user can click and drag to create a selection rectangle,
-    and the selected area can be confirmed with a button. The selected area is
-    emitted as a QRect object.
-    """
     # Signal to emit when selection is confirmed
     area_selected = pyqtSignal(QRect)
     

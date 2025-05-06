@@ -30,7 +30,18 @@ import re
 
 @dataclass
 class VideoMetadata:
-    # Video duration in seconds
+    """
+    Data class to hold video metadata information.
+    Attributes:
+        duration (float): Duration of the video in seconds
+        fps (float): Frames per second
+        frame_count (int): Total number of frames
+        width (int): Width of the video in pixels
+        height (int): Height of the video in pixels
+        codec (str): Video codec used
+        bitrate (str): Bitrate of the video
+        size (str): Size of the video file in human-readable format
+    """
     duration: float
     fps: float
     frame_count: int
@@ -181,7 +192,14 @@ class VideoInfoUtils:
 
     @staticmethod
     def _format_size(size_bytes: int) -> str:
-        """Convert bytes to human readable format."""
+        """
+        Convert bytes to human readable format.
+
+        Args:
+            size_bytes (int): Size in bytes
+        Returns:
+            str: Human readable size
+        """
         for unit in ['B', 'KB', 'MB', 'GB']:
             if size_bytes < 1024:
                 return f"{size_bytes:.2f} {unit}"

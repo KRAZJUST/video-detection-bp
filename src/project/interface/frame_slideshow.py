@@ -27,12 +27,6 @@ from database.sqlite_database import Database
 from database.vector_database import VectorDatabaseManager
 
 class FrameSlideshow(QMainWindow):
-    """
-    This class provides a GUI for displaying a slideshow of frames from a video.
-    It allows the user to navigate through frames, view their timestamps, and export them.
-    The class also includes functionality to open the video at the current frame in 
-    the system's default video player.
-    """
     def __init__(self, 
                  parent, 
                  starting_frame_path, 
@@ -85,7 +79,7 @@ class FrameSlideshow(QMainWindow):
             self.metadata = metadata
 
         # Connect to the vector database
-        if tracker == 'xclip-32' or tracker == 'xclip-16':
+        if tracker == 'xclip-32':
             self.vector_db = VectorDatabaseManager(
                 database_path="vector_database",
                 collection_name=f"embeddings_{os.path.basename(input_video_path)}",
@@ -198,7 +192,7 @@ class FrameSlideshow(QMainWindow):
             return self.db.get_frame_timestamp(video_name=self.input_video_path,
                                             frame_number=frame_num,
                                             tracker=self.tracker)
-        elif self.tracker in ['xclip-32', 'xclip-16', 'siglip']:
+        elif self.tracker in ['xclip-32', 'siglip']:
             if self.metadata:
                 # First, try to find the frame in the metadata
                 timestamp = self._find_timestamp_in_metadata(frame_num)

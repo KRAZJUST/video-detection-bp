@@ -45,7 +45,19 @@ class VideoProcessor:
                  use_segmentation: bool = False,
                  skip_siglip_with_yolo: bool = False,
                  progress_callback: Any = None):
+        """
+        Initialize the VideoProcessor with the necessary parameters.
 
+        Args:
+            video_path (str): Path to the video file
+            output_dir (str): Directory for output files
+            database_path (str): Path to the database file
+            interval (int): Interval for processing frames
+            model_name (str): Tracker model name ('yolo', 'bytetrack', 'xclip-32', 'siglip')
+            use_segmentation (bool): Flag to use segmentation with YOLO
+            skip_siglip_with_yolo (bool): Flag to skip SigLIP processing with YOLO detections
+            progress_callback (Any): Callback function for progress updates
+        """
         self.video_path = video_path
         self.output_dir = output_dir
         self.frames_output_dir_yx = os.path.join(self.output_dir, "extracted_frames_yx")
@@ -78,7 +90,7 @@ class VideoProcessor:
         if self.model_name == 'bytetrack':
             self.tracker = ByteTrackTracker(output_dir, min_frames_for_averaging=2, 
                                             frame_width=640, frame_height=360)
-        if self.model_name == 'xclip-32' or self.model_name == 'xclip-16':
+        if self.model_name == 'xclip-32':
             self.xclip = XClipModel(self.model_name)
         if self.model_name == 'siglip':
             self.siglip_model = SigLIPModel()
@@ -88,7 +100,7 @@ class VideoProcessor:
         # Set the processing level based on the tracker argument
         if self.model_name in ['yolo', 'bytetrack']:
             self.processing_level = 1
-        elif self.model_name in ['xclip-32', 'xclip-16']:
+        elif self.model_name == 'xclip-32':
             self.processing_level = 2
         elif self.model_name == 'siglip':
             self.processing_level = 3
@@ -334,7 +346,7 @@ class VideoProcessor:
         # Check if the video is already processed and the frames are already extracted
         # if the extraction interval is different from the one used in the database
         # so the number of frames is different, delete the frames before reprocessing
-        if self.model_name in ['yolo', 'xclip-32', 'xclip-16', 'siglip'] and \
+        if self.model_name in ['yolo', 'xclip-32', 'siglip'] and \
            abs((self.db.get_number_of_frames_yolo(self.video_path) - self.expected_frames_count)) > 1:
                 print(f"got {self.db.get_number_of_frames_yolo(self.video_path)} frames")
                 print(f"expected {self.expected_frames_count} frames")

@@ -60,8 +60,6 @@ class XClipParser:
             self.model_name = "microsoft/xclip-base-patch32"
         elif model_name == 'xclip-32':
             self.model_name = "microsoft/xclip-base-patch32"
-        elif model_name == 'xclip-16':
-            self.model_name = "microsoft/xclip-base-patch16"
 
         self.processor = XCLIPProcessor.from_pretrained(self.model_name)
         self.model = XCLIPModel.from_pretrained(self.model_name)

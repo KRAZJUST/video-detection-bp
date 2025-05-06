@@ -58,6 +58,11 @@ class QueryParser:
         It returns a structured format of the parsed query.
 
         Using the huggingface pipeline for zero-shot classification with BART model.
+
+        Args:
+            query (str): The input query string to be parsed.
+        Returns:
+            list: A list of structured conditions extracted from the query.
         """
         possible_labels = OBJECTS + COLORS + list(DIRECTIONS.values()) + ['and', 'or'] + QUADRANTS + INTERACTIONS
 
@@ -194,7 +199,17 @@ class QueryParser:
         return conditions
 
     def get_parsed_queries(self):
-        """Return the parsed query structure."""
+        """
+        Return the parsed query structure.
+        This function also prints the unused words from the original query
+        that were not used in the parsing process. The unused words are
+        determined by comparing the original query words with the used words
+        identified during the parsing. The unused words are printed in their
+        original order as they appeared in the query.
+
+        Returns:
+            list: A list of structured conditions extracted from the query.
+        """
         unused_words = self.query_words - self.used_words
         # Convert back to list and maintain original order
         unused = [word for word in self.raw_query.split() 

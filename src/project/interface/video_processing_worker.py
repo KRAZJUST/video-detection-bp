@@ -23,7 +23,19 @@ class VideoProcessingWorker(QThread):
     error = pyqtSignal(str)
     progress = pyqtSignal(str, int)
 
-    def __init__(self, app, video_path, database_path, output_dir, interval, tracker):
+    def __init__(self, app, video_path, database_path, output_dir, 
+                 interval, tracker):
+        """
+        Initialize the worker with the necessary parameters.
+
+        Args:
+            app: Reference to the main application
+            video_path: Path to the video file
+            database_path: Path to the database file
+            output_dir: Directory for output files
+            interval: Interval for processing frames
+            tracker: Tracker model name
+        """
         super().__init__()
         self.app = app
         self.video_path = video_path
@@ -35,6 +47,12 @@ class VideoProcessingWorker(QThread):
 
     @profile_time_usage
     def run(self):
+        """
+        Run the worker thread to process the video.
+        This method is executed in a separate thread.
+        It emits the finished signal when processing is complete,
+        or the error signal if an error occurs.
+        """
         try:
             # Progress fallback that emits message and perecentage
             def progress_callback(message, percentage):

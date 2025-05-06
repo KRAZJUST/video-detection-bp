@@ -23,10 +23,23 @@ class VideoInfoWorker(QThread):
     error = pyqtSignal(str)
 
     def __init__(self, video_path):
+        """
+        Initialize the worker with the video path.
+        
+        Args:
+            video_path: Path to the video file
+        """
         super().__init__()
         self.video_path = video_path
 
     def run(self):
+        """
+        Run the worker thread to retrieve video information.
+        This method is executed in a separate thread.
+        It emits the finished signal with the video metadata
+        or the error signal if an error occurs.
+        """
+        # Run ffprobe to get video information
         try:
             video_metadata = VideoInfoUtils.get_video_info(self.video_path)
             if video_metadata:

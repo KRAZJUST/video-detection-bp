@@ -35,12 +35,6 @@ from .advanced_settings import AdvancedSettings
 from .processing_settings import ProcessingSettings
 
 class VideoProcessingApp(QMainWindow):
-    """
-    Main application window for this application.
-    This class is responsible for creating the UI and handling user interactions.
-    It includes sections for input/output, query building, processing settings,
-    video information, and results display.
-    """
     def __init__(self, database_path: str):
         """
         Initialize the main application window.
@@ -184,7 +178,7 @@ class VideoProcessingApp(QMainWindow):
         tracker_row = QHBoxLayout()
         # Left side - Tracker selection
         self.tracker_combo = QComboBox()
-        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "xclip-16", "siglip"])
+        self.tracker_combo.addItems(["yolo", "bytetrack", "xclip-32", "siglip"])
         self.tracker_combo.currentTextChanged.connect(self.update_interval_entry)
         self.tracker_combo.setToolTip("Select the tracker to use for processing.")
         tracker_row.addWidget(self.tracker_combo)
@@ -507,7 +501,7 @@ class VideoProcessingApp(QMainWindow):
         Args:
             tracker: The selected tracker
         """
-        if tracker in ["yolo", "xclip-32", "xclip-16", "siglip"]:
+        if tracker in ["yolo", "xclip-32", "siglip"]:
             self.interval_entry.setValue(30)
         else:
             self.interval_entry.setValue(10)
