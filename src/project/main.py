@@ -1,4 +1,19 @@
-# This is the main file to run the application
+# File: main.py
+# Author: David Skalka (xskalk03@stud.fit.vutbr.cz)
+# Faculty of Information Technology, Brno University of Technology
+# Academic Year: 2024/2025
+#
+# This file is part of the bachelor's thesis:
+# "Recognizing people and their activities in video from security cameras"
+#
+# Description:
+# This is the main entry point for the application. It initializes the
+# application, sets up the database, and starts the main event loop.
+# It also provides an option to run the application with profiling enabled
+# for performance analysis.
+#
+# =============================================================================
+
 import sys
 from database.sqlite_database import Database
 from interface.app import VideoProcessingApp

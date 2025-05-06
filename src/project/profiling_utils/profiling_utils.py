@@ -21,13 +21,23 @@ import functools
 timing_data = {}
 
 def profile_memory_usage():
+    """
+    Log the current memory usage of the process.
+    """
     process = psutil.Process(os.getpid())
     memory_usage = process.memory_info().rss / 1024 ** 2
     print(f"Memory usage: {memory_usage:.2f} MB")
 
 def profile_time_usage(func):
+    """
+    Decorator to profile the execution time of a function.
+    It prints the time taken to execute the function.
+    This is a simple profiling decorator that can be used
+    to measure the performance of specific functions.
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """Wrapper function to measure execution time."""
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
@@ -37,6 +47,15 @@ def profile_time_usage(func):
 
 # Add periodic memory logging to the application with interval in milliseconds
 def setup_memory_logging(app, interval=5000):
+    """
+    Set up periodic memory logging in the application.
+    This function creates a timer that logs the memory usage
+    of the application at regular intervals.
+
+    Args:
+        app: Reference to the main application
+        interval: Interval in milliseconds for memory logging
+    """
     timer = app.startTimer(interval)
     
     def timerEvent(event):
@@ -48,7 +67,14 @@ def setup_memory_logging(app, interval=5000):
     app.timerEvent = lambda event: timerEvent(event) or original_timer_event(event)
 
 def detailed_profile(func):
-    """More detailed profiling decorator that collects statistics"""
+    """
+    Decorator to profile the execution time of a function
+    and store detailed timing data.
+    It prints the time taken to execute the function and
+    stores the timing data in a dictionary.
+    This is a more detailed profiling decorator that can be used
+    to measure the performance of specific functions.
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         name = func.__name__

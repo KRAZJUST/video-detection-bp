@@ -139,7 +139,12 @@ class VideoProcessor:
         self.expected_frames_count = self.calculate_expected_frames()
 
     def calculate_overall_progress(self):
-        """Calculate overall progress based on weighted stages"""
+        """
+        Calculate overall progress based on weighted stages
+
+        Returns:
+            int: Overall progress percentage (0-100)
+        """
         total_progress = 0
         total_weight = sum(stage['weight'] for stage in self.stages.values())
         
@@ -174,14 +179,24 @@ class VideoProcessor:
                 print("Processing terminated by user.")
 
     def calculate_expected_frames(self) -> int:
-        """Calculate the expected number of frames to be extracted."""
+        """
+        Calculate the expected number of frames to be extracted.
+        
+        Returns:
+            int: Expected number of frames
+        """
         if self.video_info.get('frame_count') is None:
             return None
         total_frames = self.video_info['frame_count']
         return math.ceil(total_frames / self.interval)
     
     def frames_already_extracted(self) -> bool:
-        """Check if the required number of frames has already been extracted."""
+        """
+        Check if the required number of frames has already been extracted.
+
+        Returns:
+            bool: True if frames are already extracted, False otherwise
+        """
         self.update_progress("Checking existing frames",
                              stage='frame_extraction', progress=10)
         # Count the number of frame files in the output directory
@@ -196,6 +211,15 @@ class VideoProcessor:
     @profile_time_usage
     @detailed_profile
     def extract_frames(self):
+        """
+        Extract frames from the video using FFmpeg.
+        This method uses FFmpeg to extract frames from the video at a specified interval.
+        It creates a separate directory for the extracted frames and handles CUDA 
+        acceleration if available. The extraction run in a separate process.
+        
+        Returns:
+            bool: True if extraction is successful, False otherwise
+        """
         # Check if frames are already extracted
         if self.frames_already_extracted():
             self.update_progress("Frames already extracted",
@@ -325,7 +349,14 @@ class VideoProcessor:
     @profile_time_usage
     @detailed_profile
     def process_video(self):
-        """ Function to process video frames for object detection and tracking. """
+        """
+        This method orchestrates the video processing pipeline.
+        It includes initialization, frame extraction, and object detection.
+        It also handles progress updates and termination checks.
+
+        Returns:
+            bool: True if processing is successful, False otherwise
+        """
         self.update_progress("Starting video processing",
                              stage='initialization', progress=50)
         # Check if processing should be terminated
@@ -399,6 +430,11 @@ class VideoProcessor:
     def _process_video_yolo(self, frame_files):
         """
         YOLO and ByteTrack processing method
+        This method processes video frames using YOLO and ByteTrack models.
+        It handles object detection, tracking, and database insertion.
+
+        Args:
+            frame_files (list): List of frame file paths to process
         """
         total_frames = len(frame_files)
         if total_frames < 1000:
@@ -453,7 +489,12 @@ class VideoProcessor:
 
     def _process_video_xclip(self, frame_files):
         """
-        X-CLIP processing method
+        Process individual video frames with X-CLIP model.
+        This method processes video frames using the X-CLIP model.
+        It handles embedding extraction and database insertion.
+
+        Args:
+            frame_files (list): List of frame file paths to process
         """
         batch_size = 8
         
@@ -522,7 +563,14 @@ class VideoProcessor:
 
     @profile_time_usage
     def _process_video_siglip(self, frame_files):
-        """Process individual video frames with SigLIP model"""
+        """
+        Process individual video frames with SigLIP model.
+        This method processes video frames using the SigLIP model.
+        It handles embedding extraction and database insertion.
+
+        Args:
+            frame_files (list): List of frame file paths to process
+        """
         total_frames = len(frame_files)
         if total_frames < 1000:
             update_interval = 20
@@ -585,7 +633,16 @@ class VideoProcessor:
         print("SigLIP embeddings stored in vector database successfully.")
 
     def add_detections_in_db(self, detections, tracker: str, frame_number: int):
-        """Accumulate detections and insert in bulk into the database."""
+        """
+        Method to add detections to the database.
+        It inserts the detections in bulk for the current frame.
+        This method is called after processing each frame.
+
+        Args:
+            detections (list): List of detection dictionaries
+            tracker (str): Tracker model name ('yolo' or 'bytetrack')
+            frame_number (int): Frame number for the detections
+        """
         # List to hold all detections for the current frame
         bulk_detections = []
 

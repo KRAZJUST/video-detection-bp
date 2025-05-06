@@ -86,7 +86,6 @@ class SigLIPParser:
         Args:
             query: Text description to search for (overrides self.query if provided)
             n_results: Number of results to return
-            
         Returns:
             List of dictionaries with frame information and similarity scores
         """        

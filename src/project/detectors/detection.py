@@ -14,9 +14,6 @@
 # =============================================================================
 
 class Detection:
-    """
-    Data class to store detection information.
-    """
     def __init__(self, class_name: str, class_id: int, confidence: float,
                  bbox: tuple, timestamp: float, track_id: int = None, 
                  dominant_color: str = None):
@@ -25,6 +22,11 @@ class Detection:
         Args:
             class_name (str): Name of the detected class
             class_id (int): ID of the detected class
+            confidence (float): Confidence score of the detection
+            bbox (tuple): Bounding box coordinates (x1, y1, x2, y2)
+            timestamp (float): Timestamp of the detection
+            track_id (int): ID of the track (optional)
+            dominant_color (str): Dominant color of the detected object (optional)
         """
         self.class_name = class_name
         self.class_id = class_id
