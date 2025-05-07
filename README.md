@@ -4,7 +4,7 @@
 
 **Date:** 2025-05-07
 
-**Description:** This is the implementation of the system designed as a part of thesis `Recognizing People and Their Activities in Video from Security Cameras` at Faculty of Informatics, Brno University of Technology.
+**Description:** This is the implementation of the system designed as a part of thesis `Recognizing People and Their Activities in Video from Security Cameras` at Faculty of Information Technology, Brno University of Technology.
 
 ---
 This application is a high-performance, modular video processing pipeline designed for fast indexing, object detection, tracking, and intelligent querying of large-scale video datasets. It leverages state-of-the-art models like YOLO, ByteTrack, X-CLIP, and SigLIP to enable offline search by objects, actions, colors and directions in natural language queries. 
