@@ -1,7 +1,9 @@
 # Video Processing & Search System
 ---
 **Author:** David Skalka
+
 **Date:** 2025-05-07
+
 **Description:** This is the implementation of the system designed as a part of thesis `Recognizing People and Their Activities in Video from Security Cameras` at Faculty of Informatics, Brno University of Technology.
 
 ---
@@ -95,7 +97,7 @@ python src/project/main.py
 ```
 
 ---
-## Project Structure
+## 🏗️ Project Structure
 The project should have the followin structure:
 ```
 video-detection-bp/
