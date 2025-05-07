@@ -88,13 +88,16 @@ source venv/bin/activate (only if the virtual environment is not already activat
 python src/project/main.py
 ```
 
-### 🐛 Common Issues
-**Missing Qt plugin 'xcb':** Ensure libxcb-cursor0 and libxcb-xinerama0 are installed.
-**Missing out correct nvidia drivers for GPU acceleration:** Ensure correct CUDA and cuDNN versions installed
-``` 
-  nvidia-smi
-  nvcc --version
-```
+### ⚠️ Common Issues
+**Missing Qt plugin 'xcb':** 
+- Ensure libxcb-cursor0 and libxcb-xinerama0 are installed.
+
+**Missing out correct nvidia drivers for GPU acceleration:** 
+- Ensure correct CUDA and cuDNN versions installed
+  - `nvidia-smi`
+  - `nvcc --version`
+- This project uses GPU acceleration by default. Ensure you have a compatible CUDA environment. If not, install the CPU-only versions of PyTorch and TensorFlow.
+
 
 ---
 ## 🏗️ Project Structure
