@@ -1,26 +1,70 @@
-# syntax=docker/dockerfile:1
-FROM nvidia/cuda:12.2.0-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
+# Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    python3.10 python3-pip python3-venv \
-    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev \
-    x11-apps libxkbcommon-x11-0 \
+    python3.10 \
+    python3-pip \
+    python3-dev \
+    git \
+    wget \
+    ffmpeg \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcb-util1 \
+    libxcb-keysyms1 \
+    libxcb-image0 \
+    libxcb-shm0 \
+    libxcb-icccm4 \
+    libxcb-sync1 \
+    libxcb-xfixes0 \
+    libxcb-shape0 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxkbcommon-x11-0 \
+    libxcb-cursor0 \
+    sqlite3 \
+    # QT dependencies
+    libqt6core6 \
+    libqt6gui6 \
+    libqt6widgets6 \
+    libxcb-xinerama0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0 \
+    xauth \
+    x11-utils \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Setup virtualenv
-RUN python3.10 -m pip install --upgrade pip setuptools wheel
+# Create a working directory
+WORKDIR /app
 
-# Install required Python packages
+# Copy requirements and install
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Add non-root user to run GUI apps if needed
-RUN useradd -ms /bin/bash devuser
-USER devuser
-WORKDIR /home/devuser/app
+# Copy application code
 COPY . .
 
-CMD ["python3", "src/project/main.py"]
+# Set up environment variables for NVIDIA and QT
+ENV QT_X11_NO_MITSHM=1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+
+# Set execute permissions for entrypoint
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

@@ -1,7 +1,13 @@
 # Video Processing & Search System
+---
+**Author:** David Skalka
+**Date:** 2025-05-07
+**Description:** This is the implementation of the system designed as a part of thesis `Recognizing People and Their Activities in Video from Security Cameras` at Faculty of Informatics, Brno University of Technology.
 
-This application is a high-performance, modular video processing pipeline designed for fast indexing, object detection, tracking, and intelligent querying of large-scale video datasets. It leverages state-of-the-art models like YOLO, ByteTrack, DeepSORT, X-CLIP, and SigLIP to enable offline search by objects, actions, colors and directions in natural language queries. The system is divided
-into 3 logical processing levels - YOLO, YOLO+ByteTrack and X-CLIP/SigLIP
+---
+This application is a high-performance, modular video processing pipeline designed for fast indexing, object detection, tracking, and intelligent querying of large-scale video datasets. It leverages state-of-the-art models like YOLO, ByteTrack, X-CLIP, and SigLIP to enable offline search by objects, actions, colors and directions in natural language queries. 
+
+The system is divided into 3 logical processing levels - YOLO, YOLO+ByteTrack and X-CLIP/SigLIP
 
 ---
 
@@ -39,18 +45,90 @@ into 3 logical processing levels - YOLO, YOLO+ByteTrack and X-CLIP/SigLIP
 
 TODO
 
+- Documentation for each class and method can be found in [documentation](docs/build/html/index.html)
+
 ---
 
 ## 🚀 Setup
+### System requirements
+- Ubuntu (recommended 22.04 LTS or newer) or other Linux distro
+- At least 4GB RAM (8GB+ recommended)
+- 20GB free disk space (Maybe could be less)
+- NVIDIA GPU (optional but recommended for better performance)
 
-1. create new virtual python environment using `python3 -m venv venv` in project directory
-2. Activate the environment using `source venv/bin/activate`
-3. Install dependencies using `pip install -r ../requirements.txt`
-4. Run program using `python main.py`
+> TODO: add Docker setup
 
-TODO: create Docker for easier setup
+### 🧪 Virtual Environment Setup (for development or testing)
+> This is example for Ubuntu and might be different on other distros
+1. Install system dependencies
+```
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip \
+    libxcb-cursor0 libxcb-xinerama0 libgl1-mesa-glx libglib2.0-0 \
+    sqlite3 ffmpeg libsm6 libxrender1 libqt6core6 libqt6gui6 \
+    libqt6widgets6 libxcb-xinerama0
+```   
 
+2. Create and activate virtual environment
+```
+cd ~/video-detection-bp
+python3 -m venv venv
+source venv/bin/activate
+```
+3. Install Python dependencies
+```
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+4. Run the app
+```
+source venv/bin/activate (only if the virtual environment is not already activated)
+python src/project/main.py
+```
 
+### 🐛 Common Issues
+**Missing Qt plugin 'xcb':** Ensure libxcb-cursor0 and libxcb-xinerama0 are installed.
+**Missing out correct nvidia drivers for GPU acceleration:** Ensure correct CUDA and cuDNN versions installed
+``` 
+  nvidia-smi
+  nvcc --version
+```
+
+---
+## Project Structure
+The project should have the followin structure:
+```
+video-detection-bp/
+├── docker-compose.yaml
+├── Dockerfile
+├── docs/
+├── entrypoint.sh
+├── README.md
+├── requirements.txt
+├── runs.zip
+└── src/
+    ├── examples/
+    ├── outputs/
+    └── project/
+        ├── app_profile.prof
+        ├── constants/
+        ├── database/
+        ├── database_operations.log
+        ├── detections.db
+        ├── detectors/
+        ├── env/
+        ├── interface/
+        ├── main.py
+        ├── parsers/
+        ├── processors/
+        ├── profile_graph.png
+        ├── profiling_utils/
+        ├── siglip/
+        ├── vector_database/
+        ├── xclip/
+        ├── yolo11n.pt
+        └── yolo11n-seg.pt
+```
 ---
 
 ## 🔧 Configuration

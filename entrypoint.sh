@@ -1,5 +1,18 @@
-# Allow Docker to access your X session
-xhost +local:root
+#!/bin/bash
 
-# Run Compose
-docker-compose up --build
+# Verify display is accessible
+echo "Display set to: $DISPLAY"
+xhost +local:root || echo "Warning: xhost command failed, X11 forwarding might not work"
+
+# Check NVIDIA GPU availability
+nvidia-smi || echo "Warning: NVIDIA GPU not detected or drivers not properly configured"
+
+# Check CUDA availability with a simple Python script
+python3 -c "import torch; print('CUDA Available:', torch.cuda.is_available()); print('Device Count:', torch.cuda.device_count())" || echo "Warning: CUDA check failed"
+
+# Run the application
+cd /app
+python3 src/project/main.py
+
+# Keep container running if the app crashes (for debugging)
+# exec "$@"
