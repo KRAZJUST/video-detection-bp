@@ -1,0 +1,1169 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.interface.app &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.interface.app</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.interface.app</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: app.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module implements the main application window. It is divded into several</span>
+<span class="c1"># sections and uses PyQt6 for the UI. It also uses several workers classes from</span>
+<span class="c1"># the interface directory to handle video processing, querying, and displaying</span>
+<span class="c1"># results.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt6.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                            <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> 
+                            <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QSpinBox</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QProgressBar</span><span class="p">,</span>
+                            <span class="n">QScrollArea</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QFrame</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt6.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QEvent</span><span class="p">,</span> <span class="n">QMetaObject</span><span class="p">,</span> <span class="n">Q_ARG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt6.QtGui</span><span class="w"> </span><span class="kn">import</span> <span class="n">QPixmap</span><span class="p">,</span> <span class="n">QImage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageQt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.video_info_worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoInfoWorker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.video_processing_worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoProcessingWorker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.query_worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryWorker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.frame_slideshow</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrameSlideshow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.area_selector</span><span class="w"> </span><span class="kn">import</span> <span class="n">AreaSelector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.advanced_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdvancedSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.processing_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingSettings</span>
+
+<div class="viewcode-block" id="VideoProcessingApp">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VideoProcessingApp</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the main application window.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            database_path (str): Path to the database</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_path</span> <span class="o">=</span> <span class="n">database_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">found_frames_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extracted_frames_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">found_log_entries</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp_embeddings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_batch_count</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_frames_count</span> <span class="o">=</span> <span class="mi">40</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate_frames_value</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_segmentation_value</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_segmentation_value</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_siglip_with_yolo_value</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Video Processing Application&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">900</span><span class="p">)</span>
+        
+        <span class="c1"># Create main widget and layout</span>
+        <span class="n">main_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">main_widget</span><span class="p">)</span>
+        <span class="n">main_layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">main_widget</span><span class="p">)</span>
+        
+        <span class="c1"># Create top section with horizontal layout</span>
+        <span class="n">top_section</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Setup all GUI components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_io_section</span><span class="p">(</span><span class="n">top_section</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_query_section</span><span class="p">(</span><span class="n">top_section</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_settings_section</span><span class="p">(</span><span class="n">top_section</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_video_info_section</span><span class="p">(</span><span class="n">top_section</span><span class="p">)</span>
+        
+        <span class="c1"># Add top section to main layout</span>
+        <span class="n">main_layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">top_section</span><span class="p">)</span>
+        
+        <span class="c1"># Setup results section</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_results_section</span><span class="p">(</span><span class="n">main_layout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VideoProcessingApp.setup_io_section">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.setup_io_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_io_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_layout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the input and output section of the UI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_layout: The layout to add the section to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">io_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Input and Output&quot;</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Video Path</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Video Path:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_path_entry</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_path_entry</span><span class="p">)</span>
+        <span class="n">browse_video_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Browse Video&quot;</span><span class="p">)</span>
+        <span class="n">browse_video_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_video</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">browse_video_btn</span><span class="p">)</span>
+        
+        <span class="c1"># Output Directory</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Output Directory:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir_entry</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir_entry</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir_entry</span><span class="p">)</span>
+        <span class="n">browse_dir_btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Browse Directory&quot;</span><span class="p">)</span>
+        <span class="n">browse_dir_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_output_dir</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">browse_dir_btn</span><span class="p">)</span>
+        
+        <span class="n">io_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">parent_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">io_group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.setup_query_section">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.setup_query_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_query_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_layout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the query builder section of the UI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_layout: The layout to add the section to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Query Builder&quot;</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># Query input</span>
+        <span class="n">query_row</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="c1"># Left side - Query text entry</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Query:&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_entry</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="n">query_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_entry</span><span class="p">)</span>
+        <span class="c1"># Right side - Advanced settings button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced_settings_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;⚙&quot;</span><span class="p">)</span>  <span class="c1"># Gear icon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced_settings_button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s2">&quot;Query Settings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced_settings_button</span><span class="o">.</span><span class="n">setMaximumSize</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Make it small</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced_settings_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_advanced_settings</span><span class="p">)</span>
+        <span class="n">query_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">advanced_settings_button</span><span class="p">)</span>
+        <span class="c1"># Add the query row to the main layout</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">query_row</span><span class="p">)</span>
+
+        <span class="c1"># Query controls layout</span>
+        <span class="n">controls_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="c1"># Search button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Search Query&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_query</span><span class="p">)</span>
+        <span class="n">controls_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_button</span><span class="p">)</span>
+        <span class="c1"># add controls layout to the main layout</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">controls_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Progress bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_progress</span> <span class="o">=</span> <span class="n">QProgressBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_progress</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_progress</span><span class="p">)</span>
+
+        <span class="c1"># Query feedback message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_feedback</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_feedback</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_feedback</span><span class="p">)</span>
+
+        <span class="c1"># Results count label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_count_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Number of frames: -&quot;</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_count_label</span><span class="p">)</span>
+        
+        <span class="n">query_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">parent_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">query_group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.setup_settings_section">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.setup_settings_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_settings_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_layout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the processing settings section of the UI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_layout: The layout to add the section to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">settings_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Processing Settings&quot;</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="c1"># horizontal layout for tracker and interval</span>
+        <span class="n">tracker_row</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="c1"># Left side - Tracker selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s2">&quot;yolo&quot;</span><span class="p">,</span> <span class="s2">&quot;bytetrack&quot;</span><span class="p">,</span> <span class="s2">&quot;xclip-32&quot;</span><span class="p">,</span> <span class="s2">&quot;siglip&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentTextChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_interval_entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s2">&quot;Select the tracker to use for processing.&quot;</span><span class="p">)</span>
+        <span class="n">tracker_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="p">)</span>
+        <span class="c1"># Centre - Interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span> <span class="o">=</span> <span class="n">QSpinBox</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s2">&quot;Interval for frames extraction.&quot;</span><span class="p">)</span>
+        <span class="n">tracker_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="p">)</span>
+        <span class="c1"># Right side - Advanced settings button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_settings_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;⚙&quot;</span><span class="p">)</span>  <span class="c1"># Gear icon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_settings_button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="s2">&quot;Processing Settings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_settings_button</span><span class="o">.</span><span class="n">setMaximumSize</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Make it small</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_settings_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_processing_settings</span><span class="p">)</span>
+        <span class="n">tracker_row</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_settings_button</span><span class="p">)</span>
+        <span class="c1"># Add the query row to the main layout</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">tracker_row</span><span class="p">)</span>
+
+        <span class="n">process_buttons_layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="c1"># Process button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Process Video&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="mi">310</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_video_processing</span><span class="p">)</span>
+        <span class="n">process_buttons_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="p">)</span>
+        <span class="c1"># Cancel button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">setMaximumSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_video_processing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># Initially invisible</span>
+        <span class="n">process_buttons_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="p">)</span>
+        <span class="c1"># Add the process buttons layout to the main layout</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">process_buttons_layout</span><span class="p">)</span>
+        
+        <span class="c1"># Progress bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span> <span class="o">=</span> <span class="n">QProgressBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setMaximumSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="p">)</span>
+        <span class="c1"># Status message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_message</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Ready to process video&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_message</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignmentFlag</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_message</span><span class="p">)</span>
+        
+        <span class="n">settings_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">parent_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">settings_group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.setup_video_info_section">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.setup_video_info_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_video_info_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_layout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the video information section of the UI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_layout: The layout to add the section to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">video_info_group</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="s2">&quot;Video Information&quot;</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">()</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_info_label</span><span class="p">)</span>
+        
+         <span class="c1"># AoI selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Select Area of Interest&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_area_of_interest</span><span class="p">)</span>
+        <span class="c1"># Disable the button until a video is selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">area_selector_button</span><span class="p">)</span>
+        <span class="c1"># Label to display the selected area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;Area of Interest: Not Selected&quot;</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">area_label</span><span class="p">)</span>
+        <span class="c1"># Reset button to clear the selected area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s2">&quot;Reset Area&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_area_of_interest</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info_progress</span> <span class="o">=</span> <span class="n">QProgressBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info_progress</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_info_progress</span><span class="p">)</span>
+        
+        <span class="n">video_info_group</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">parent_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">video_info_group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.setup_results_section">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.setup_results_section">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_results_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_layout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the results section of the UI for displaying found frames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_layout: The layout to add the section to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create scroll area for results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span> <span class="o">=</span> <span class="n">QScrollArea</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Create widget to hold the grid of results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_widget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Add some spacing between items</span>
+        
+        <span class="c1"># Set column stretch to make them equal width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_widget</span><span class="p">)</span>
+        <span class="n">parent_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="p">)</span>
+        
+        <span class="c1"># Connect resize event to handle responsive layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+        <span class="c1"># For dynamic loading</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># For batch loading - 10 rows at a time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.select_video">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.select_video">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_video</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open a file dialog to select a video file and start the video info worker.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Clear previous results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_results_layout</span><span class="p">()</span>
+        
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;Select Video File&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Video files (*.mp4 *.avi *.mkv *.mov);;All files (*.*)&quot;</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_path</span> <span class="o">=</span> <span class="n">file_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relative_video_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relative_video_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">video_path_entry</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relative_video_path</span><span class="p">)</span>
+            
+            <span class="c1"># Start video info worker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;video_info&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span> <span class="o">=</span> <span class="n">VideoInfoWorker</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_video_info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_video_info_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="VideoProcessingApp.update_video_info">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.update_video_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_video_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the video information label with metadata from the video.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            metadata: Dictionary containing video metadata</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="mi">60</span><span class="p">)</span>
+        
+        <span class="n">bitrate_str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;bitrate&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
+            <span class="n">bitrate_mbps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;bitrate&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">1_000_000</span>
+            <span class="n">bitrate_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bitrate_mbps</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Mbps&quot;</span>
+        
+        <span class="n">info_text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Duration: </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;FPS: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;fps&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Resolution: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Total Frames: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;frame_count&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Codec: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;codec&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Bitrate: </span><span class="si">{</span><span class="n">bitrate_str</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;File Size: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">info_text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;video_info&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Update the interval entry based on the tracker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bytetrack&quot;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+        <span class="c1"># Store the video metadata for later use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="c1"># Enable the AoI selection button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Extract first frame of the video for AoI selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extract_first_frame</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.open_advanced_settings">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.open_advanced_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_advanced_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open the advanced settings dialog for query settings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">settings_dialog</span> <span class="o">=</span> <span class="n">AdvancedSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings_dialog</span><span class="o">.</span><span class="n">exec</span><span class="p">():</span>
+            <span class="c1"># Apply the settings when OK button is clicked</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_advanced_settings</span><span class="p">(</span><span class="n">settings_dialog</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.apply_advanced_settings">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.apply_advanced_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_advanced_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialog</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the advanced settings from the dialog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store all settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_batch_count</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">batch_count_spinbox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_frames_count</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">frame_count_spinbox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="c1"># Store the deduplication and segmentation settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate_frames_value</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">deduplicate_frames_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_segmentation_value</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">use_segmentation_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.open_processing_settings">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.open_processing_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_processing_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open the processing settings dialog for video processing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">settings_dialog</span> <span class="o">=</span> <span class="n">ProcessingSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings_dialog</span><span class="o">.</span><span class="n">exec</span><span class="p">():</span>
+            <span class="c1"># Apply the settings when OK button is clicked</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_processing_settings</span><span class="p">(</span><span class="n">settings_dialog</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="VideoProcessingApp.apply_processing_settings">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.apply_processing_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_processing_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialog</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the processing settings from the dialog.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dialog: The dialog containing the settings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store the processing segmentation value and skip siglip value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_segmentation_value</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">use_segmentation_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_siglip_with_yolo_value</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">skip_siglip_frames_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.extract_first_frame">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.extract_first_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_first_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the first frame of the video for Area of Interest selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Extract the first frame of the video</span>
+            <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_path</span><span class="p">)</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="c1"># Store the frame in memory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">first_frame</span> <span class="o">=</span> <span class="n">frame</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error extracting first frame&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error extracting first frame: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.select_area_of_interest">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.select_area_of_interest">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_area_of_interest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open the area selector dialog to select an area of interest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;first_frame&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_first_frame</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Could not extract first frame&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+                        
+        <span class="c1"># Convert BGR to RGB for display</span>
+        <span class="n">rgb_frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        
+        <span class="c1"># Create QImage from numpy array</span>
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">rgb_frame</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">bytes_per_line</span> <span class="o">=</span> <span class="n">channels</span> <span class="o">*</span> <span class="n">width</span>
+        <span class="n">q_image</span> <span class="o">=</span> <span class="n">QImage</span><span class="p">(</span><span class="n">rgb_frame</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bytes_per_line</span><span class="p">,</span> <span class="n">QImage</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        
+        <span class="c1"># Create QPixmap from QImage</span>
+        <span class="n">pixmap</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">q_image</span><span class="p">)</span>
+        
+        <span class="c1"># Pass pixmap directly to AreaSelector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector</span> <span class="o">=</span> <span class="n">AreaSelector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector</span><span class="o">.</span><span class="n">set_pixmap</span><span class="p">(</span><span class="n">pixmap</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector</span><span class="o">.</span><span class="n">area_selected</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_area_selected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_selector</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="VideoProcessingApp.on_area_selected">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.on_area_selected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_area_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle the area selected by the user</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            area: The selected area of interest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store the selected area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span> <span class="o">=</span> <span class="n">area</span>
+        <span class="c1"># Update the area label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Area of Interest: (</span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">x</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">y</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">width</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">area</span><span class="o">.</span><span class="n">height</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="c1"># Enable the reset button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.reset_area_of_interest">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.reset_area_of_interest">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_area_of_interest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the selected area of interest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;aoi&#39;</span><span class="p">):</span>
+            <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;aoi&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Area of Interest: Not Selected&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_area_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.handle_video_info_error">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.handle_video_info_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_video_info_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle errors during video information retrieval.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            error_message: Error message from the worker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_info_label</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;video_info&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.select_output_dir">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.select_output_dir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_output_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getExistingDirectory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;Select Output Directory&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">dir_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">dir_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">found_frames_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;found_frames&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extracted_frames_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;extracted_frames&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relative_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relative_output_dir</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_dir_entry</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relative_output_dir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.update_interval_entry">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.update_interval_entry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_interval_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tracker</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the interval entry based on the selected tracker.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            tracker: The selected tracker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tracker</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yolo&quot;</span><span class="p">,</span> <span class="s2">&quot;xclip-32&quot;</span><span class="p">,</span> <span class="s2">&quot;siglip&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.show_loading">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.show_loading">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_loading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">show</span><span class="p">):</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">button</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">section</span> <span class="o">==</span> <span class="s1">&#39;video_info&#39;</span><span class="p">:</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">video_info_progress</span>
+        <span class="k">elif</span> <span class="n">section</span> <span class="o">==</span> <span class="s1">&#39;video_processing&#39;</span><span class="p">:</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span>
+            <span class="n">button</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span>
+        <span class="k">elif</span> <span class="n">section</span> <span class="o">==</span> <span class="s1">&#39;query&#39;</span><span class="p">:</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_progress</span>
+            <span class="n">button</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_button</span>
+            
+        <span class="k">if</span> <span class="n">progress_bar</span> <span class="ow">and</span> <span class="n">section</span> <span class="o">!=</span> <span class="s1">&#39;video_processing&#39;</span><span class="p">:</span>
+            <span class="n">progress_bar</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">show</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Indeterminate progress</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">button</span><span class="p">:</span>
+            <span class="n">button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="ow">not</span> <span class="n">show</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.start_video_processing">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.start_video_processing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_video_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the video processing worker to process the video.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start processing worker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span> <span class="o">=</span> <span class="n">VideoProcessingWorker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">video_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+            <span class="n">database_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span>
+            <span class="n">tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_processing_error</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_processing_progress</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_processing_finished</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># Update UI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.cancel_video_processing">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.cancel_video_processing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel_video_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cancel the video processing worker if it is running and the cancel</span>
+<span class="sd">        button is clicked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;processing_worker&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+            <span class="c1"># Don&#39;t force terminate the thread, just set the flag to stop</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">terminate_processing</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_message</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Canceling processing...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_processing_ui</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.update_processing_progress">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.update_processing_progress">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_processing_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">percentage</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the processing status message in the UI</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: The status message to display</span>
+<span class="sd">            percentage: The percentage of completion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;status_message&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_message</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;processing_progress&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">percentage</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.handle_processing_error">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.handle_processing_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_processing_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle errors during video processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            error_message: Error message from the worker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing video: </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;video_processing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_processing_ui</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.handle_processing_finished">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.handle_processing_finished">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_processing_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle the completion of video processing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_processing_ui</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.reset_processing_ui">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.reset_processing_ui">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_processing_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset UI elements after processing completes or is cancelled</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;processing_progress&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_progress</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;process_button&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_button</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;cancel_button&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_button</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.eventFilter">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.eventFilter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Event filter to handle resize events and scroll events in the results section.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj: The object that received the event</span>
+<span class="sd">            event: The event that occurred</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Respond to resize events</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">Resize</span><span class="p">:</span>
+            <span class="c1"># Do not resize previous results while the new video is being selected</span>
+            <span class="c1"># This is necessary to avoid resizing issues when the video is being loaded</span>
+            <span class="c1"># as the previous results are being cleared</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;is_changing_video&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_changing_video</span><span class="p">:</span>
+                <span class="c1"># safety check to make sure frame containers exist</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChildren</span><span class="p">(</span><span class="n">QFrame</span><span class="p">,</span> <span class="s2">&quot;result_frame&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">adjust_image_sizes</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1"># For dynamic loading - detect when scrolling nears the bottom</span>
+        <span class="k">elif</span> <span class="n">obj</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">Wheel</span><span class="p">:</span>
+            <span class="c1"># Check if we&#39;re near the bottom of the scroll area</span>
+            <span class="n">scrollbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span>
+            
+            <span class="c1"># Only trigger load if we&#39;re near the bottom AND we have more to load</span>
+            <span class="n">more_to_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_results</span><span class="p">)</span>
+            <span class="n">near_bottom</span> <span class="o">=</span> <span class="n">scrollbar</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">scrollbar</span><span class="o">.</span><span class="n">maximum</span><span class="p">()</span> <span class="o">-</span> <span class="mi">200</span>
+            
+            <span class="k">if</span> <span class="n">more_to_load</span> <span class="ow">and</span> <span class="n">near_bottom</span><span class="p">:</span>
+                <span class="c1"># Throttle loading to prevent multiple calls</span>
+                <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_last_load_time&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_load_time</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_last_load_time</span> <span class="o">=</span> <span class="n">current_time</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Near bottom, loading next batch. Scrollbar: </span><span class="si">{</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">maximum</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">load_next_batch</span><span class="p">()</span>
+            
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eventFilter</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.adjust_image_sizes">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.adjust_image_sizes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adjust_image_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjust the sizes of the images in the results section based on the </span>
+<span class="sd">        current viewport size. This method is called when the window is resized or when the</span>
+<span class="sd">        scroll area is resized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate new target width</span>
+        <span class="n">available_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="n">effective_width</span> <span class="o">=</span> <span class="n">available_width</span> <span class="o">-</span> <span class="mi">5</span>
+        <span class="n">target_width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">effective_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Check if there are any loaded images</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;loaded_images&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No loaded images to resize.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># Check if target width is valid</span>
+        <span class="k">if</span> <span class="n">target_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid target width for resizing.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Resize all currently displayed images</span>
+        <span class="k">for</span> <span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">frame_container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span><span class="p">:</span>
+            <span class="c1"># Find the image label in the container</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">frame_container</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s1">&#39;pixmap&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">pixmap</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pixmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_frame_image</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">target_width</span><span class="p">)</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">pixmap</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="k">break</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.start_query">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.start_query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the query worker to process the query and display results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Convert the area of interest to a tuple and add margin to it</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;aoi&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span><span class="p">:</span>
+            <span class="c1"># Margin 20 pixels TODO: Make this configurable</span>
+            <span class="n">aoi</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aoi</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">aoi</span><span class="o">.</span><span class="n">height</span><span class="p">(),</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aoi</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># Start query worker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span> <span class="o">=</span> <span class="n">QueryWorker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                                        <span class="n">query</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">query_entry</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> 
+                                        <span class="n">area_of_interest</span><span class="o">=</span><span class="n">aoi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_query_results</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_query_error</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_query_feedback</span><span class="p">)</span>
+        <span class="c1"># Pass deduplication option to the query worker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">deduplicate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate_frames_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.update_query_feedback">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.update_query_feedback">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_query_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the query feedback message in the UI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: The feedback message to display</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;query_feedback&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query_feedback</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.display_query_results">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.display_query_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_query_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the results of the query in the results section.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            results: The results of the query</span>
+<span class="sd">            metadata: Metadata associated with the results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Displaying </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> results&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure results is not None and has a valid length</span>
+        <span class="n">result_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Results count: </span><span class="si">{</span><span class="n">result_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># the updates must be done in the main thread</span>
+        <span class="c1"># otherwise the text won&#39;t update properly</span>
+        <span class="n">QMetaObject</span><span class="o">.</span><span class="n">invokeMethod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_count_label</span><span class="p">,</span> <span class="s2">&quot;setText&quot;</span><span class="p">,</span> 
+                                <span class="n">Qt</span><span class="o">.</span><span class="n">ConnectionType</span><span class="o">.</span><span class="n">QueuedConnection</span><span class="p">,</span> 
+                                <span class="n">Q_ARG</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Number of frames: </span><span class="si">{</span><span class="n">result_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        
+        <span class="c1"># Store all results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># Clear existing results first</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_results_layout</span><span class="p">()</span>
+        
+        <span class="c1"># Only load the first batch initially</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_next_batch</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.clear_results_layout">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.clear_results_layout">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_results_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear the results layout and remove all widgets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Clear existing results</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">takeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">widget</span><span class="p">():</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.load_next_batch">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.load_next_batch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the next batch of results into the results section.</span>
+<span class="sd">        This method is called when the user scrolls to the bottom of the </span>
+<span class="sd">        results section.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If no more results to load, return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_results</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All batches loaded. Current batch: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="si">}</span><span class="s2">, Total items: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading batch </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Calculate available width for columns</span>
+        <span class="n">max_cols</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">available_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scroll_area</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="c1"># Subtract the margin from the width</span>
+        <span class="n">effective_width</span> <span class="o">=</span> <span class="n">available_width</span> <span class="o">-</span> <span class="mi">80</span>
+        <span class="n">target_width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">effective_width</span> <span class="o">/</span> <span class="n">max_cols</span><span class="p">)</span>
+        
+        <span class="c1"># Get the starting and ending indices for this batch</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_results</span><span class="p">))</span>
+        
+        <span class="c1"># Get items to process in this batch</span>
+        <span class="n">batch_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_results</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch items: </span><span class="si">{</span><span class="n">batch_items</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Process each item in the batch</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_items</span><span class="p">):</span>
+            <span class="c1"># Calculate position</span>
+            <span class="n">absolute_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">i</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">absolute_idx</span> <span class="o">//</span> <span class="n">max_cols</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">absolute_idx</span> <span class="o">%</span> <span class="n">max_cols</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding image at position (</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Ensure frame_path is a string and exists</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">frame_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">found_frames_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;frame_</span><span class="si">{</span><span class="n">frame_path</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">.jpg&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">frame_path</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Create widget for this frame</span>
+                    <span class="n">frame_widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_frame_widget</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">target_width</span><span class="p">)</span>
+                    
+                    <span class="c1"># Add to grid layout at the calculated position</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">results_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">frame_widget</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                    
+                    <span class="c1"># Store reference for resizing</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">loaded_images</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">frame_widget</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating widget for </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame not found: </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Increment batch counter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.create_frame_widget">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.create_frame_widget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_frame_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">target_width</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a widget for a single frame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_path: Path to the frame image</span>
+<span class="sd">            metadata: Metadata associated with the frame</span>
+<span class="sd">            target_width: Target width for resizing the image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Create a frame container</span>
+        <span class="n">frame_container</span> <span class="o">=</span> <span class="n">QFrame</span><span class="p">()</span>
+        <span class="n">frame_container</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Shape</span><span class="o">.</span><span class="n">Box</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">frame_container</span><span class="p">)</span>
+
+        <span class="c1"># Load and display the image</span>
+        <span class="n">pixmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_frame_image</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">target_width</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pixmap</span><span class="o">.</span><span class="n">isNull</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Pixmap is null for </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">frame_container</span>
+
+        <span class="n">image_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">()</span>
+        <span class="c1"># Create a copy of the pixmap to prevent memory issues and overwrites - if not copied, all previous images will be overwritten by the last one</span>
+        <span class="n">image_label</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">pixmap</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">image_label</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignmentFlag</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+        <span class="c1"># Don&#39;t scale contents automatically</span>
+        <span class="n">image_label</span><span class="o">.</span><span class="n">setScaledContents</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Make the image clickable</span>
+        <span class="n">image_label</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">CursorShape</span><span class="o">.</span><span class="n">PointingHandCursor</span><span class="p">)</span>
+        <span class="n">image_label</span><span class="o">.</span><span class="n">mousePressEvent</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">event</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_video_at_frame</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">image_label</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_container</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.load_frame_image">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.load_frame_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_frame_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_path</span><span class="p">,</span> <span class="n">target_width</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load an image from the given path and resize it to the target width.</span>
+<span class="sd">        This method uses PIL to load and resize the image, then converts it to QPixmap.</span>
+<span class="sd">        This is done to avoid issues with QPixmap loading large images directly.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_path: Path to the image file</span>
+<span class="sd">            target_width: Target width for resizing the image</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            QPixmap: Resized image as QPixmap</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Ensure frame_path is a string</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid frame path type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading image from: </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Debug print</span>
+            
+            <span class="c1"># Check if file exists</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">frame_path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image file not found: </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+            <span class="c1"># Load image using PIL</span>
+            <span class="n">pil_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span>
+            
+            <span class="c1"># Calculate aspect ratio preserving resize dimensions</span>
+            <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">pil_image</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="n">pil_image</span><span class="o">.</span><span class="n">height</span>
+            <span class="c1"># Adjust height based on aspect ratio</span>
+            <span class="n">target_height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
+
+            <span class="c1"># Resize image</span>
+            <span class="n">pil_image</span> <span class="o">=</span> <span class="n">pil_image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">target_width</span><span class="p">,</span> <span class="n">target_height</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">Resampling</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            
+            <span class="c1"># Convert PIL image to QPixmap</span>
+            <span class="n">qimage</span> <span class="o">=</span> <span class="n">ImageQt</span><span class="o">.</span><span class="n">ImageQt</span><span class="p">(</span><span class="n">pil_image</span><span class="p">)</span>
+            <span class="n">pixmap</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">qimage</span><span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">pixmap</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading image </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Return a blank or error pixmap with fixed height</span>
+            <span class="k">return</span> <span class="n">QPixmap</span><span class="p">((</span><span class="n">target_width</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.open_video_at_frame">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.open_video_at_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_video_at_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open frame slideshow starting from the selected frame</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_path: Path to the selected frame</span>
+<span class="sd">            metadata: Metadata associated with the selected frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the directory containing the frames</span>
+        <span class="n">frame_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span>
+        
+        <span class="c1"># If frame_dir is empty, use the default found_frames directory</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_dir</span><span class="p">:</span>
+            <span class="n">frame_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">found_frames_dir</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bytetrack&quot;</span><span class="p">:</span>
+            <span class="n">extracted_frames_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;extracted_frames_b&quot;</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">extracted_frames_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;extracted_frames_yx&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Create and show slideshow window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slideshow_window</span> <span class="o">=</span> <span class="n">FrameSlideshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                                               <span class="n">starting_frame_path</span><span class="o">=</span><span class="n">frame_path</span><span class="p">,</span> 
+                                               <span class="n">frame_dir</span><span class="o">=</span><span class="n">frame_dir</span><span class="p">,</span> 
+                                               <span class="n">extracted_frames_dir</span><span class="o">=</span><span class="n">extracted_frames_dir</span><span class="p">,</span> 
+                                               <span class="n">context_frames</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> 
+                                               <span class="n">forward_frames</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> 
+                                               <span class="n">interval</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                                               <span class="n">fps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_info</span><span class="p">[</span><span class="s1">&#39;fps&#39;</span><span class="p">]),</span> 
+                                               <span class="n">frame_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interval_entry</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+                                               <span class="n">input_video_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+                                               <span class="n">database_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_path</span><span class="p">,</span>
+                                               <span class="n">tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                                               <span class="n">metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slideshow_window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.handle_query_error">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.handle_query_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_query_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle errors during query processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            error_message: Error message from the worker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running query: </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_loading</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VideoProcessingApp.closeEvent">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.app.VideoProcessingApp.closeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle application close event.</span>
+<span class="sd">        This method is called when the user closes the application window.</span>
+<span class="sd">        It ensures that any running workers are stopped gracefully.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event: The close event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Stop any running workers</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;video_info_worker&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">video_info_worker</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;processing_worker&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processing_worker</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;query_worker&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">isRunning</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query_worker</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

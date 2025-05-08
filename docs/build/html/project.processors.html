@@ -93,8 +93,152 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="project-processors-video-processor-module">
-<h2>project.processors.video_processor module<a class="headerlink" href="#project-processors-video-processor-module" title="Link to this heading"></a></h2>
+<section id="module-project.processors.video_processor">
+<span id="project-processors-video-processor-module"></span><h2>project.processors.video_processor module<a class="headerlink" href="#module-project.processors.video_processor" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.processors.video_processor.</span></span><span class="sig-name descname"><span class="pre">VideoProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yolo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_segmentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_siglip_with_yolo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.add_detections_in_db">
+<span class="sig-name descname"><span class="pre">add_detections_in_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.add_detections_in_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.add_detections_in_db" title="Link to this definition"></a></dt>
+<dd><p>Method to add detections to the database.
+It inserts the detections in bulk for the current frame.
+This method is called after processing each frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>detections</strong> (<em>list</em>) – List of detection dictionaries</p></li>
+<li><p><strong>tracker</strong> (<em>str</em>) – Tracker model name (‘yolo’ or ‘bytetrack’)</p></li>
+<li><p><strong>frame_number</strong> (<em>int</em>) – Frame number for the detections</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.calculate_expected_frames">
+<span class="sig-name descname"><span class="pre">calculate_expected_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.calculate_expected_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.calculate_expected_frames" title="Link to this definition"></a></dt>
+<dd><p>Calculate the expected number of frames to be extracted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Expected number of frames</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.calculate_overall_progress">
+<span class="sig-name descname"><span class="pre">calculate_overall_progress</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.calculate_overall_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.calculate_overall_progress" title="Link to this definition"></a></dt>
+<dd><p>Calculate overall progress based on weighted stages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Overall progress percentage (0-100)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.create_frame_batches">
+<span class="sig-name descname"><span class="pre">create_frame_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.create_frame_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.create_frame_batches" title="Link to this definition"></a></dt>
+<dd><p>Organize extracted frames into batches for X-CLIP processing.
+:type frame_files: 
+:param frame_files: List of frame file paths, sorted by frame number.
+:type frame_files: list
+:type batch_size: 
+:param batch_size: Number of frames in each batch/clip.
+:type batch_size: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of frame batches (each batch is a list of frame paths).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.extract_frames">
+<span class="sig-name descname"><span class="pre">extract_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.extract_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.extract_frames" title="Link to this definition"></a></dt>
+<dd><p>Extract frames from the video using FFmpeg.
+This method uses FFmpeg to extract frames from the video at a specified interval.
+It creates a separate directory for the extracted frames and handles CUDA
+acceleration if available. The extraction run in a separate process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if extraction is successful, False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.frames_already_extracted">
+<span class="sig-name descname"><span class="pre">frames_already_extracted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.frames_already_extracted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.frames_already_extracted" title="Link to this definition"></a></dt>
+<dd><p>Check if the required number of frames has already been extracted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if frames are already extracted, False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.load_frames_as_clip">
+<span class="sig-name descname"><span class="pre">load_frames_as_clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.load_frames_as_clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.load_frames_as_clip" title="Link to this definition"></a></dt>
+<dd><p>Load frames from file paths and prepare them as an X-CLIP input.
+:type frame_paths: 
+:param frame_paths: List of frame paths for a single clip.
+:type frame_paths: list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of PIL.Image objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.process_video">
+<span class="sig-name descname"><span class="pre">process_video</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.process_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.process_video" title="Link to this definition"></a></dt>
+<dd><p>This method orchestrates the video processing pipeline.
+It includes initialization, frame extraction, and object detection.
+It also handles progress updates and termination checks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if processing is successful, False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.processors.video_processor.VideoProcessor.update_progress">
+<span class="sig-name descname"><span class="pre">update_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/processors/video_processor.html#VideoProcessor.update_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.processors.video_processor.VideoProcessor.update_progress" title="Link to this definition"></a></dt>
+<dd><p>Update progress with a status message and percentage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>str</em>) – Status message to display</p></li>
+<li><p><strong>stage</strong> (<em>str</em>) – Current processing stage</p></li>
+<li><p><strong>progress</strong> (<em>int</em>) – Progress percentage for the current stage (0-100)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-project.processors">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-project.processors" title="Link to this heading"></a></h2>

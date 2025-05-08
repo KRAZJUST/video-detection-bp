@@ -19,7 +19,7 @@ extensions = []
 templates_path = ['_templates']
 exclude_patterns = []
 autodoc_mock_imports = ['database', 'interface', 'constants', 'detectors', 
-                        'parsers', 'processors', 'profiling_utils', 
+                        'parsers', 'processors', 'profiling_utils', 'xclip',
                         'siglip', 'vector_database']
 
 

@@ -103,8 +103,365 @@
 </dd></dl>
 
 </section>
-<section id="project-interface-app-module">
-<h2>project.interface.app module<a class="headerlink" href="#project-interface-app-module" title="Link to this heading"></a></h2>
+<section id="module-project.interface.app">
+<span id="project-interface-app-module"></span><h2>project.interface.app module<a class="headerlink" href="#module-project.interface.app" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.interface.app.</span></span><span class="sig-name descname"><span class="pre">VideoProcessingApp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QMainWindow</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.adjust_image_sizes">
+<span class="sig-name descname"><span class="pre">adjust_image_sizes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.adjust_image_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.adjust_image_sizes" title="Link to this definition"></a></dt>
+<dd><p>Adjust the sizes of the images in the results section based on the
+current viewport size. This method is called when the window is resized or when the
+scroll area is resized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.apply_advanced_settings">
+<span class="sig-name descname"><span class="pre">apply_advanced_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dialog</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.apply_advanced_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.apply_advanced_settings" title="Link to this definition"></a></dt>
+<dd><p>Apply the advanced settings from the dialog.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.apply_processing_settings">
+<span class="sig-name descname"><span class="pre">apply_processing_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dialog</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.apply_processing_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.apply_processing_settings" title="Link to this definition"></a></dt>
+<dd><p>Apply the processing settings from the dialog.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dialog</strong> – The dialog containing the settings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.cancel_video_processing">
+<span class="sig-name descname"><span class="pre">cancel_video_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.cancel_video_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.cancel_video_processing" title="Link to this definition"></a></dt>
+<dd><p>Cancel the video processing worker if it is running and the cancel
+button is clicked.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.clear_results_layout">
+<span class="sig-name descname"><span class="pre">clear_results_layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.clear_results_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.clear_results_layout" title="Link to this definition"></a></dt>
+<dd><p>Clear the results layout and remove all widgets.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.closeEvent">
+<span class="sig-name descname"><span class="pre">closeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.closeEvent" title="Link to this definition"></a></dt>
+<dd><p>Handle application close event.
+This method is called when the user closes the application window.
+It ensures that any running workers are stopped gracefully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event</strong> – The close event</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.create_frame_widget">
+<span class="sig-name descname"><span class="pre">create_frame_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.create_frame_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.create_frame_widget" title="Link to this definition"></a></dt>
+<dd><p>Create a widget for a single frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_path</strong> – Path to the frame image</p></li>
+<li><p><strong>metadata</strong> – Metadata associated with the frame</p></li>
+<li><p><strong>target_width</strong> – Target width for resizing the image</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.display_query_results">
+<span class="sig-name descname"><span class="pre">display_query_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.display_query_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.display_query_results" title="Link to this definition"></a></dt>
+<dd><p>Display the results of the query in the results section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> – The results of the query</p></li>
+<li><p><strong>metadata</strong> – Metadata associated with the results</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.eventFilter">
+<span class="sig-name descname"><span class="pre">eventFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.eventFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.eventFilter" title="Link to this definition"></a></dt>
+<dd><p>Event filter to handle resize events and scroll events in the results section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – The object that received the event</p></li>
+<li><p><strong>event</strong> – The event that occurred</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.extract_first_frame">
+<span class="sig-name descname"><span class="pre">extract_first_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.extract_first_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.extract_first_frame" title="Link to this definition"></a></dt>
+<dd><p>Get the first frame of the video for Area of Interest selection</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.handle_processing_error">
+<span class="sig-name descname"><span class="pre">handle_processing_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.handle_processing_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.handle_processing_error" title="Link to this definition"></a></dt>
+<dd><p>Handle errors during video processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>error_message</strong> – Error message from the worker</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.handle_processing_finished">
+<span class="sig-name descname"><span class="pre">handle_processing_finished</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.handle_processing_finished"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.handle_processing_finished" title="Link to this definition"></a></dt>
+<dd><p>Handle the completion of video processing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.handle_query_error">
+<span class="sig-name descname"><span class="pre">handle_query_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.handle_query_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.handle_query_error" title="Link to this definition"></a></dt>
+<dd><p>Handle errors during query processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>error_message</strong> – Error message from the worker</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.handle_video_info_error">
+<span class="sig-name descname"><span class="pre">handle_video_info_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.handle_video_info_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.handle_video_info_error" title="Link to this definition"></a></dt>
+<dd><p>Handle errors during video information retrieval.
+:type error_message: 
+:param error_message: Error message from the worker</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.load_frame_image">
+<span class="sig-name descname"><span class="pre">load_frame_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.load_frame_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.load_frame_image" title="Link to this definition"></a></dt>
+<dd><p>Load an image from the given path and resize it to the target width.
+This method uses PIL to load and resize the image, then converts it to QPixmap.
+This is done to avoid issues with QPixmap loading large images directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_path</strong> – Path to the image file</p></li>
+<li><p><strong>target_width</strong> – Target width for resizing the image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resized image as QPixmap</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QPixmap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.load_next_batch">
+<span class="sig-name descname"><span class="pre">load_next_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.load_next_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.load_next_batch" title="Link to this definition"></a></dt>
+<dd><p>Load the next batch of results into the results section.
+This method is called when the user scrolls to the bottom of the
+results section.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.on_area_selected">
+<span class="sig-name descname"><span class="pre">on_area_selected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.on_area_selected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.on_area_selected" title="Link to this definition"></a></dt>
+<dd><p>Handle the area selected by the user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>area</strong> – The selected area of interest</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.open_advanced_settings">
+<span class="sig-name descname"><span class="pre">open_advanced_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.open_advanced_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.open_advanced_settings" title="Link to this definition"></a></dt>
+<dd><p>Open the advanced settings dialog for query settings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.open_processing_settings">
+<span class="sig-name descname"><span class="pre">open_processing_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.open_processing_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.open_processing_settings" title="Link to this definition"></a></dt>
+<dd><p>Open the processing settings dialog for video processing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.open_video_at_frame">
+<span class="sig-name descname"><span class="pre">open_video_at_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.open_video_at_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.open_video_at_frame" title="Link to this definition"></a></dt>
+<dd><p>Open frame slideshow starting from the selected frame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_path</strong> – Path to the selected frame</p></li>
+<li><p><strong>metadata</strong> – Metadata associated with the selected frame</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.reset_area_of_interest">
+<span class="sig-name descname"><span class="pre">reset_area_of_interest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.reset_area_of_interest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.reset_area_of_interest" title="Link to this definition"></a></dt>
+<dd><p>Reset the selected area of interest</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.reset_processing_ui">
+<span class="sig-name descname"><span class="pre">reset_processing_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.reset_processing_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.reset_processing_ui" title="Link to this definition"></a></dt>
+<dd><p>Reset UI elements after processing completes or is cancelled</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.select_area_of_interest">
+<span class="sig-name descname"><span class="pre">select_area_of_interest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.select_area_of_interest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.select_area_of_interest" title="Link to this definition"></a></dt>
+<dd><p>Open the area selector dialog to select an area of interest</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.select_output_dir">
+<span class="sig-name descname"><span class="pre">select_output_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.select_output_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.select_output_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.select_video">
+<span class="sig-name descname"><span class="pre">select_video</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.select_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.select_video" title="Link to this definition"></a></dt>
+<dd><p>Open a file dialog to select a video file and start the video info worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.setup_io_section">
+<span class="sig-name descname"><span class="pre">setup_io_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_layout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.setup_io_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.setup_io_section" title="Link to this definition"></a></dt>
+<dd><p>Setup the input and output section of the UI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_layout</strong> – The layout to add the section to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.setup_query_section">
+<span class="sig-name descname"><span class="pre">setup_query_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_layout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.setup_query_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.setup_query_section" title="Link to this definition"></a></dt>
+<dd><p>Setup the query builder section of the UI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_layout</strong> – The layout to add the section to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.setup_results_section">
+<span class="sig-name descname"><span class="pre">setup_results_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_layout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.setup_results_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.setup_results_section" title="Link to this definition"></a></dt>
+<dd><p>Setup the results section of the UI for displaying found frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_layout</strong> – The layout to add the section to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.setup_settings_section">
+<span class="sig-name descname"><span class="pre">setup_settings_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_layout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.setup_settings_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.setup_settings_section" title="Link to this definition"></a></dt>
+<dd><p>Setup the processing settings section of the UI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_layout</strong> – The layout to add the section to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.setup_video_info_section">
+<span class="sig-name descname"><span class="pre">setup_video_info_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_layout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.setup_video_info_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.setup_video_info_section" title="Link to this definition"></a></dt>
+<dd><p>Setup the video information section of the UI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_layout</strong> – The layout to add the section to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.show_loading">
+<span class="sig-name descname"><span class="pre">show_loading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.show_loading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.show_loading" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.start_query">
+<span class="sig-name descname"><span class="pre">start_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.start_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.start_query" title="Link to this definition"></a></dt>
+<dd><p>Start the query worker to process the query and display results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.start_video_processing">
+<span class="sig-name descname"><span class="pre">start_video_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.start_video_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.start_video_processing" title="Link to this definition"></a></dt>
+<dd><p>Start the video processing worker to process the video.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.update_interval_entry">
+<span class="sig-name descname"><span class="pre">update_interval_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.update_interval_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.update_interval_entry" title="Link to this definition"></a></dt>
+<dd><p>Update the interval entry based on the selected tracker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tracker</strong> – The selected tracker</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.update_processing_progress">
+<span class="sig-name descname"><span class="pre">update_processing_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentage</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.update_processing_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.update_processing_progress" title="Link to this definition"></a></dt>
+<dd><p>Update the processing status message in the UI</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – The status message to display</p></li>
+<li><p><strong>percentage</strong> – The percentage of completion</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.update_query_feedback">
+<span class="sig-name descname"><span class="pre">update_query_feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.update_query_feedback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.update_query_feedback" title="Link to this definition"></a></dt>
+<dd><p>Update the query feedback message in the UI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – The feedback message to display</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.app.VideoProcessingApp.update_video_info">
+<span class="sig-name descname"><span class="pre">update_video_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/app.html#VideoProcessingApp.update_video_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.app.VideoProcessingApp.update_video_info" title="Link to this definition"></a></dt>
+<dd><p>Update the video information label with metadata from the video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metadata</strong> – Dictionary containing video metadata</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-project.interface.area_selector">
 <span id="project-interface-area-selector-module"></span><h2>project.interface.area_selector module<a class="headerlink" href="#module-project.interface.area_selector" title="Link to this heading"></a></h2>
@@ -347,8 +704,135 @@ video in the default video player, but not at the specific timestamp.</p>
 </dd></dl>
 
 </section>
-<section id="project-interface-query-worker-module">
-<h2>project.interface.query_worker module<a class="headerlink" href="#project-interface-query-worker-module" title="Link to this heading"></a></h2>
+<section id="module-project.interface.query_worker">
+<span id="project-interface-query-worker-module"></span><h2>project.interface.query_worker module<a class="headerlink" href="#module-project.interface.query_worker" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">project.interface.query_worker.</span></span><span class="sig-name descname"><span class="pre">QueryWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/query_worker.html#QueryWorker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.query_worker.QueryWorker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QThread</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.deduplicate_tracker_results">
+<span class="sig-name descname"><span class="pre">deduplicate_tracker_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frames_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/query_worker.html#QueryWorker.deduplicate_tracker_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.query_worker.QueryWorker.deduplicate_tracker_results" title="Link to this definition"></a></dt>
+<dd><p>Deduplicate results based on tracked object IDs and classes, but keep
+frames with new objects</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>dict</em>) – Dictionary of frame paths and detection lists</p></li>
+<li><p><strong>max_frames_interval</strong> (<em>int</em>) – Maximum number of frames to skip before forcing inclusion</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of unique frames with detections</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.deduplicate_yolo_results">
+<span class="sig-name descname"><span class="pre">deduplicate_yolo_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_count_change</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frames_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/query_worker.html#QueryWorker.deduplicate_yolo_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.query_worker.QueryWorker.deduplicate_yolo_results" title="Link to this definition"></a></dt>
+<dd><p>Deduplicate results based on object classes, counts, and color names.
+Filter out frames that don’t contain significant changes, but keep important frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>dict</em>) – Dictionary of frame paths and detection lists</p></li>
+<li><p><strong>min_count_change</strong> (<em>int</em>) – Minimum count change to consider a frame significant</p></li>
+<li><p><strong>max_frames_interval</strong> (<em>int</em>) – Maximum number of frames to skip before forcing inclusion</p></li>
+<li><p><strong>min_confidence</strong> (<em>float</em>) – Minimum confidence score to consider a detection valid</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of unique frames with detections</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.error">
+<span class="sig-name descname"><span class="pre">error</span></span><a class="headerlink" href="#project.interface.query_worker.QueryWorker.error" title="Link to this definition"></a></dt>
+<dd><p>int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id3"><span class="problematic" id="id4">*</span></a>types, name</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str = …, revision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.feedback">
+<span class="sig-name descname"><span class="pre">feedback</span></span><a class="headerlink" href="#project.interface.query_worker.QueryWorker.feedback" title="Link to this definition"></a></dt>
+<dd><p>int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id5"><span class="problematic" id="id6">*</span></a>types, name</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str = …, revision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#project.interface.query_worker.QueryWorker.finished" title="Link to this definition"></a></dt>
+<dd><p>int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id7"><span class="problematic" id="id8">*</span></a>types, name</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str = …, revision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="project.interface.query_worker.QueryWorker.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/project/interface/query_worker.html#QueryWorker.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#project.interface.query_worker.QueryWorker.run" title="Link to this definition"></a></dt>
+<dd><p>Run the query worker thread. This method is executed in a separate thread
+when the worker is started. It handles the query processing and emits
+results or errors back to the main thread.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-project.interface.video_info_utils">
 <span id="project-interface-video-info-utils-module"></span><h2>project.interface.video_info_utils module<a class="headerlink" href="#module-project.interface.video_info_utils" title="Link to this heading"></a></h2>
@@ -472,8 +956,8 @@ video in the default video player, but not at the specific timestamp.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">codec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">codec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -482,28 +966,28 @@ video in the default video player, but not at the specific timestamp.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">fps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">fps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">frame_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">frame_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id11" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id12" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id13" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#id14" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -530,7 +1014,7 @@ If it is not specified then 0 is used.
 arguments is the optional sequence of the names of the signal’s arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pyqtSignal(<a href="#id9"><span class="problematic" id="id10">*</span></a>types, name</p>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id15"><span class="problematic" id="id16">*</span></a>types, name</p>
 </dd>
 <dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str = …, revision</p>
@@ -553,7 +1037,7 @@ If it is not specified then 0 is used.
 arguments is the optional sequence of the names of the signal’s arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pyqtSignal(<a href="#id11"><span class="problematic" id="id12">*</span></a>types, name</p>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id17"><span class="problematic" id="id18">*</span></a>types, name</p>
 </dd>
 <dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str = …, revision</p>
@@ -594,7 +1078,7 @@ If it is not specified then 0 is used.
 arguments is the optional sequence of the names of the signal’s arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pyqtSignal(<a href="#id13"><span class="problematic" id="id14">*</span></a>types, name</p>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id19"><span class="problematic" id="id20">*</span></a>types, name</p>
 </dd>
 <dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str = …, revision</p>
@@ -617,7 +1101,7 @@ If it is not specified then 0 is used.
 arguments is the optional sequence of the names of the signal’s arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pyqtSignal(<a href="#id15"><span class="problematic" id="id16">*</span></a>types, name</p>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id21"><span class="problematic" id="id22">*</span></a>types, name</p>
 </dd>
 <dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str = …, revision</p>
@@ -640,7 +1124,7 @@ If it is not specified then 0 is used.
 arguments is the optional sequence of the names of the signal’s arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pyqtSignal(<a href="#id17"><span class="problematic" id="id18">*</span></a>types, name</p>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id23"><span class="problematic" id="id24">*</span></a>types, name</p>
 </dd>
 <dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str = …, revision</p>

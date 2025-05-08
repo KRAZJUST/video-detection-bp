@@ -80,6 +80,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -99,9 +100,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.database.html#project.database.vector_database.VectorDatabaseManager.add_batch_embeddings">add_batch_embeddings() (project.database.vector_database.VectorDatabaseManager method)</a>
 </li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.add_detections_in_db">add_detections_in_db() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
       <li><a href="project.database.html#project.database.vector_database.VectorDatabaseManager.add_single_frame_embedding">add_single_frame_embedding() (project.database.vector_database.VectorDatabaseManager method)</a>
 </li>
       <li><a href="project.database.html#project.database.sqlite_database.Database.add_video">add_video() (project.database.sqlite_database.Database method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.adjust_image_sizes">adjust_image_sizes() (project.interface.app.VideoProcessingApp method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.advanced_settings.AdvancedSettings">AdvancedSettings (class in project.interface.advanced_settings)</a>
 </li>
@@ -119,6 +124,10 @@
         <li><a href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.annotate_image">(project.parsers.yolo_segmenter.YOLOSegmenter method)</a>
 </li>
       </ul></li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.apply_advanced_settings">apply_advanced_settings() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.apply_processing_settings">apply_processing_settings() (project.interface.app.VideoProcessingApp method)</a>
+</li>
       <li><a href="project.parsers.html#project.parsers.detection_parser.DetectionParser.apply_spatial_filters">apply_spatial_filters() (project.parsers.detection_parser.DetectionParser method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.area_selector.AreaSelector.area_selected">area_selected (project.interface.area_selector.AreaSelector attribute)</a>
@@ -153,7 +162,13 @@
 </li>
       <li><a href="project.detectors.html#project.detectors.base_tracker.BaseTracker.calculate_direction">calculate_direction() (project.detectors.base_tracker.BaseTracker method)</a>
 </li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.calculate_expected_frames">calculate_expected_frames() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
       <li><a href="project.parsers.html#project.parsers.detection_parser.DetectionParser.calculate_interaction">calculate_interaction() (project.parsers.detection_parser.DetectionParser method)</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.calculate_overall_progress">calculate_overall_progress() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.cancel_video_processing">cancel_video_processing() (project.interface.app.VideoProcessingApp method)</a>
 </li>
       <li><a href="project.parsers.html#project.parsers.detection_parser.DetectionParser.check_detection_condition">check_detection_condition() (project.parsers.detection_parser.DetectionParser method)</a>
 </li>
@@ -161,11 +176,15 @@
 </li>
       <li><a href="project.database.html#project.database.vector_database.VectorDatabaseManager.clear_collection">clear_collection() (project.database.vector_database.VectorDatabaseManager method)</a>
 </li>
-      <li><a href="project.database.html#project.database.sqlite_database.Database.close">close() (project.database.sqlite_database.Database method)</a>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.clear_results_layout">clear_results_layout() (project.interface.app.VideoProcessingApp method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project.interface.html#id3">codec (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.codec">[1]</a>
+      <li><a href="project.database.html#project.database.sqlite_database.Database.close">close() (project.database.sqlite_database.Database method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.closeEvent">closeEvent() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#id9">codec (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.codec">[1]</a>
 </li>
       <li><a href="project.detectors.html#project.detectors.color_filter.ColorFilter">ColorFilter (class in project.detectors.color_filter)</a>
 </li>
@@ -177,6 +196,10 @@
 </li>
       <li><a href="project.detectors.html#project.detectors.color_filter.ColorFilter.create_elliptical_mask">create_elliptical_mask() (project.detectors.color_filter.ColorFilter method)</a>
 </li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.create_frame_batches">create_frame_batches() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.create_frame_widget">create_frame_widget() (project.interface.app.VideoProcessingApp method)</a>
+</li>
       <li><a href="project.database.html#project.database.sqlite_database.Database.create_tables">create_tables() (project.database.sqlite_database.Database method)</a>
 </li>
   </ul></td>
@@ -186,6 +209,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.database.html#project.database.sqlite_database.Database">Database (class in project.database.sqlite_database)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.deduplicate_tracker_results">deduplicate_tracker_results() (project.interface.query_worker.QueryWorker method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.deduplicate_yolo_results">deduplicate_yolo_results() (project.interface.query_worker.QueryWorker method)</a>
 </li>
       <li><a href="project.detectors.html#project.detectors.color_filter.ColorFilter.detect_dominant_color">detect_dominant_color() (project.detectors.color_filter.ColorFilter method)</a>
 </li>
@@ -197,6 +224,8 @@
 </li>
       <li><a href="project.parsers.html#project.parsers.detection_parser.DetectionParser">DetectionParser (class in project.parsers.detection_parser)</a>
 </li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.display_query_results">display_query_results() (project.interface.app.VideoProcessingApp method)</a>
+</li>
       <li><a href="project.database.html#project.database.sqlite_database.Database.drop_tables">drop_tables() (project.database.sqlite_database.Database method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.duration">duration (project.interface.video_info_utils.VideoMetadata attribute)</a>
@@ -207,17 +236,25 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.error">error (project.interface.video_info_worker.VideoInfoWorker attribute)</a>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.error">error (project.interface.query_worker.QueryWorker attribute)</a>
 
       <ul>
+        <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.error">(project.interface.video_info_worker.VideoInfoWorker attribute)</a>
+</li>
         <li><a href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.error">(project.interface.video_processing_worker.VideoProcessingWorker attribute)</a>
 </li>
       </ul></li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.eventFilter">eventFilter() (project.interface.app.VideoProcessingApp method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.export_current_frame">export_current_frame() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
       <li><a href="project.parsers.html#project.parsers.query_parser.QueryParser.extract_conditions">extract_conditions() (project.parsers.query_parser.QueryParser method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.extract_first_frame">extract_first_frame() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.extract_frames">extract_frames() (project.processors.video_processor.VideoProcessor method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -225,15 +262,19 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.feedback">feedback (project.interface.query_worker.QueryWorker attribute)</a>
+</li>
       <li><a href="project.parsers.html#project.parsers.detection_parser.DetectionParser.filter_detections_in_frames">filter_detections_in_frames() (project.parsers.detection_parser.DetectionParser method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.find_frames">find_frames() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.find_starting_index">find_starting_index() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
-      <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.finished">finished (project.interface.video_info_worker.VideoInfoWorker attribute)</a>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.finished">finished (project.interface.query_worker.QueryWorker attribute)</a>
 
       <ul>
+        <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.finished">(project.interface.video_info_worker.VideoInfoWorker attribute)</a>
+</li>
         <li><a href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.finished">(project.interface.video_processing_worker.VideoProcessingWorker attribute)</a>
 </li>
       </ul></li>
@@ -241,9 +282,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.format_timestamp">format_timestamp() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
-      <li><a href="project.interface.html#id4">fps (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.fps">[1]</a>
+      <li><a href="project.interface.html#id10">fps (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.fps">[1]</a>
 </li>
-      <li><a href="project.interface.html#id5">frame_count (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.frame_count">[1]</a>
+      <li><a href="project.interface.html#id11">frame_count (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.frame_count">[1]</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.frames_already_extracted">frames_already_extracted() (project.processors.video_processor.VideoProcessor method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow">FrameSlideshow (class in project.interface.frame_slideshow)</a>
 </li>
@@ -301,7 +344,17 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project.interface.html#id6">height (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.height">[1]</a>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.handle_processing_error">handle_processing_error() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.handle_processing_finished">handle_processing_finished() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.handle_query_error">handle_query_error() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.handle_video_info_error">handle_video_info_error() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#id12">height (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.height">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -318,6 +371,20 @@
       <li><a href="project.database.html#project.database.sqlite_database.Database.insert_yolo_frame">insert_yolo_frame() (project.database.sqlite_database.Database method)</a>
 </li>
       <li><a href="project.detectors.html#project.detectors.base_tracker.BaseTracker.is_leaving_frame">is_leaving_frame() (project.detectors.base_tracker.BaseTracker method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.load_frame_image">load_frame_image() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.load_frames_as_clip">load_frames_as_clip() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.load_next_batch">load_next_batch() (project.interface.app.VideoProcessingApp method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -355,11 +422,15 @@
 </li>
         <li><a href="project.interface.html#module-project.interface.advanced_settings">project.interface.advanced_settings</a>
 </li>
+        <li><a href="project.interface.html#module-project.interface.app">project.interface.app</a>
+</li>
         <li><a href="project.interface.html#module-project.interface.area_selector">project.interface.area_selector</a>
 </li>
         <li><a href="project.interface.html#module-project.interface.frame_slideshow">project.interface.frame_slideshow</a>
 </li>
         <li><a href="project.interface.html#module-project.interface.processing_settings">project.interface.processing_settings</a>
+</li>
+        <li><a href="project.interface.html#module-project.interface.query_worker">project.interface.query_worker</a>
 </li>
         <li><a href="project.interface.html#module-project.interface.video_info_utils">project.interface.video_info_utils</a>
 </li>
@@ -378,6 +449,8 @@
         <li><a href="project.parsers.html#module-project.parsers.yolo_segmenter">project.parsers.yolo_segmenter</a>
 </li>
         <li><a href="project.processors.html#module-project.processors">project.processors</a>
+</li>
+        <li><a href="project.processors.html#module-project.processors.video_processor">project.processors.video_processor</a>
 </li>
       </ul></li>
   </ul></td>
@@ -402,7 +475,17 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.on_area_selected">on_area_selected() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.open_advanced_settings">open_advanced_settings() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.open_in_system_player">open_in_system_player() (project.interface.frame_slideshow.FrameSlideshow method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.open_processing_settings">open_processing_settings() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.open_video_at_frame">open_video_at_frame() (project.interface.app.VideoProcessingApp method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -417,6 +500,8 @@
       <li><a href="project.parsers.html#project.parsers.query_parser.QueryParser.parse_with_bart">parse_with_bart() (project.parsers.query_parser.QueryParser method)</a>
 </li>
       <li><a href="project.detectors.html#project.detectors.base_tracker.BaseTracker.process_detection_colors">process_detection_colors() (project.detectors.base_tracker.BaseTracker method)</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.process_video">process_video() (project.processors.video_processor.VideoProcessor method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.processing_settings.ProcessingSettings">ProcessingSettings (class in project.interface.processing_settings)</a>
 </li>
@@ -499,13 +584,20 @@
         <li><a href="project.interface.html#module-project.interface">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     project.interface.advanced_settings
 
       <ul>
         <li><a href="project.interface.html#module-project.interface.advanced_settings">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    project.interface.app
+
+      <ul>
+        <li><a href="project.interface.html#module-project.interface.app">module</a>
 </li>
       </ul></li>
       <li>
@@ -527,6 +619,13 @@
 
       <ul>
         <li><a href="project.interface.html#module-project.interface.processing_settings">module</a>
+</li>
+      </ul></li>
+      <li>
+    project.interface.query_worker
+
+      <ul>
+        <li><a href="project.interface.html#module-project.interface.query_worker">module</a>
 </li>
       </ul></li>
       <li>
@@ -592,6 +691,13 @@
         <li><a href="project.processors.html#module-project.processors">module</a>
 </li>
       </ul></li>
+      <li>
+    project.processors.video_processor
+
+      <ul>
+        <li><a href="project.processors.html#module-project.processors.video_processor">module</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -604,25 +710,33 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.parsers.html#project.parsers.query_parser.QueryParser">QueryParser (class in project.parsers.query_parser)</a>
 </li>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker">QueryWorker (class in project.interface.query_worker)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.reset_area_of_interest">reset_area_of_interest() (project.interface.app.VideoProcessingApp method)</a>
+</li>
       <li><a href="project.database.html#project.database.sqlite_database.Database.reset_database">reset_database() (project.database.sqlite_database.Database method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.reset_processing_ui">reset_processing_ui() (project.interface.app.VideoProcessingApp method)</a>
 </li>
       <li><a href="project.database.html#project.database.sqlite_database.Database.reset_video_bytetrack">reset_video_bytetrack() (project.database.sqlite_database.Database method)</a>
 </li>
-      <li><a href="project.database.html#project.database.sqlite_database.Database.reset_video_yolo">reset_video_yolo() (project.database.sqlite_database.Database method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.database.html#project.database.sqlite_database.Database.reset_video_yolo">reset_video_yolo() (project.database.sqlite_database.Database method)</a>
+</li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.resizeEvent">resizeEvent() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
-      <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.run">run() (project.interface.video_info_worker.VideoInfoWorker method)</a>
+      <li><a href="project.interface.html#project.interface.query_worker.QueryWorker.run">run() (project.interface.query_worker.QueryWorker method)</a>
 
       <ul>
+        <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker.run">(project.interface.video_info_worker.VideoInfoWorker method)</a>
+</li>
         <li><a href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker.run">(project.interface.video_processing_worker.VideoProcessingWorker method)</a>
 </li>
       </ul></li>
@@ -638,15 +752,37 @@
 </li>
       <li><a href="project.parsers.html#project.parsers.yolo_segmenter.YOLOSegmenter.segment_region">segment_region() (project.parsers.yolo_segmenter.YOLOSegmenter method)</a>
 </li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.select_area_of_interest">select_area_of_interest() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.select_output_dir">select_output_dir() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.select_video">select_video() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.area_selector.AreaSelector.set_pixmap">set_pixmap() (project.interface.area_selector.AreaSelector method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.setup_io_section">setup_io_section() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.setup_query_section">setup_query_section() (project.interface.app.VideoProcessingApp method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project.interface.html#project.interface.area_selector.AreaSelector.set_pixmap">set_pixmap() (project.interface.area_selector.AreaSelector method)</a>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.setup_results_section">setup_results_section() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.setup_settings_section">setup_settings_section() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.setup_video_info_section">setup_video_info_section() (project.interface.app.VideoProcessingApp method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.show_frame_at_index">show_frame_at_index() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.show_frame_at_visible_index">show_frame_at_visible_index() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
-      <li><a href="project.interface.html#id7">size (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.size">[1]</a>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.show_loading">show_loading() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#id13">size (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.size">[1]</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.start_query">start_query() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.start_video_processing">start_video_processing() (project.interface.app.VideoProcessingApp method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -668,10 +804,18 @@
 </li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_forward_frames">update_forward_frames() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
-      <li><a href="project.interface.html#project.interface.area_selector.AreaSelector.update_selection">update_selection() (project.interface.area_selector.AreaSelector method)</a>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.update_interval_entry">update_interval_entry() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.update_processing_progress">update_processing_progress() (project.interface.app.VideoProcessingApp method)</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor.update_progress">update_progress() (project.processors.video_processor.VideoProcessor method)</a>
+</li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.update_query_feedback">update_query_feedback() (project.interface.app.VideoProcessingApp method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="project.interface.html#project.interface.area_selector.AreaSelector.update_selection">update_selection() (project.interface.area_selector.AreaSelector method)</a>
+</li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_speed">update_speed() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
       <li><a href="project.detectors.html#project.detectors.base_tracker.BaseTracker.update_track_history">update_track_history() (project.detectors.base_tracker.BaseTracker method)</a>
@@ -682,6 +826,8 @@
         <li><a href="project.detectors.html#project.detectors.byte_track_tracker.ByteTrackTracker.update_tracks">(project.detectors.byte_track_tracker.ByteTrackTracker method)</a>
 </li>
       </ul></li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp.update_video_info">update_video_info() (project.interface.app.VideoProcessingApp method)</a>
+</li>
       <li><a href="project.interface.html#project.interface.frame_slideshow.FrameSlideshow.update_visible_frames">update_visible_frames() (project.interface.frame_slideshow.FrameSlideshow method)</a>
 </li>
   </ul></td>
@@ -694,13 +840,17 @@
 </li>
       <li><a href="project.interface.html#project.interface.video_info_utils.VideoInfoUtils">VideoInfoUtils (class in project.interface.video_info_utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.interface.html#project.interface.video_info_worker.VideoInfoWorker">VideoInfoWorker (class in project.interface.video_info_worker)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="project.interface.html#project.interface.video_info_utils.VideoMetadata">VideoMetadata (class in project.interface.video_info_utils)</a>
 </li>
+      <li><a href="project.interface.html#project.interface.app.VideoProcessingApp">VideoProcessingApp (class in project.interface.app)</a>
+</li>
       <li><a href="project.interface.html#project.interface.video_processing_worker.VideoProcessingWorker">VideoProcessingWorker (class in project.interface.video_processing_worker)</a>
+</li>
+      <li><a href="project.processors.html#project.processors.video_processor.VideoProcessor">VideoProcessor (class in project.processors.video_processor)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -708,7 +858,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="project.interface.html#id8">width (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.width">[1]</a>
+      <li><a href="project.interface.html#id14">width (project.interface.video_info_utils.VideoMetadata attribute)</a>, <a href="project.interface.html#project.interface.video_info_utils.VideoMetadata.width">[1]</a>
 </li>
   </ul></td>
 </tr></table>

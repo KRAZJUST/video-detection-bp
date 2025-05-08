@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project.interface.query_worker &mdash; Video Detection BP 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Video Detection BP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Video Detection BP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">project.interface.query_worker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for project.interface.query_worker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># =============================================================================</span>
+<span class="c1"># File: query_worker.py</span>
+<span class="c1"># Author: David Skalka (xskalk03@stud.fit.vutbr.cz)</span>
+<span class="c1"># Faculty of Information Technology, Brno University of Technology</span>
+<span class="c1"># Academic Year: 2024/2025</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the bachelor&#39;s thesis:</span>
+<span class="c1"># &quot;Recognizing people and their activities in video from security cameras&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># Description:</span>
+<span class="c1"># This module provides a worker thread for querying video frames based on</span>
+<span class="c1"># user input query. It handles different types of queries, including object</span>
+<span class="c1"># detection and embedding-based searches. The results are emitted back to</span>
+<span class="c1"># the main thread for further processing. It also includes methods for</span>
+<span class="c1"># deduplicating result frames.</span>
+<span class="c1">#</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PyQt6.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">QThread</span><span class="p">,</span> <span class="n">pyqtSignal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">parsers.detection_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectionParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xclip.xclip_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">XClipParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">siglip.siglip_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">SigLIPParser</span>
+
+<div class="viewcode-block" id="QueryWorker">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.query_worker.QueryWorker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QueryWorker</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">finished</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">feedback</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">area_of_interest</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the QueryWorker with the application instance, query string,</span>
+<span class="sd">        and optional area of interest.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app: Application instance</span>
+<span class="sd">            query: Query string to search for in the video</span>
+<span class="sd">            area_of_interest: Optional area of interest for object detection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_of_interest</span> <span class="o">=</span> <span class="n">area_of_interest</span>
+
+<div class="viewcode-block" id="QueryWorker.run">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.query_worker.QueryWorker.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the query worker thread. This method is executed in a separate thread</span>
+<span class="sd">        when the worker is started. It handles the query processing and emits</span>
+<span class="sd">        results or errors back to the main thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Feedback fallback that emits message</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">feedback_callback</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">feedback</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yolo&quot;</span><span class="p">,</span> <span class="s2">&quot;bytetrack&quot;</span><span class="p">]:</span>
+                <span class="n">log_parser</span> <span class="o">=</span> <span class="n">DetectionParser</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">input_video</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">database_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">database_path</span><span class="p">,</span>
+                    <span class="n">tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">(),</span>
+                    <span class="n">use_segmentation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">use_segmentation_value</span><span class="p">,</span>
+                    <span class="n">area_of_interest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">area_of_interest</span><span class="p">,</span>
+                    <span class="n">feedback_callback</span><span class="o">=</span><span class="n">feedback_callback</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">log_parser</span><span class="o">.</span><span class="n">parse_detections</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate</span><span class="p">:</span>
+                    <span class="c1"># Deduplicate results based on tracked object IDs and classes</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bytetrack&quot;</span><span class="p">:</span>
+                        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate_tracker_results</span><span class="p">(</span><span class="n">log_parser</span><span class="o">.</span><span class="n">found_log_entries</span><span class="p">)</span>
+                    <span class="c1"># Deduplicate results based just on object classes and counts</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;yolo&quot;</span><span class="p">:</span>
+                        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicate_yolo_results</span><span class="p">(</span><span class="n">log_parser</span><span class="o">.</span><span class="n">found_log_entries</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">log_parser</span><span class="o">.</span><span class="n">found_log_entries</span>
+
+                <span class="c1"># empty metadata for YOLO and ByteTrack</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+                
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xclip-32&quot;</span><span class="p">]:</span>
+                <span class="n">xclip_parser</span> <span class="o">=</span> <span class="n">XClipParser</span><span class="p">(</span>
+                    <span class="n">video_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+                    <span class="n">query</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">similarities</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">xclip_parser</span><span class="o">.</span><span class="n">search_embeddings</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">results_batch_count</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">xclip_parser</span><span class="o">.</span><span class="n">top_frames</span>
+            
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;siglip&quot;</span><span class="p">:</span>
+                <span class="n">siglip_parser</span> <span class="o">=</span> <span class="n">SigLIPParser</span><span class="p">(</span>
+                    <span class="n">video_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">video_path</span><span class="p">,</span>
+                    <span class="n">query</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">tracker_combo</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">similarities</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">siglip_parser</span><span class="o">.</span><span class="n">search_embeddings</span><span class="p">(</span><span class="n">n_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">results_frames_count</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">siglip_parser</span><span class="o">.</span><span class="n">top_frames</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="QueryWorker.deduplicate_tracker_results">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.query_worker.QueryWorker.deduplicate_tracker_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate_tracker_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">max_frames_interval</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deduplicate results based on tracked object IDs and classes, but keep </span>
+<span class="sd">        frames with new objects</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results (dict): Dictionary of frame paths and detection lists</span>
+<span class="sd">            max_frames_interval (int): Maximum number of frames to skip before forcing inclusion</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary of unique frames with detections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unique_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Objects seen so far, stored as (track_id, class_name) tuples</span>
+        <span class="n">seen_objects</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># Keep track of the last frame added to results</span>
+        <span class="n">frames_since_last_added</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Sort frames by timestamp/frame number to process in order</span>
+        <span class="n">sorted_items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> 
+                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> 
+                                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">frame_path</span><span class="p">,</span> <span class="n">detection_list</span> <span class="ow">in</span> <span class="n">sorted_items</span><span class="p">:</span>
+            <span class="n">new_objects_found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">detection_list</span><span class="p">)</span>
+            <span class="n">frames_since_last_added</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># Go through each detection in the frame</span>
+            <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">detection_list</span><span class="p">:</span>
+                <span class="c1"># Check if this detection has a track ID and class name</span>
+                <span class="k">if</span> <span class="s1">&#39;track_id&#39;</span> <span class="ow">in</span> <span class="n">detection</span> <span class="ow">and</span> <span class="s1">&#39;class_name&#39;</span> <span class="ow">in</span> <span class="n">detection</span><span class="p">:</span>
+                    <span class="c1"># Create a unique identifier for this object</span>
+                    <span class="n">obj_identifier</span> <span class="o">=</span> <span class="p">(</span><span class="n">detection</span><span class="p">[</span><span class="s1">&#39;track_id&#39;</span><span class="p">],</span> <span class="n">detection</span><span class="p">[</span><span class="s1">&#39;class_name&#39;</span><span class="p">])</span>
+                    
+                    <span class="c1"># Check if this is a new object we haven&#39;t seen before</span>
+                    <span class="k">if</span> <span class="n">obj_identifier</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_objects</span><span class="p">:</span>
+                        <span class="n">new_objects_found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">seen_objects</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj_identifier</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New object found: </span><span class="si">{</span><span class="n">obj_identifier</span><span class="si">}</span><span class="s2"> in frame </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+            <span class="c1"># If no frame has been added for a while, force inclusion of this frame</span>
+            <span class="k">if</span> <span class="n">frames_since_last_added</span> <span class="o">&gt;=</span> <span class="n">max_frames_interval</span><span class="p">:</span>
+                <span class="n">new_objects_found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max interval reached, adding frame </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Include this frame if it contains any new objects</span>
+            <span class="k">if</span> <span class="n">new_objects_found</span><span class="p">:</span>
+                <span class="n">unique_results</span><span class="p">[</span><span class="n">frame_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">detection_list</span>
+                <span class="n">frames_since_last_added</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added frame </span><span class="si">{</span><span class="n">frame_path</span><span class="si">}</span><span class="s2"> to results&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total unique frames: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unique_results</span></div>
+
+
+<div class="viewcode-block" id="QueryWorker.deduplicate_yolo_results">
+<a class="viewcode-back" href="../../../project.interface.html#project.interface.query_worker.QueryWorker.deduplicate_yolo_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate_yolo_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">min_count_change</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_frames_interval</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">min_confidence</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deduplicate results based on object classes, counts, and color names.</span>
+<span class="sd">        Filter out frames that don&#39;t contain significant changes, but keep important frames.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            results (dict): Dictionary of frame paths and detection lists</span>
+<span class="sd">            min_count_change (int): Minimum count change to consider a frame significant</span>
+<span class="sd">            max_frames_interval (int): Maximum number of frames to skip before forcing inclusion</span>
+<span class="sd">            min_confidence (float): Minimum confidence score to consider a detection valid</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary of unique frames with detections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unique_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">previous_class_counts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">previous_color_distribution</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Track color distributions by class</span>
+        <span class="n">last_frame_added</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">frames_since_last_add</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">sorted_items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="n">detection_list</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_items</span><span class="p">):</span>
+            <span class="n">frame_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frame_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span>
+            <span class="n">current_class_counts</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">current_color_distribution</span> <span class="o">=</span> <span class="p">{}</span>
+            
+            <span class="c1"># Filter detections by confidence threshold</span>
+            <span class="n">valid_detections</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">detection_list</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confidence&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_confidence</span><span class="p">]</span>
+            
+            <span class="c1"># Process all detections in current frame</span>
+            <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">valid_detections</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;class_name&#39;</span> <span class="ow">in</span> <span class="n">detection</span><span class="p">:</span>
+                    <span class="n">class_name</span> <span class="o">=</span> <span class="n">detection</span><span class="p">[</span><span class="s1">&#39;class_name&#39;</span><span class="p">]</span>
+                    <span class="c1"># Update class counts</span>
+                    <span class="n">current_class_counts</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_class_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                    
+                    <span class="c1"># Track color names if available</span>
+                    <span class="k">if</span> <span class="s1">&#39;dominant_color&#39;</span> <span class="ow">in</span> <span class="n">detection</span><span class="p">:</span>
+                        <span class="n">color_name</span> <span class="o">=</span> <span class="n">detection</span><span class="p">[</span><span class="s1">&#39;dominant_color&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">class_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_color_distribution</span><span class="p">:</span>
+                                <span class="n">current_color_distribution</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                            
+                            <span class="c1"># Update color count for this class</span>
+                            <span class="n">current_color_distribution</span><span class="p">[</span><span class="n">class_name</span><span class="p">][</span><span class="n">color_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_color_distribution</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">color_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            
+            <span class="c1"># Check for significant changes in the frame compared to previous frames</span>
+            <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">frames_since_last_add</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># Always keep the first frame</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">unique_results</span><span class="p">:</span>
+                <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;first frame&quot;</span>
+            
+            <span class="c1"># Check for new classes</span>
+            <span class="k">elif</span> <span class="nb">set</span><span class="p">(</span><span class="n">current_class_counts</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">previous_class_counts</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;new classes detected&quot;</span>
+                
+            <span class="c1"># Check for significant count changes with lower threshold as frames pass</span>
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">current_class_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">previous_class_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&gt;=</span> 
+                    <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_count_change</span> <span class="o">-</span> <span class="n">frames_since_last_add</span> <span class="o">//</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># Gradually reduce threshold</span>
+                    <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">current_class_counts</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">previous_class_counts</span><span class="p">)):</span>
+                <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;object count changed&quot;</span>
+                
+            <span class="c1"># Check for significant color distribution changes</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_color_distribution_change</span><span class="p">(</span><span class="n">current_color_distribution</span><span class="p">,</span> <span class="n">previous_color_distribution</span><span class="p">):</span>
+                <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;color distribution changed&quot;</span>
+                
+            <span class="c1"># Force inclusion of a frame if it&#39;s been too long since the last one</span>
+            <span class="k">elif</span> <span class="n">frames_since_last_add</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_frames_interval</span> <span class="o">-</span> <span class="n">frames_since_last_add</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">keep_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;max interval reached (</span><span class="si">{</span><span class="n">frames_since_last_add</span><span class="si">}</span><span class="s2"> frames)&quot;</span>
+                
+            <span class="c1"># Keep the frame if any criteria was met</span>
+            <span class="k">if</span> <span class="n">keep_frame</span><span class="p">:</span>
+                <span class="n">unique_results</span><span class="p">[</span><span class="n">frame_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">detection_list</span>
+                <span class="n">previous_class_counts</span> <span class="o">=</span> <span class="n">current_class_counts</span>
+                <span class="n">previous_color_distribution</span> <span class="o">=</span> <span class="n">current_color_distribution</span>
+                <span class="n">last_frame_added</span> <span class="o">=</span> <span class="n">frame_num</span>
+                <span class="n">frames_since_last_add</span> <span class="o">=</span> <span class="mi">0</span>
+                
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total unique frames: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_results</span><span class="p">)</span><span class="si">}</span><span class="s2"> out of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unique_results</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_color_distribution_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_colors</span><span class="p">,</span> <span class="n">previous_colors</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if there&#39;s a significant change in color distribution for any object class.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            current_colors (dict): Dictionary of class_name -&gt; dict of color_name -&gt; count</span>
+<span class="sd">            previous_colors (dict): Dictionary of class_name -&gt; dict of color_name -&gt; count</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if there&#39;s a significant color change, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># no previous colors to compare with</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">previous_colors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+            
+        <span class="c1"># Check classes that exist in both frames</span>
+        <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">current_colors</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">previous_colors</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">current_dist</span> <span class="o">=</span> <span class="n">current_colors</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span>
+            <span class="n">previous_dist</span> <span class="o">=</span> <span class="n">previous_colors</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span>
+            
+            <span class="c1"># If we have new colors appearing</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">current_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">previous_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+                
+            <span class="c1"># If the distribution of colors has changed significantly</span>
+            <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">current_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">previous_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="c1"># If any color&#39;s count changes by more than 25% of the total objects</span>
+                <span class="n">curr_count</span> <span class="o">=</span> <span class="n">current_dist</span><span class="p">[</span><span class="n">color</span><span class="p">]</span>
+                <span class="n">prev_count</span> <span class="o">=</span> <span class="n">previous_dist</span><span class="p">[</span><span class="n">color</span><span class="p">]</span>
+                
+                <span class="n">curr_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">current_dist</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="n">prev_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">previous_dist</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                
+                <span class="c1"># Calculate percentage change</span>
+                <span class="n">curr_pct</span> <span class="o">=</span> <span class="n">curr_count</span> <span class="o">/</span> <span class="n">curr_total</span> <span class="k">if</span> <span class="n">curr_total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">prev_pct</span> <span class="o">=</span> <span class="n">prev_count</span> <span class="o">/</span> <span class="n">prev_total</span> <span class="k">if</span> <span class="n">prev_total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                
+                <span class="c1"># 25% threshold for percentage change</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">curr_pct</span> <span class="o">-</span> <span class="n">prev_pct</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.25</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                    
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, David Skalka.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

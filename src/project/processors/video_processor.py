@@ -208,8 +208,6 @@ class VideoProcessor:
         # Return True if the expected frames are already extracted, False otherwise
         return abs(existing_frames_count - self.expected_frames_count) < 2
 
-    @profile_time_usage
-    @detailed_profile
     def extract_frames(self):
         """
         Extract frames from the video using FFmpeg.
@@ -346,8 +344,6 @@ class VideoProcessor:
             print(f"Execution error: {e}")
             return False
 
-    @profile_time_usage
-    @detailed_profile
     def process_video(self):
         """
         This method orchestrates the video processing pipeline.
@@ -561,7 +557,6 @@ class VideoProcessor:
 
         print("Embeddings stored in vector database successfully.")
 
-    @profile_time_usage
     def _process_video_siglip(self, frame_files):
         """
         Process individual video frames with SigLIP model.
