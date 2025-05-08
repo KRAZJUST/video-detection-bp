@@ -11,6 +11,8 @@ This application is a high-performance, modular video processing pipeline design
 
 The system is divided into 3 logical processing levels - YOLO, YOLO+ByteTrack and X-CLIP/SigLIP
 
+**Disclaimer:** GitHub Copilot autocomplete was used during the implementation of this system
+
 ---
 
 ## 📦 Features

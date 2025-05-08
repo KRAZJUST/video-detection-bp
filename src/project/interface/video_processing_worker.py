@@ -45,7 +45,6 @@ class VideoProcessingWorker(QThread):
         self.tracker = tracker
         self.terminate_processing = False
 
-    @profile_time_usage
     def run(self):
         """
         Run the worker thread to process the video.
