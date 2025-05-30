@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,  #
                             QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                             QComboBox, QSpinBox, QFileDialog, QProgressBar,
                             QScrollArea, QGridLayout, QGroupBox, QFrame)
-from PyQt6.QtCore import Qt, QEvent, QMetaObject, Q_ARG
+from PyQt6.QtCore import Qt, QEvent, QMetaObject, Q_ARG, QRect
 from PyQt6.QtGui import QPixmap, QImage
 from PIL import Image, ImageQt
 from .video_info_worker import VideoInfoWorker
@@ -442,10 +442,12 @@ class VideoProcessingApp(QMainWindow):
         # Pass pixmap directly to AreaSelector
         self.area_selector = AreaSelector(self)
         self.area_selector.set_pixmap(pixmap)
-        self.area_selector.area_selected.connect(self.on_area_selected)
+        #self.area_selector.area_selected.connect(self.on_area_selected)
+        self.area_selector.corners_selected.connect(self.on_area_selected)
         self.area_selector.exec()
         
-    def on_area_selected(self, area):
+    #def on_area_selected(self, area):
+    def on_area_selected(self, x1, y1, x2, y2):
         """
         Handle the area selected by the user
 
@@ -453,10 +455,8 @@ class VideoProcessingApp(QMainWindow):
             area: The selected area of interest
         """
         # Store the selected area
-        self.aoi = area
-        # Update the area label
-        self.area_label.setText(f"Area of Interest: ({area.x()}, {area.y()}, "
-                                f"{area.width()}, {area.height()})")
+        self.aoi = QRect(x1, y1, x2, y2)
+        self.area_label.setText(f"Area of Interest: ({x1}, {y1}) ({x2}, {y2})")
         # Enable the reset button
         self.reset_area_button.setEnabled(True)
 

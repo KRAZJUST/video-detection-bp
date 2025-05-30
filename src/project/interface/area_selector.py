@@ -23,8 +23,9 @@ import os
 class AreaSelector(QDialog):
     # Signal to emit when selection is confirmed
     area_selected = pyqtSignal(QRect)
+    corners_selected = pyqtSignal(int, int, int, int)
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, target_width=640, target_height=None):
         """
         Initialize the dialog with the parent widget.
 
@@ -34,6 +35,10 @@ class AreaSelector(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Select Area of Interest")
         self.setMinimumSize(800, 600)
+
+        # Store target dimensions for processing
+        self.target_width = target_width
+        self.target_height = target_height
         
         self.layout = QVBoxLayout(self)
 
@@ -67,6 +72,11 @@ class AreaSelector(QDialog):
             pixmap (QPixmap): The pixmap to be displayed
         """
         self.pixmap = pixmap
+
+        # Calculate target height if not provided to maintain aspect ratio
+        if self.target_height is None and self.pixmap:
+            aspect_ratio = self.pixmap.height() / self.pixmap.width()
+            self.target_height = int(self.target_width * aspect_ratio)
 
     def paintEvent(self, event):
         """
@@ -109,10 +119,10 @@ class AreaSelector(QDialog):
         # Draw selection rectangle if the user is selecting
         if not self.selection.isEmpty():         
             # Calculate the selection rectangle in window coordinates
-            rel_x = self.selection.x() / self.pixmap.width() * scaled_pixmap.width()
-            rel_y = self.selection.y() / self.pixmap.height() * scaled_pixmap.height()
-            rel_w = self.selection.width() / self.pixmap.width() * scaled_pixmap.width()
-            rel_h = self.selection.height() / self.pixmap.height() * scaled_pixmap.height()
+            rel_x = self.selection.x() / self.target_width * scaled_pixmap.width()
+            rel_y = self.selection.y() / self.target_height * scaled_pixmap.height()
+            rel_w = self.selection.width() / self.target_width * scaled_pixmap.width()
+            rel_h = self.selection.height() / self.target_height * scaled_pixmap.height()
             
             window_selection = QRect(
                 int(x + rel_x),
@@ -203,15 +213,15 @@ class AreaSelector(QDialog):
         
         # Apply to original image dimensions
         self.selection = QRect(
-            int(rel_x * self.pixmap.width()),
-            int(rel_y * self.pixmap.height()),
-            int(rel_w * self.pixmap.width()),
-            int(rel_h * self.pixmap.height())
+            int(rel_x * self.target_width),
+            int(rel_y * self.target_height),
+            int(rel_w * self.target_width),
+            int(rel_h * self.target_height)
         )
         
         # Ensure the selection is within image bounds
         self.selection = self.selection.intersected(
-            QRect(0, 0, self.pixmap.width(), self.pixmap.height())
+            QRect(0, 0, self.target_width, self.target_height)
         )
     
     def confirm_selection(self):
@@ -220,4 +230,12 @@ class AreaSelector(QDialog):
         """
         if not self.selection.isEmpty():
             self.area_selected.emit(self.selection)
+
+            # Emit the corner coordinates (x1, y1, x2, y2)
+            x1 = self.selection.left()
+            y1 = self.selection.top()
+            x2 = self.selection.right()
+            y2 = self.selection.bottom()
+            self.corners_selected.emit(x1, y1, x2, y2)
+            
             self.accept()
