@@ -6,170 +6,202 @@
 
 **Description:** This is the implementation of the system designed as a part of thesis `Recognizing People and Their Activities in Video from Security Cameras` at Faculty of Information Technology, Brno University of Technology.
 
----
-This application is a high-performance, modular video processing pipeline designed for fast indexing, object detection, tracking, and intelligent querying of large-scale video datasets. It leverages state-of-the-art models like YOLO, ByteTrack, X-CLIP, and SigLIP to enable offline search by objects, actions, colors and directions in natural language queries. 
+Table of Contents
+- Introduction
+- Key Features
+- Architecture Overview
+- Quick Start
+  - System requirements
+  - Virtual environment (dev)
+  - Docker (optional)
+- Usage Examples
+- Configuration
+- Models & Data
+- Project Layout
+- Troubleshooting
+- Contributing
+- License & Contact
 
-The system is divided into 3 logical processing levels - YOLO, YOLO+ByteTrack and X-CLIP/SigLIP
+Introduction
+------------
+This project implements a multi-stage video processing pipeline designed for
+efficient offline indexing and retrieval. It supports:
 
-**Disclaimer:** GitHub Copilot autocomplete was used during the implementation of this system
+- detection-only indexing (YOLO)
+- tracking-aware indexing (YOLO + ByteTrack)
+- vision-language embedding indexing (X-CLIP / SigLIP)
 
----
+The system stores per-frame and per-track metadata in SQLite and a local
+ChromaDB vector store to enable fast top-k retrieval for text and image-based
+queries.
 
-## 📦 Features
+Key Features
+------------
 
-- **⚡ Ultra-Fast Preprocessing**  
-  up to ~30× real-time processing via optimized frame extraction with `ffmpeg` and usage of X-CLIP or YOLO models on NVIDIA GeForce RTX 2050 GPU. (slower when using other models)
+- Fast frame extraction and batch processing using `ffmpeg` optimizations.
+- Object detection (YOLOv11) with optional segmentation masks for color
+  extraction.
+- Multi-object tracking with ByteTrack to preserve identities across frames.
+- Dominant color extraction per-object and simple motion-direction estimation.
+- Vision-language embeddings with X-CLIP and SigLIP and cosine similarity
+  search via ChromaDB.
+- Lightweight UI for running queries and inspecting results (minimal
+  dependency surface).
+- Embedded storage (SQLite + Chroma) for reproducible, offline querying.
 
-- **🧠 Object Detection & Tracking**  
-  - YOLOv11 for object detection (e.g., person, vehicle).  
-  - ByteTrack for identity-preserving multi-object tracking.
+Architecture Overview
+---------------------
 
-- **🎨 Color & Directional Analysis**  
-  - Extracts dominant colors per object (bounding box region with circular mask or segmentation mask).  
-  - Estimates object motion direction (e.g., "north", "north-west").  
+The pipeline is intentionally modular and split into logical stages:
 
-- **🧠 Vision-Language Embeddings**  
-  - X-CLIP & SigLIP to embed video frames.  
-  - Cosine similarity search over ChromaDB vector store.  
-  - Supports complex natural language queries (e.g., `"a person waving near a red car"`).
+1. Ingestion & Preprocessing
+   - Extracts frames using `ffmpeg`, supports adjustable frame-skip and
+     time-range selection.
+2. Detection (YOLO)
+   - Runs a configured detection model; optionally produces segmentation
+     masks for improved color computation.
+3. Tracking (ByteTrack)
+   - Associates detections across frames into tracks; saves per-track
+     summaries (appearance, dominant colors, direction).
+4. Embedding & Indexing (X-CLIP / SigLIP)
+   - Computes vision-language embeddings for frames or track crops and
+     stores vectors in ChromaDB for similarity search.
+5. Query & UI
+   - Top-k retrieval for text and image queries; simple UI for inspection.
 
-- **🗃️ Embedded Storage & Query Engine**  
-  - Uses SQLite3 and ChromaDB.  
-  - Storage is reset on start of new video processing for that particular level.
-  - Fast top-k retrieval via vector search.
+For full code documentation see the generated docs in `docs/build/html`.
 
-- **🖼️ Flexible Query Modes**  
-  - Post-indexing search or real-time filtering.  
+Quick Start
+-----------
 
-- **🔍 Minimalistic UI**
-  - UI for easy usage of the system without the need of CLI.
----
+System requirements
 
-## 🛠️ Architecture Overview
+- Linux (Ubuntu 22.04+ recommended)
+- Python 3.10+ (3.11 recommended)
+- 8GB+ RAM recommended for model usage
+- NVIDIA GPU recommended for inference (CUDA compatible)
 
-TODO
+Virtual environment (development)
 
-- Documentation for each class and method can be found in [documentation](docs/build/html/index.html)
+1. Install system prerequisites (example for Ubuntu):
 
----
-
-## 🚀 Setup
-### System requirements
-- Ubuntu (recommended 22.04 LTS or newer) or other Linux distro
-- At least 4GB RAM (8GB+ recommended)
-- 20GB free disk space (Maybe could be less)
-- NVIDIA GPU (optional but recommended for better performance)
-
-> TODO: add Docker setup
-
-### 🧪 Virtual Environment Setup (for development or testing)
-> This is example for Ubuntu and might be different on other distros
-1. Install system dependencies
-```
+```bash
 sudo apt update
-sudo apt install -y python3 python3-venv python3-pip \
+sudo apt install -y python3 python3-venv python3-pip ffmpeg sqlite3 \
     libxcb-cursor0 libxcb-xinerama0 libgl1-mesa-glx libglib2.0-0 \
-    sqlite3 ffmpeg libsm6 libxrender1 libqt6core6 libqt6gui6 \
-    libqt6widgets6 libxcb-xinerama0
-```   
+    libsm6 libxrender1
+```
 
-2. Create and activate virtual environment
+2. Create and activate virtualenv:
+
+```bash
+cd /home/kraz/Documents/GitHub/video-detection-bp
+python3 -m venv .venv
+source .venv/bin/activate
 ```
-cd ~/video-detection-bp
-python3 -m venv venv
-source venv/bin/activate
-```
-3. Install Python dependencies
-```
+
+3. Install Python dependencies:
+
+```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-4. Run the app
+
+4. Run the application (example):
+
+```bash
+source .venv/bin/activate
+python src/project/main.py --help
 ```
-source venv/bin/activate (only if the virtual environment is not already activated)
-python src/project/main.py
+
+Docker (optional)
+
+There is a `Dockerfile` and `docker-compose.yaml` in the repository. They are
+kept as optional convenience for containerized runs. If you plan to use GPU
+acceleration in Docker, ensure your host has appropriate NVIDIA drivers and
+`nvidia-docker` support.
+
+Usage Examples
+--------------
+
+- Process a single video for detection and indexing:
+
+```bash
+python src/project/main.py --input /path/to/video.mp4 --mode detect --output outputs/
 ```
 
-### ⚠️ Common Issues
-**Missing Qt plugin 'xcb':** 
-- Ensure libxcb-cursor0 and libxcb-xinerama0 are installed.
+- Run full pipeline (detection → tracking → embeddings):
 
-**Missing out correct nvidia drivers for GPU acceleration:** 
-- Ensure correct CUDA and cuDNN versions installed
-  - `nvidia-smi`
-  - `nvcc --version`
-- This project uses GPU acceleration by default. Ensure you have a compatible CUDA environment. If not, install the CPU-only versions of PyTorch and TensorFlow.
-
-
----
-## 🏗️ Project Structure
-The project should have the followin structure:
+```bash
+python src/project/main.py --input /path/to/video.mp4 --mode full --output outputs/
 ```
-video-detection-bp/
-├── docker-compose.yaml
-├── Dockerfile
-├── docs/
-├── entrypoint.sh
-├── README.md
-├── requirements.txt
-├── runs.zip
-└── src/
-    ├── examples/
-    ├── outputs/
-    └── project/
-        ├── app_profile.prof
-        ├── constants/
-        ├── database/
-        ├── database_operations.log
-        ├── detections.db
-        ├── detectors/
-        ├── env/
-        ├── interface/
-        ├── main.py
-        ├── parsers/
-        ├── processors/
-        ├── profile_graph.png
-        ├── profiling_utils/
-        ├── siglip/
-        ├── vector_database/
-        ├── xclip/
-        ├── yolo11n.pt
-        └── yolo11n-seg.pt
-```
----
 
-## 🔧 Configuration
+Check `--help` for available CLI options and advanced flags.
 
-- Frame skip interval: adjustable (e.g., every 10th frame for more stable tracking)  
-- Detection categories: `['person', 'car', 'truck', ...]`  configurable only in code
-- Processing model and depth of analysis (segmentation usage for color calculation)
+Configuration
+-------------
 
----
+Core runtime options live in `src/project/constants/constants.py` and the main
+CLI. Typical runtime knobs:
 
-## 🧪 Evaluation & Accuracy
+- `frame_skip`: integer frames to skip between processed frames (higher =
+  faster, less dense indexing).
+- `detection_model`: path to YOLO weights (e.g., `src/yolo11n.pt`).
+- `use_segmentation`: enable segmentation-based color extraction.
+- `vector_store_path`: path to Chroma/SQLite files under `src/project/vector_database`.
 
-- Each model accuraccy and speed evaluatioin
-- Studying how can the SigLIP working with static frames handle queries designed for X-CLIP (with verbs)
+Models & Data
+--------------
 
-### 📊 Benchmark Results
+Pretrained model weights are expected in the repository under `src/` (e.g.
+`yolo11n.pt`, `yolo11n-seg.pt`). The repo includes small sample weights for
+development/CI. For production or higher-quality results, swap to full-sized
+weights and ensure your environment (CUDA/cuDNN) is compatible.
 
-| **Method**       | **Avg. Accuracy [%]** | **Avg. RTF (× real-time)** |
-|------------------|-----------------------|-----------------------------|
-| **YOLO-seg**      | 80.94%                | 12.69×                      |
-| **YOLO**          | 78.53%                | 32.29×                      |
-| **ByteTrack**     | 69.00%                | 18.67×                      |
-| **X-CLIP**        |                       | 32.60×                      |
-| ├─ Hit@10         | 56.92%                |                             |
-| ├─ Hit@5          | 49.80%                |                             |
-| ├─ Hit@3          | 37.30%                |                             |
-| └─ Hit@1          | 23.51%                |                             |
-| **SigLIP***       | Hit@80: 45.45%        | 17.80×                      |
-| **SigLIP**        |                       | 20.17×                      |
-| ├─ Hit@80         | 43.87%                |                             |
-| └─ Hit@40         | 35.18%                |                             |
+Project Layout
+--------------
 
-*Note-1: RTF = Real-Time Factor. Results averaged across all resolutions.*
-*Note-2: SigLIP\* stands for SigLIP model processing only frames with detections filtered by YOLO detections.*
-*Note-3: YOLO-seg stands for classic YOLO model used for initial detections and it's segmentation model used for color calculation.*
+Key folders (under `src/project`):
 
----
+- `detectors/` — detection models and wrappers (`yolo_detector.py`,
+  `detection.py`).
+- `database/` — SQLite wrappers and utilities.
+- `vector_database/` — local ChromaDB files and management utilities.
+- `interface/` — minimal UI and query workers.
+- `parsers/` — detection/embedding parsers and helpers.
+- `processors/` — `video_processor.py` and pipeline orchestration logic.
+- `siglip/`, `xclip/` — model-specific embedding helpers.
+
+Troubleshooting
+---------------
+
+- Missing Qt plugin `xcb`: install `libxcb-cursor0` and `libxcb-xinerama0`.
+- GPU not visible: verify `nvidia-smi` and `nvcc --version` and correct driver
+  versions.
+- If models fail to load on CPU-only hosts, install CPU builds of PyTorch and
+  adjust model device flags.
+
+Contributing
+------------
+
+Contributions are welcome. Suggested workflow:
+
+1. Fork the repository and create a feature branch.
+2. Run tests (if present) and linting.
+3. Submit a pull request with a clear description and rationale.
+
+If you want me to add a CONTRIBUTING.md or to wire up CI, tell me and I will
+prepare a follow-up change.
+
+License & Contact
+-----------------
+
+This project is provided as-is for research and development. Please refer to
+project authorship and institutional guidelines before reuse. For questions or
+collaboration, contact David Skalka.
+
+Acknowledgements
+----------------
+
+- Research and thesis supervision: Faculty of Information Technology, Brno
+  University of Technology.
