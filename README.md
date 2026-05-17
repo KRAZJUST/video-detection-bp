@@ -187,6 +187,7 @@ python src/project/main.py
 Screenshots:
 
 ![GUI overview with found frames](images/gui.png)
+To inspect the frame and its history/future frames, click on the specific frame to open window with these options.
 ![Opened frame with history and future playback](images/opened-frame.png)
 
 ## Usage Examples
