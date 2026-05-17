@@ -137,7 +137,8 @@ pip install -r requirements.txt
 
 ```bash
 source .venv/bin/activate
-python src/project/main.py --help
+chmod +x entrypoint.sh
+./entrypoint.sh
 ```
 
 ### Docker (optional)
@@ -149,8 +150,14 @@ acceleration in Docker, ensure your host has appropriate NVIDIA drivers and
 
 ## CLI Usage
 
-These examples run the application from the command line. The main entry
-point is `src/project/main.py`.
+Preferred entrypoint:
+
+```bash
+chmod +x entrypoint.sh
+./entrypoint.sh
+```
+
+Backup option (direct CLI):
 
 - Show available options:
 
@@ -175,7 +182,7 @@ python src/project/main.py --input /path/to/video.mp4 --mode full --output outpu
 1. Launch the app:
 
 ```bash
-python src/project/main.py
+./entrypoint.sh
 ```
 
 2. Select a video file.
