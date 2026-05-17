@@ -98,15 +98,6 @@ Queries can filter by:
 The UI writes annotated frames to the output directory and presents results
 in a scrollable grid.
 
-
-### GUI Overview
-
-![GUI overview with found frames](images/gui.png)
-
-### GUI Frame Playback
-
-![Opened frame with history and future playback](images/opened-frame.png)
-
 ## Quick Start
 
 ### System requirements
@@ -253,22 +244,22 @@ Key folders (under `src/project`):
 - If models fail to load on CPU-only hosts, install CPU builds of PyTorch and
   adjust model device flags.
 
+## Known Issues
+
+- Extracting key words from query can sometimes fail if the is a lot of different colors or objects mentioned in the query. This is because the system relies on a simple keyword extraction approach that may not capture all relevant terms in complex queries (putting these terms in CAPITAL can help the system to recognize them)
+- The Docker setup is not working properly
+
 ## Contributing
 
 Contributions are welcome. Suggested workflow:
 
 1. Fork the repository and create a feature branch.
-2. Run tests (if present) and linting.
-3. Submit a pull request with a clear description and rationale.
-
-If you want me to add a CONTRIBUTING.md or to wire up CI, tell me and I will
-prepare a follow-up change.
+2. Submit a pull request with a clear description and rationale.
 
 ## License & Contact
 
 This project is provided as-is for research and development. Please refer to
-project authorship and institutional guidelines before reuse. For questions or
-collaboration, contact David Skalka.
+project authorship and institutional guidelines before reuse.
 
 ## Acknowledgements
 
