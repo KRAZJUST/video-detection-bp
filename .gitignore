@@ -13,6 +13,7 @@ src/project/*.log
 src/project/detections.*
 src/project/venv/
 src/project/env/
+.env/
 
 src/project/detections.db
 src/project/outputs/
@@ -21,3 +22,6 @@ src/tests/*
 
 .vscode/
 app_profile.prof
+
+# frontend
+frontend/node_modules/
