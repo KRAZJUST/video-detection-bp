@@ -289,3 +289,28 @@ async def get_file(path: str):
     if os.path.exists(path):
         return FileResponse(path)
     return JSONResponse(status_code=404, content={"error": "File not found"})
+
+@app.get("/api/list-directory")
+def list_directory(path: str = "."):
+    """Returns subdirectories for a given path to build a web-based file picker."""
+    try:
+        abs_path = os.path.abspath(path)
+        if not os.path.exists(abs_path) or not os.path.isdir(abs_path):
+            return JSONResponse(status_code=400, content={"error": "Invalid directory"})
+        
+        directories = []
+        for item in os.listdir(abs_path):
+            item_path = os.path.join(abs_path, item)
+            if os.path.isdir(item_path):
+                directories.append(item)
+        
+        directories.sort()
+        parent = os.path.dirname(abs_path)
+        
+        return {
+            "current_path": abs_path,
+            "parent_path": parent if parent != abs_path else None,
+            "directories": directories
+        }
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

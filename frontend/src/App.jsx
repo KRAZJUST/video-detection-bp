@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import FrameSlideshowModal from './FrameSlideshowModal';
+import DirectoryPickerModal from './DirectoryPickerModal';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -24,6 +25,7 @@ function App() {
 
   const [selectedFrame, setSelectedFrame] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDirPickerOpen, setIsDirPickerOpen] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -212,10 +214,10 @@ function App() {
       <aside className="sidebar">
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Video Analysis</h1>
+            <h1 className="app-title">Video Analysis</h1>
             <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Advanced semantic search in videos</p>
           </div>
-          <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme">
+          <button className="theme-toggle" onClick={toggleTheme} title="Toggle Theme">
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
         </div>
@@ -252,13 +254,22 @@ function App() {
 
             <div className="input-group" style={{ marginTop: '1rem' }}>
               <label className="input-label">Output Directory</label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder="./outputs/"
-                value={outputDir}
-                onChange={(e) => setOutputDir(e.target.value)}
-              />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="./outputs/"
+                  value={outputDir}
+                  onChange={(e) => setOutputDir(e.target.value)}
+                />
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setIsDirPickerOpen(true)}
+                  title="Browse for output directory"
+                >
+                  📁
+                </button>
+              </div>
             </div>
           </div>
 
@@ -438,6 +449,14 @@ function App() {
         interval={interval}
         videoPath={videoPath}
         outputDir={outputDir}
+      />
+
+      <DirectoryPickerModal
+        isOpen={isDirPickerOpen}
+        onClose={() => setIsDirPickerOpen(false)}
+        onSelect={(path) => setOutputDir(path)}
+        initialPath={outputDir}
+        API_BASE={API_BASE}
       />
     </div>
   );

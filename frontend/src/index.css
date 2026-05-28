@@ -7,9 +7,11 @@
   --bg-surface-elevated: #f1f5f9;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
-  --primary-accent: #8b5cf6; /* Pastel Purple */
+  --primary-accent: #8b5cf6;
+  /* Pastel Purple */
   --primary-accent-hover: #7c3aed;
-  --secondary-accent: #f472b6; /* Pastel Pink */
+  --secondary-accent: #f472b6;
+  /* Pastel Pink */
   --success: #10b981;
   --danger: #ef4444;
   --border-color: rgba(0, 0, 0, 0.08);
@@ -24,7 +26,7 @@
   --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-  
+
   /* Hardcoded overlays for images */
   --img-overlay-bg: rgba(255, 255, 255, 0.85);
   --img-overlay-text: #1e293b;
@@ -42,9 +44,11 @@
   --bg-surface-elevated: #24283b;
   --text-primary: #e2e8f0;
   --text-secondary: #94a3b8;
-  --primary-accent: #6366f1; /* Indigo */
+  --primary-accent: #6366f1;
+  /* Indigo */
   --primary-accent-hover: #4f46e5;
-  --secondary-accent: #ec4899; /* Pink */
+  --secondary-accent: #ec4899;
+  /* Pink */
   --border-color: rgba(255, 255, 255, 0.08);
 
   /* Gradients */
@@ -98,18 +102,29 @@ body {
 }
 
 /* Typography Utilities */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 0.5rem;
 }
 
-.text-gradient {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.app-title {
+  color: var(--text-primary);
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.15rem;
+}
+
+[data-theme="dark"] .app-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .text-secondary {
@@ -137,7 +152,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background-color: var(--primary-accent);
   color: white;
   box-shadow: var(--shadow-sm);
 }
@@ -177,6 +192,29 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary-accent);
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+  padding: 0.65rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.25rem;
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-surface-elevated);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-accent);
+}
+
 /* Input Utilities */
 .input-group {
   display: flex;
@@ -203,7 +241,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: inherit;
   font-size: 0.95rem;
   transition: all var(--transition-fast);
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .input-field:focus {
@@ -223,7 +261,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 320px;
   flex-shrink: 0;
   border-right: 1px solid var(--border-color);
-  background: var(--gradient-surface);
+  background-color: var(--bg-surface);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -252,7 +290,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .progress-bar {
   height: 100%;
-  background: var(--gradient-primary);
+  background-color: var(--primary-accent);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -278,8 +316,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
