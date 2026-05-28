@@ -64,6 +64,18 @@ class VectorDatabaseManager:
         
         self.collection_name = collection_name
         
+    @staticmethod
+    def _normalize_embedding(embedding: Any) -> torch.Tensor:
+        """
+        Normalize tensor-like embedding outputs from HuggingFace to a torch.Tensor.
+        Supports models that return objects with `pooler_output` or `last_hidden_state`.
+        """
+        if hasattr(embedding, "pooler_output") and embedding.pooler_output is not None:
+            return embedding.pooler_output
+        elif hasattr(embedding, "last_hidden_state") and embedding.last_hidden_state is not None:
+            return embedding.last_hidden_state
+        return embedding
+        
     def add_batch_embeddings(self, 
                               batch_embeddings, 
                               batch_metadata: List[Dict[str, Any]], 
@@ -79,6 +91,8 @@ class VectorDatabaseManager:
         Returns:
             str: Unique ID for the added batch
         """
+        batch_embeddings = self._normalize_embedding(batch_embeddings)
+        
         # Validate input
         if batch_embeddings.dim() > 2:
             batch_embeddings = batch_embeddings.squeeze()
@@ -138,6 +152,8 @@ class VectorDatabaseManager:
         Returns:
             str: Unique ID for the added frame
         """
+        embedding = self._normalize_embedding(embedding)
+        
         # Ensure embedding is in the right format (1D)
         if embedding.dim() > 1:
             embedding = embedding.squeeze(0)
@@ -179,6 +195,8 @@ class VectorDatabaseManager:
         Returns:
             Dict containing query results with distances, metadata, etc.
         """
+        query_embedding = self._normalize_embedding(query_embedding)
+        
         # Ensure query embedding is in the right format
         if query_embedding.dim() > 2:
             print(f'Squeezing Query embedding shape: {query_embedding.shape}')

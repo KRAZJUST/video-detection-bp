@@ -23,5 +23,5 @@ src/tests/*
 .vscode/
 app_profile.prof
 
-# frontend
-frontend/node_modules/
+src/project/outputs/*
+src/project/uploads/
