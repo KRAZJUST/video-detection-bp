@@ -38,17 +38,12 @@ task_progress = {}
 
 # Ensure required directories exist
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads")
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "outputs")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # DB Init
 db_path = "detections.db"
 # Initialize DB just to make sure tables exist
 Database(db_path).close()
-
-# Mount static files for output images
-app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 
 @app.get("/")
@@ -202,7 +197,8 @@ async def run_query(
     video_path: str = Form(...),
     tracker: str = Form("yolo"),
     segmentation: bool = Form(False),
-    deduplicate: bool = Form(True)
+    deduplicate: bool = Form(True),
+    output_dir: str = Form("./outputs/")
 ):
     """Run a query on processed video frames."""
     if not os.path.exists(video_path):
@@ -219,7 +215,7 @@ async def run_query(
             log_parser = DetectionParser(
                 query=query,
                 input_video=video_path,
-                output_dir=OUTPUT_DIR,
+                output_dir=output_dir,
                 database_path=db_path,
                 tracker=tracker,
                 use_segmentation=segmentation,
@@ -236,7 +232,7 @@ async def run_query(
             xclip_parser = XClipParser(
                 video_path=video_path,
                 query=query,
-                output_dir=OUTPUT_DIR,
+                output_dir=output_dir,
                 model_name=tracker
             )
             similarities, metadata = xclip_parser.search_embeddings(top_k=5)
@@ -246,7 +242,7 @@ async def run_query(
             siglip_parser = SigLIPParser(
                 video_path=video_path,
                 query=query,
-                output_dir=OUTPUT_DIR,
+                output_dir=output_dir,
                 model_name=tracker
             )
             similarities, metadata = siglip_parser.search_embeddings(n_results=40)
@@ -284,3 +280,12 @@ async def open_in_system_player(video_path: str = Form(...), timestamp: float = 
             return {"message": "Opened in system default player (timestamp not supported)"}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+from fastapi.responses import FileResponse
+
+@app.get("/api/file")
+async def get_file(path: str):
+    """Serve a file directly from a path."""
+    if os.path.exists(path):
+        return FileResponse(path)
+    return JSONResponse(status_code=404, content={"error": "File not found"})

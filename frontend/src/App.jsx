@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import './App.css'; 
-import FrameSlideshowModal from './FrameSlideshowModal'; 
+import './App.css';
+import FrameSlideshowModal from './FrameSlideshowModal';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -14,19 +14,19 @@ function App() {
   const [theme, setTheme] = useState('light');
   const [outputDir, setOutputDir] = useState('./outputs/');
   const [taskId, setTaskId] = useState(null);
-  
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
-  
+
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
-  
+
   const [selectedFrame, setSelectedFrame] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const fileInputRef = useRef(null);
-  
+
   // Apply theme to document root
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -60,7 +60,7 @@ function App() {
 
     const formData = new FormData();
     formData.append('file', file);
-    
+
     setStatusMessage('Uploading video...');
     try {
       const res = await fetch(`${API_BASE}/api/upload`, {
@@ -68,8 +68,8 @@ function App() {
         body: formData,
       });
       if (!res.ok) {
-         const errData = await res.text();
-         throw new Error(`Server returned ${res.status}: ${errData}`);
+        const errData = await res.text();
+        throw new Error(`Server returned ${res.status}: ${errData}`);
       }
       const data = await res.json();
       setVideoPath(data.path);
@@ -86,18 +86,18 @@ function App() {
       alert("Please upload a video first.");
       return;
     }
-    
+
     setIsProcessing(true);
     setProgress(0);
     setStatusMessage('Starting processing...');
-    
+
     const formData = new FormData();
     formData.append('video_path', videoPath);
     formData.append('interval', interval);
     formData.append('tracker', tracker);
     formData.append('segmentation', segmentation);
     formData.append('output_dir', outputDir);
-    
+
     try {
       const res = await fetch(`${API_BASE}/api/process`, {
         method: 'POST',
@@ -105,30 +105,30 @@ function App() {
       });
       const data = await res.json();
       setTaskId(data.task_id);
-      
+
       // Start SSE to listen for progress
       const eventSource = new EventSource(`${API_BASE}/api/process/status/${data.task_id}`);
-      
+
       eventSource.onmessage = (event) => {
         const taskData = JSON.parse(event.data);
         setProgress(taskData.progress);
         setStatusMessage(taskData.message);
-        
+
         if (taskData.status === 'completed' || taskData.status === 'error') {
           eventSource.close();
           setIsProcessing(false);
           if (taskData.status === 'completed') {
-             // Refetch video info if needed, though we already have it
+            // Refetch video info if needed, though we already have it
           }
         }
       };
-      
+
       eventSource.onerror = () => {
         eventSource.close();
         setIsProcessing(false);
         setStatusMessage('Error tracking progress.');
       };
-      
+
     } catch (err) {
       console.error(err);
       setIsProcessing(false);
@@ -149,32 +149,45 @@ function App() {
 
   const handleSearchClick = async () => {
     if (!videoPath || !query) return;
-    
+
     setIsSearching(true);
     setSearchResults([]);
-    
+
     const formData = new FormData();
     formData.append('query', query);
     formData.append('video_path', videoPath);
     formData.append('tracker', tracker);
     formData.append('segmentation', segmentation);
     formData.append('deduplicate', true);
-    
+    formData.append('output_dir', outputDir);
+
     try {
       const res = await fetch(`${API_BASE}/api/query`, {
         method: 'POST',
         body: formData,
       });
       const data = await res.json();
-      
+
       if (data.results) {
+        const normalizedOutputDir = outputDir ? outputDir.replace(/\/+$/, '') : './outputs';
+
         // Transform the results dictionary to an array for rendering
-        const resultsArray = Object.entries(data.results).map(([framePath, detections]) => ({
-          framePath,
-          detections,
-          // Extract filename from the absolute path for static serving
-          filename: framePath.split('/').pop().split('\\').pop()
-        }));
+        const resultsArray = Object.entries(data.results).map(([frameKey, detections]) => {
+          let filename = frameKey.split('/').pop().split('\\').pop();
+
+          // If the key is just a number (from DetectionParser), format it correctly
+          if (/^\d+$/.test(filename)) {
+            filename = `frame_${filename.padStart(6, '0')}.jpg`;
+          }
+
+          const absoluteFramePath = `${normalizedOutputDir}/found_frames/${filename}`;
+
+          return {
+            framePath: absoluteFramePath,
+            filename,
+            detections
+          };
+        });
         setSearchResults(resultsArray);
       }
     } catch (err) {
@@ -199,8 +212,8 @@ function App() {
       <aside className="sidebar">
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>NeuroVision</h1>
-            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Advanced Video Intelligence</p>
+            <h1 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Video Analysis</h1>
+            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Advanced semantic search in videos</p>
           </div>
           <button className="btn-icon" onClick={toggleTheme} title="Toggle Theme">
             {theme === 'light' ? '🌙' : '☀️'}
@@ -211,38 +224,38 @@ function App() {
           {/* Input/Output Group */}
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Data Source</h3>
-            
+
             <div className="input-group">
               <label className="input-label">Video Path</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="Select or enter video path..." 
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Select or enter video path..."
                 value={videoPath}
                 readOnly
               />
-              <input 
-                type="file" 
-                accept="video/*" 
-                ref={fileInputRef} 
-                style={{ display: 'none' }} 
-                onChange={handleFileUpload} 
+              <input
+                type="file"
+                accept="video/*"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
               />
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 style={{ marginTop: '0.25rem' }}
                 onClick={() => fileInputRef.current.click()}
               >
                 Browse File
               </button>
             </div>
-            
+
             <div className="input-group" style={{ marginTop: '1rem' }}>
               <label className="input-label">Output Directory</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="./outputs/" 
+              <input
+                type="text"
+                className="input-field"
+                placeholder="./outputs/"
                 value={outputDir}
                 onChange={(e) => setOutputDir(e.target.value)}
               />
@@ -252,11 +265,11 @@ function App() {
           {/* Processing Settings Group */}
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Processing</h3>
-            
+
             <div className="input-group">
               <label className="input-label">Detection Engine</label>
-              <select 
-                className="input-field" 
+              <select
+                className="input-field"
                 value={tracker}
                 onChange={(e) => setTracker(e.target.value)}
                 style={{ appearance: 'none', backgroundColor: 'var(--bg-surface-elevated)' }}
@@ -270,23 +283,23 @@ function App() {
 
             <div className="input-group">
               <label className="input-label">Frame Interval</label>
-              <input 
-                type="number" 
-                className="input-field" 
+              <input
+                type="number"
+                className="input-field"
                 value={interval}
                 onChange={(e) => setInterval(Number(e.target.value))}
-                min="1" 
-                max="200" 
+                min="1"
+                max="200"
               />
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-              <input 
-                type="checkbox" 
-                id="segmentation" 
+              <input
+                type="checkbox"
+                id="segmentation"
                 checked={segmentation}
                 onChange={(e) => setSegmentation(e.target.checked)}
-                style={{ accentColor: 'var(--primary-accent)' }} 
+                style={{ accentColor: 'var(--primary-accent)' }}
               />
               <label htmlFor="segmentation" style={{ fontSize: '0.9rem' }}>Enable Segmentation</label>
             </div>
@@ -294,25 +307,25 @@ function App() {
 
           {/* Action Button */}
           <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               style={{ width: '100%', padding: '1rem' }}
               onClick={handleProcessClick}
               disabled={isProcessing || !videoPath}
             >
               {isProcessing ? 'Processing...' : 'Analyze Video'}
             </button>
-            
+
             {isProcessing && (
-              <button 
-                className="btn" 
+              <button
+                className="btn"
                 style={{ width: '100%', padding: '1rem', marginTop: '0.5rem', backgroundColor: '#ff4d4f', color: 'white', border: 'none' }}
                 onClick={handleCancelProcessing}
               >
                 Cancel Processing
               </button>
             )}
-            
+
             {statusMessage && (
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
                 {statusMessage}
@@ -336,18 +349,18 @@ function App() {
             <label className="input-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
               Semantic Search Query
             </label>
-            <input 
-              type="text" 
-              className="input-field" 
-              placeholder="e.g., 'Person wearing a red jacket running'" 
+            <input
+              type="text"
+              className="input-field"
+              placeholder="e.g., 'Person wearing a red jacket running'"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               style={{ fontSize: '1.1rem', padding: '1rem' }}
               onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
             />
           </div>
-          <button 
-            className="btn btn-primary" 
+          <button
+            className="btn btn-primary"
             style={{ padding: '1rem 2rem', height: 'fit-content' }}
             onClick={handleSearchClick}
             disabled={isSearching || !videoPath || !query}
@@ -375,9 +388,9 @@ function App() {
         {/* Results Gallery */}
         <div className="results-grid">
           {searchResults.map((item, idx) => (
-            <div 
-              key={idx} 
-              className="glass-surface animate-fade-in" 
+            <div
+              key={idx}
+              className="glass-surface animate-fade-in"
               style={{ overflow: 'hidden', animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.02)' } }}
               onClick={() => {
                 setSelectedFrame(item);
@@ -385,12 +398,12 @@ function App() {
               }}
             >
               <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: 'var(--bg-main)' }}>
-                <img 
-                  src={`${API_BASE}/outputs/found_frames/${item.filename}`} 
-                  alt="Detection result" 
+                <img
+                  src={`${API_BASE}/api/file?path=${encodeURIComponent(item.framePath)}`}
+                  alt="Detection result"
                   onError={(e) => {
                     // Fallback if the image doesn't exist or isn't in found_frames (e.g., XClip generic results)
-                    e.target.onerror = null; 
+                    e.target.onerror = null;
                     e.target.src = '/dummy.png';
                   }}
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
@@ -404,9 +417,9 @@ function App() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {Array.isArray(item.detections) && item.detections.map((det, dIdx) => (
-                     <span key={dIdx} className="result-tag" title={`Confidence: ${det.confidence}`}>
-                       {det.class_name || det.dominant_color || 'detection'}
-                     </span>
+                    <span key={dIdx} className="result-tag" title={`Confidence: ${det.confidence}`}>
+                      {det.class_name || det.dominant_color || 'detection'}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -415,7 +428,7 @@ function App() {
         </div>
       </main>
 
-      <FrameSlideshowModal 
+      <FrameSlideshowModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         frameItem={selectedFrame}
@@ -424,6 +437,7 @@ function App() {
         fps={videoInfo ? videoInfo.fps : null}
         interval={interval}
         videoPath={videoPath}
+        outputDir={outputDir}
       />
     </div>
   );

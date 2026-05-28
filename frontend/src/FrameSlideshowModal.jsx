@@ -8,7 +8,8 @@ const FrameSlideshowModal = ({
   API_BASE, 
   fps, 
   interval,
-  videoPath
+  videoPath,
+  outputDir
 }) => {
   if (!isOpen || !frameItem) return null;
 
@@ -39,12 +40,21 @@ const FrameSlideshowModal = ({
     const end = centerFrameNumber + forwardFrames;
     
     const frames = [];
+    
+    // Normalize outputDir path
+    const normalizedOutputDir = outputDir ? outputDir.replace(/\/+$/, '') : './outputs';
+    
     for (let i = start; i <= end; i++) {
       const paddedNum = i.toString().padStart(6, '0');
+      const frameFilename = `frame_${paddedNum}.jpg`;
+      const fullPath = `${normalizedOutputDir}/${baseDir}/${frameFilename}`;
+      const foundPath = `${normalizedOutputDir}/found_frames/${frameFilename}`;
+      
       frames.push({
         number: i,
-        filename: `frame_${paddedNum}.jpg`,
-        url: `${API_BASE}/outputs/${baseDir}/frame_${paddedNum}.jpg`,
+        filename: frameFilename,
+        url: `${API_BASE}/api/file?path=${encodeURIComponent(fullPath)}`,
+        foundUrl: `${API_BASE}/api/file?path=${encodeURIComponent(foundPath)}`,
         isAnnotated: i === centerFrameNumber,
       });
     }
@@ -131,7 +141,7 @@ const FrameSlideshowModal = ({
         <div style={{ position: 'relative', width: '100%', backgroundColor: 'black', borderRadius: '4px', overflow: 'hidden', aspectRatio: '16/9', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {currentFrame && (
             <img 
-              src={currentFrame.isAnnotated ? `${API_BASE}/outputs/found_frames/${currentFrame.filename}` : currentFrame.url} 
+              src={currentFrame.isAnnotated ? currentFrame.foundUrl : currentFrame.url} 
               alt="Frame" 
               style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
               onError={(e) => { e.target.src = '/dummy.png'; }}
