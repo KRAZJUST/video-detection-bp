@@ -382,7 +382,7 @@ function App() {
             </div>
             <button
               className="btn btn-secondary"
-              style={{ padding: '1rem', height: 'fit-content' }}
+              style={{ padding: '1rem', height: 'fit-content', backgroundColor: showQuerySettings ? 'var(--text-primary)' : '', color: showQuerySettings ? 'var(--bg-surface)' : '' }}
               onClick={() => setShowQuerySettings(!showQuerySettings)}
               title="Query Settings"
             >
@@ -495,7 +495,7 @@ function App() {
               </div>
             </div>
             {roi && (
-              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--primary-accent)', fontWeight: 500 }}>
+              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>
                 Active ROI selected: ({roi.join(', ')})
               </p>
             )}
