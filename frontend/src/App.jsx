@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import FrameSlideshowModal from './FrameSlideshowModal';
 import DirectoryPickerModal from './DirectoryPickerModal';
+import ROIDrawer from './ROIDrawer';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -15,6 +16,13 @@ function App() {
   const [theme, setTheme] = useState('light');
   const [outputDir, setOutputDir] = useState('./outputs/');
   const [taskId, setTaskId] = useState(null);
+
+  const [xclipBatchCount, setXclipBatchCount] = useState(5);
+  const [siglipFrameCount, setSiglipFrameCount] = useState(40);
+  const [deduplicate, setDeduplicate] = useState(true);
+  const [showQuerySettings, setShowQuerySettings] = useState(false);
+
+  const [roi, setRoi] = useState(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -53,6 +61,11 @@ function App() {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Clear previous search results and state
+    setSearchResults([]);
+    setProgress(0);
+    setTaskId(null);
 
     // If we already have a video uploaded, delete it to save space
     if (videoPath) {
@@ -160,8 +173,13 @@ function App() {
     formData.append('video_path', videoPath);
     formData.append('tracker', tracker);
     formData.append('segmentation', segmentation);
-    formData.append('deduplicate', true);
+    formData.append('deduplicate', deduplicate);
+    formData.append('xclip_batch_count', xclipBatchCount);
+    formData.append('siglip_frame_count', siglipFrameCount);
     formData.append('output_dir', outputDir);
+    if (roi) {
+      formData.append('roi', roi.join(','));
+    }
 
     try {
       const res = await fetch(`${API_BASE}/api/query`, {
@@ -303,18 +321,9 @@ function App() {
                 max="200"
               />
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-              <input
-                type="checkbox"
-                id="segmentation"
-                checked={segmentation}
-                onChange={(e) => setSegmentation(e.target.checked)}
-                style={{ accentColor: 'var(--primary-accent)' }}
-              />
-              <label htmlFor="segmentation" style={{ fontSize: '0.9rem' }}>Enable Segmentation</label>
-            </div>
           </div>
+
+
 
           {/* Action Button */}
           <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
@@ -355,29 +364,89 @@ function App() {
       {/* Main Content Area */}
       <main className="main-content">
         {/* Top Header / Query Builder */}
-        <header className="glass-surface" style={{ margin: '1.5rem', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-          <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-            <label className="input-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              Semantic Search Query
-            </label>
-            <input
-              type="text"
-              className="input-field"
-              placeholder="e.g., 'Person wearing a red jacket running'"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={{ fontSize: '1.1rem', padding: '1rem' }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
-            />
+        <header className="glass-surface" style={{ margin: '1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+              <label className="input-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                Semantic Search Query
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g., 'Person wearing a red jacket running'"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={{ fontSize: '1.1rem', padding: '1rem' }}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+              />
+            </div>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '1rem', height: 'fit-content' }}
+              onClick={() => setShowQuerySettings(!showQuerySettings)}
+              title="Query Settings"
+            >
+              ⚙️
+            </button>
+            <button
+              className="btn btn-primary"
+              style={{ padding: '1rem 2rem', height: 'fit-content' }}
+              onClick={handleSearchClick}
+              disabled={isSearching || !videoPath || !query}
+            >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
           </div>
-          <button
-            className="btn btn-primary"
-            style={{ padding: '1rem 2rem', height: 'fit-content' }}
-            onClick={handleSearchClick}
-            disabled={isSearching || !videoPath || !query}
-          >
-            {isSearching ? 'Searching...' : 'Search'}
-          </button>
+
+          {showQuerySettings && (
+            <div className="animate-fade-in" style={{ padding: '1rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label className="input-label" style={{ marginBottom: 0 }}>XCLIP Batch Count:</label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={xclipBatchCount}
+                  onChange={(e) => setXclipBatchCount(Number(e.target.value))}
+                  min="1"
+                  style={{ width: '80px', padding: '0.5rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label className="input-label" style={{ marginBottom: 0 }}>SigLIP Frame Count:</label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={siglipFrameCount}
+                  onChange={(e) => setSiglipFrameCount(Number(e.target.value))}
+                  min="1"
+                  style={{ width: '80px', padding: '0.5rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="deduplicate-header"
+                  checked={deduplicate}
+                  onChange={(e) => setDeduplicate(e.target.checked)}
+                  style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
+                />
+                <label htmlFor="deduplicate-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Deduplicate Frames</label>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="segmentation-header"
+                  checked={segmentation}
+                  onChange={(e) => setSegmentation(e.target.checked)}
+                  style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
+                />
+                <label htmlFor="segmentation-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Use Segmentation</label>
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Video Info & Stats Bar */}
@@ -395,6 +464,43 @@ function App() {
             Found {searchResults.length} matching frames
           </div>
         </div>
+
+        {/* Video Preview & ROI Selection */}
+        {videoPath && videoInfo && (
+          <div className="glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>Video Preview & ROI Selection</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>
+              Hold <strong>Shift</strong> and drag on the video to draw a Region of Interest (ROI). Only detections inside this region will be matched. ROI filtering works only
+              with YOLO and ByteTrack.
+            </p>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <video
+                id="preview-video"
+                src={`${API_BASE}/api/file?path=${encodeURIComponent(videoPath)}`}
+                controls
+                style={{ maxHeight: '500px', maxWidth: '100%', display: 'block', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+              />
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, pointerEvents: 'none' }}>
+                <ROIDrawer
+                  width={videoInfo.width}
+                  height={videoInfo.height}
+                  onROIChange={(rect) => {
+                    if (!rect) {
+                      setRoi(null);
+                      return;
+                    }
+                    setRoi(rect);
+                  }}
+                />
+              </div>
+            </div>
+            {roi && (
+              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--primary-accent)', fontWeight: 500 }}>
+                Active ROI selected: ({roi.join(', ')})
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Results Gallery */}
         <div className="results-grid">

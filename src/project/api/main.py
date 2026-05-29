@@ -198,7 +198,10 @@ async def run_query(
     tracker: str = Form("yolo"),
     segmentation: bool = Form(False),
     deduplicate: bool = Form(True),
-    output_dir: str = Form("./outputs/")
+    xclip_batch_count: int = Form(5),
+    siglip_frame_count: int = Form(40),
+    output_dir: str = Form("./outputs/"),
+    roi: str = Form(None)
 ):
     """Run a query on processed video frames."""
     if not os.path.exists(video_path):
@@ -208,6 +211,32 @@ async def run_query(
         results = {}
         metadata = {}
         
+        # Parse ROI if provided
+        parsed_roi = None
+        if roi:
+            try:
+                coords = [int(float(x.strip())) for x in roi.split(',')]
+                if len(coords) == 4:
+                    # Backend scales all frames to width=640 during extraction
+                    # We must scale the ROI coordinates down to match the database
+                    try:
+                        info = VideoInfoUtils.get_video_info(video_path)
+                        if info and info.width:
+                            scale = 640.0 / float(info.width)
+                            coords = [
+                                round(coords[0] * scale),
+                                round(coords[1] * scale),
+                                round(coords[2] * scale),
+                                round(coords[3] * scale)
+                            ]
+                    except Exception as e:
+                        print(f"Warning: Failed to scale ROI: {e}")
+                    
+                    # Add margin = 0 as the 5th element since sqlite_database.py expects: area_x1, area_y1, area_x2, area_y2, margin = area_filter
+                    parsed_roi = tuple(coords + [0])
+            except Exception as e:
+                print(f"Warning: Failed to parse ROI: {e}")
+                
         # Dummy feedback callback
         def feedback_callback(msg): pass
             
@@ -219,7 +248,7 @@ async def run_query(
                 database_path=db_path,
                 tracker=tracker,
                 use_segmentation=segmentation,
-                area_of_interest=None,
+                area_of_interest=parsed_roi,
                 feedback_callback=feedback_callback,
             )
             log_parser.parse_detections()
@@ -235,7 +264,7 @@ async def run_query(
                 output_dir=output_dir,
                 model_name=tracker
             )
-            similarities, metadata = xclip_parser.search_embeddings(top_k=5)
+            similarities, metadata = xclip_parser.search_embeddings(top_k=xclip_batch_count)
             results = xclip_parser.top_frames
             
         elif tracker == "siglip":
@@ -245,7 +274,7 @@ async def run_query(
                 output_dir=output_dir,
                 model_name=tracker
             )
-            similarities, metadata = siglip_parser.search_embeddings(n_results=40)
+            similarities, metadata = siglip_parser.search_embeddings(n_results=siglip_frame_count)
             results = siglip_parser.top_frames
             
         return {"results": results, "metadata": metadata}
