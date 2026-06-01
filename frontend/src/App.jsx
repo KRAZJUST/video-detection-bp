@@ -1,12 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 import FrameSlideshowModal from './FrameSlideshowModal';
 import DirectoryPickerModal from './DirectoryPickerModal';
 import ROIDrawer from './ROIDrawer';
+import { useToast } from './ToastProvider';
 
 const API_BASE = 'http://localhost:8000';
 
+const STAT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+
 function App() {
+  const { addToast } = useToast();
+
   const [videoPath, setVideoPath] = useState('');
   const [videoInfo, setVideoInfo] = useState(null);
   const [tracker, setTracker] = useState('yolo');
@@ -30,10 +35,20 @@ function App() {
 
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [searchMetadata, setSearchMetadata] = useState(null);
 
   const [selectedFrame, setSelectedFrame] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDirPickerOpen, setIsDirPickerOpen] = useState(false);
+
+  // New feature states
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isSidebarDragOver, setIsSidebarDragOver] = useState(false);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('neurovision-search-history') || '[]'); }
+    catch { return []; }
+  });
 
   const fileInputRef = useRef(null);
 
@@ -58,16 +73,13 @@ function App() {
     }
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  const uploadFile = async (file) => {
     if (!file) return;
 
-    // Clear previous search results and state
     setSearchResults([]);
     setProgress(0);
     setTaskId(null);
 
-    // If we already have a video uploaded, delete it to save space
     if (videoPath) {
       fetch(`${API_BASE}/api/video?path=${encodeURIComponent(videoPath)}`, { method: 'DELETE' })
         .catch(err => console.error('Error deleting previous video:', err));
@@ -76,6 +88,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
 
+    addToast('Uploading video...', 'info');
     setStatusMessage('Uploading video...');
     try {
       const res = await fetch(`${API_BASE}/api/upload`, {
@@ -89,10 +102,29 @@ function App() {
       const data = await res.json();
       setVideoPath(data.path);
       setStatusMessage('Video uploaded successfully.');
+      addToast('Video uploaded successfully!', 'success');
+      setSidebarCollapsed(false);
       fetchVideoInfo(data.path);
     } catch (err) {
       console.error(err);
       setStatusMessage(`Upload failed: ${err.message}`);
+      addToast(`Upload failed: ${err.message}`, 'error');
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    uploadFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    setIsSidebarDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('video/')) {
+      uploadFile(file);
+    } else {
+      addToast('Please drop a video file.', 'error');
     }
   };
 
@@ -105,6 +137,7 @@ function App() {
     setIsProcessing(true);
     setProgress(0);
     setStatusMessage('Starting processing...');
+    addToast('Starting processing...', 'info');
 
     const formData = new FormData();
     formData.append('video_path', videoPath);
@@ -133,7 +166,10 @@ function App() {
           eventSource.close();
           setIsProcessing(false);
           if (taskData.status === 'completed') {
+            addToast('Processing completed successfully!', 'success');
             // Refetch video info if needed, though we already have it
+          } else {
+            addToast(`Processing error: ${taskData.message}`, 'error');
           }
         }
       };
@@ -142,12 +178,14 @@ function App() {
         eventSource.close();
         setIsProcessing(false);
         setStatusMessage('Error tracking progress.');
+        addToast('Error tracking progress.', 'error');
       };
 
     } catch (err) {
       console.error(err);
       setIsProcessing(false);
       setStatusMessage('Processing failed to start.');
+      addToast('Processing failed to start.', 'error');
     }
   };
 
@@ -156,9 +194,11 @@ function App() {
     try {
       await fetch(`${API_BASE}/api/process/cancel/${taskId}`, { method: 'POST' });
       setStatusMessage('Cancellation requested. Waiting for process to stop...');
+      addToast('Cancellation requested.', 'info');
     } catch (err) {
       console.error(err);
       setStatusMessage('Error cancelling process.');
+      addToast('Error cancelling process.', 'error');
     }
   };
 
@@ -209,12 +249,32 @@ function App() {
           };
         });
         setSearchResults(resultsArray);
+        setSearchMetadata(data.metadata || null);
+        addToast(`Found ${resultsArray.length} matching frames!`, 'success');
+
+        // Update Search History
+        setSearchHistory(prev => {
+          const filtered = prev.filter(q => q.toLowerCase() !== query.toLowerCase());
+          const newHistory = [query, ...filtered].slice(0, 10);
+          localStorage.setItem('neurovision-search-history', JSON.stringify(newHistory));
+          return newHistory;
+        });
       }
     } catch (err) {
       console.error(err);
+      addToast('Search failed.', 'error');
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const removeHistoryItem = (e, itemToRemove) => {
+    e.stopPropagation();
+    setSearchHistory(prev => {
+      const newHistory = prev.filter(item => item !== itemToRemove);
+      localStorage.setItem('neurovision-search-history', JSON.stringify(newHistory));
+      return newHistory;
+    });
   };
 
   // Helper to format duration
@@ -226,52 +286,94 @@ function App() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const detectionStats = useMemo(() => {
+    if (!searchResults.length) return null;
+    let total = 0;
+    const counts = {};
+
+    // Extract filter objects and colors from metadata if available
+    const filterObjects = searchMetadata?.filter_objects || [];
+    const filterColors = searchMetadata?.filter_colors || [];
+
+    searchResults.forEach(res => {
+      if (res.detections) {
+        res.detections.forEach(det => {
+          const className = det.class_name || 'unknown';
+          const color = det.dominant_color;
+
+          // If filters are active, only count detections that match the search
+          if (filterObjects.length > 0 && !filterObjects.includes(className)) {
+            return;
+          }
+          if (filterColors.length > 0 && color && !filterColors.includes(color)) {
+            // Wait, what if color is not set but object is? The backend query does IN (filter_colors)
+            // if filter_colors is present. So we skip if filter_colors has items and color is not one of them.
+            return;
+          }
+
+          const key = className || color || 'unknown';
+          counts[key] = (counts[key] || 0) + 1;
+          total++;
+        });
+      }
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    return { total, sorted };
+  }, [searchResults, searchMetadata]);
+
   return (
-    <div className="app-container">
+    <div className="app-container" onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }} onDragLeave={(e) => { if (e.currentTarget === e.target) setIsDragOver(false); }} onDrop={handleDrop}>
       {/* Sidebar Controls */}
-      <aside className="sidebar">
-        <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+      <aside className={`sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-content">
             <h1 className="app-title">Video Analysis</h1>
             <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Advanced semantic search in videos</p>
           </div>
-          <button className="theme-toggle" onClick={toggleTheme} title="Toggle Theme">
-            {theme === 'light' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M600-640 480-760l120-120 120 120-120 120Zm200 120-80-80 80-80 80 80-80 80ZM483-80q-84 0-157.5-32t-128-86.5Q143-253 111-326.5T79-484q0-146 93-257.5T409-880q-18 99 11 193.5T520-521q71 71 165.5 100T879-410q-26 144-138 237T483-80Zm0-80q88 0 163-44t118-121q-86-8-163-43.5T463-465q-61-61-97-138t-43-163q-77 43-120.5 118.5T159-484q0 135 94.5 229.5T483-160Zm-20-305Z" /></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M440-760v-160h80v160h-80Zm266 110-55-55 112-115 56 57-113 113Zm54 210v-80h160v80H760ZM440-40v-160h80v160h-80ZM254-652 140-763l57-56 113 113-56 54Zm508 512L651-255l54-54 114 110-57 59ZM40-440v-80h160v80H40Zm157 300-56-57 112-112 29 27 29 28-114 114Zm113-170q-70-70-70-170t70-170q70-70 170-70t170 70q70 70 70 170t-70 170q-70 70-170 70t-170-70Zm283-57q47-47 47-113t-47-113q-47-47-113-47t-113 47q-47 47-47 113t47 113q47 47 113 47t113-47ZM480-480Z" /></svg>
-            )}
-          </button>
+          <div className="sidebar-header-actions">
+            <button className="theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ width: '32px', height: '32px', padding: 0 }}>
+              {theme === 'light' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M600-640 480-760l120-120 120 120-120 120Zm200 120-80-80 80-80 80 80-80 80ZM483-80q-84 0-157.5-32t-128-86.5Q143-253 111-326.5T79-484q0-146 93-257.5T409-880q-18 99 11 193.5T520-521q71 71 165.5 100T879-410q-26 144-138 237T483-80Zm0-80q88 0 163-44t118-121q-86-8-163-43.5T463-465q-61-61-97-138t-43-163q-77 43-120.5 118.5T159-484q0 135 94.5 229.5T483-160Zm-20-305Z" /></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M440-760v-160h80v160h-80Zm266 110-55-55 112-115 56 57-113 113Zm54 210v-80h160v80H760ZM440-40v-160h80v160h-80ZM254-652 140-763l57-56 113 113-56 54Zm508 512L651-255l54-54 114 110-57 59ZM40-440v-80h160v80H40Zm157 300-56-57 112-112 29 27 29 28-114 114Zm113-170q-70-70-70-170t70-170q70-70 170-70t170 70q70 70 70 170t-70 170q-70 70-170 70t-170-70Zm283-57q47-47 47-113t-47-113q-47-47-113-47t-113 47q-47 47-47 113t47 113q47 47 113 47t113-47ZM480-480Z" /></svg>
+              )}
+            </button>
+            <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} title="Toggle Sidebar">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M400-240 160-480l240-240 56 58-142 142h486v80H314l142 142-56 58Z" /></svg>
+            </button>
+          </div>
         </div>
 
-        <div style={{ padding: '1.5rem', flex: 1, overflowY: 'auto' }}>
+        <div className="sidebar-content" style={{ padding: '1.5rem', flex: 1, overflowY: 'auto' }}>
           {/* Input/Output Group */}
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Data Source</h3>
 
             <div className="input-group">
-              <label className="input-label">Video Path</label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder="Select or enter video path..."
-                value={videoPath}
-                readOnly
-              />
+              <label className="input-label">Video Source</label>
+
+              <div
+                className={`small-drop-zone ${isSidebarDragOver ? 'drag-over' : ''} ${videoPath ? 'has-file' : ''}`}
+                onClick={() => fileInputRef.current.click()}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsSidebarDragOver(true); }}
+                onDragLeave={(e) => { if (e.currentTarget === e.target) setIsSidebarDragOver(false); }}
+                onDrop={handleDrop}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                  <path d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
+                </svg>
+                <div className="small-drop-text">
+                  {videoPath ? videoPath.split('/').pop().split('\\').pop() : 'Click or drop video here'}
+                </div>
+              </div>
+
               <input
                 type="file"
                 accept="video/*"
-                ref={fileInputRef}
                 style={{ display: 'none' }}
+                ref={fileInputRef}
                 onChange={handleFileUpload}
               />
-              <button
-                className="btn btn-secondary"
-                style={{ marginTop: '0.25rem' }}
-                onClick={() => fileInputRef.current.click()}
-              >
-                Browse File
-              </button>
             </div>
 
             <div className="input-group" style={{ marginTop: '1rem' }}>
@@ -330,7 +432,7 @@ function App() {
 
 
           {/* Action Button */}
-          <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+          <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', flexDirection: 'column' }}>
             <button
               className="btn btn-primary"
               style={{ width: '100%', padding: '1rem' }}
@@ -367,192 +469,305 @@ function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        {/* Top Header / Query Builder */}
-        <header className="glass-surface" style={{ margin: '1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <label className="input-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                Semantic Search Query
-              </label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder="e.g., 'Person wearing a red jacket running'"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                style={{ fontSize: '1.1rem', padding: '1rem' }}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
-              />
-            </div>
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '1rem', height: 'fit-content', backgroundColor: showQuerySettings ? 'var(--text-primary)' : '', color: showQuerySettings ? 'var(--bg-surface)' : '' }}
-              onClick={() => setShowQuerySettings(!showQuerySettings)}
-              title="Query Settings"
-            >
-              <div style={{
-                width: '1.2rem',
-                height: '1.2rem',
-                backgroundColor: 'currentColor',
-                mask: 'url(/settings-icon.png) no-repeat center / contain',
-                WebkitMask: 'url(/settings-icon.png) no-repeat center / contain'
-              }} />
-            </button>
-            <button
-              className="btn btn-primary"
-              style={{ padding: '1rem 2rem', height: 'fit-content' }}
-              onClick={handleSearchClick}
-              disabled={isSearching || !videoPath || !query}
-            >
-              {isSearching ? 'Searching...' : 'Search'}
-            </button>
-          </div>
-
-          {showQuerySettings && (
-            <div className="animate-fade-in" style={{ padding: '1rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label className="input-label" style={{ marginBottom: 0 }}>XCLIP Batch Count:</label>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={xclipBatchCount}
-                  onChange={(e) => setXclipBatchCount(Number(e.target.value))}
-                  min="1"
-                  style={{ width: '80px', padding: '0.5rem' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label className="input-label" style={{ marginBottom: 0 }}>SigLIP Frame Count:</label>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={siglipFrameCount}
-                  onChange={(e) => setSiglipFrameCount(Number(e.target.value))}
-                  min="1"
-                  style={{ width: '80px', padding: '0.5rem' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  id="deduplicate-header"
-                  checked={deduplicate}
-                  onChange={(e) => setDeduplicate(e.target.checked)}
-                  style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
-                />
-                <label htmlFor="deduplicate-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Deduplicate Frames</label>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  id="segmentation-header"
-                  checked={segmentation}
-                  onChange={(e) => setSegmentation(e.target.checked)}
-                  style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
-                />
-                <label htmlFor="segmentation-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Use Segmentation</label>
-              </div>
-            </div>
-          )}
-        </header>
-
-        {/* Video Info & Stats Bar */}
-        <div className="glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', flexWrap: 'wrap' }}>
-            <span><strong style={{ color: 'var(--text-primary)' }}>Duration:</strong> {videoInfo ? formatDuration(videoInfo.duration) : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>Resolution:</strong> {videoInfo ? `${videoInfo.width}x${videoInfo.height}` : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>FPS:</strong> {videoInfo ? videoInfo.fps : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>Total Frames:</strong> {videoInfo ? videoInfo.frame_count?.toLocaleString() : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>Codec:</strong> {videoInfo ? videoInfo.codec : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>Bitrate:</strong> {videoInfo ? (parseInt(videoInfo.bitrate) / 1000000).toFixed(2) + ' Mbps' : '-'}</span>
-            <span><strong style={{ color: 'var(--text-primary)' }}>File Size:</strong> {videoInfo ? videoInfo.size : '-'}</span>
-          </div>
-          <div style={{ fontSize: '0.9rem', color: 'var(--success)', fontWeight: 500 }}>
-            Found {searchResults.length} matching frames
-          </div>
-        </div>
-
-        {/* Video Preview & ROI Selection */}
-        {videoPath && videoInfo && (
-          <div className="glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>Video Preview & ROI Selection</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>
-              Hold <strong>Shift</strong> and drag on the video to draw a Region of Interest (ROI). Only detections inside this region will be matched. ROI filtering works only
-              with YOLO and ByteTrack.
-            </p>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <video
-                id="preview-video"
-                src={`${API_BASE}/api/file?path=${encodeURIComponent(videoPath)}`}
-                controls
-                style={{ maxHeight: '500px', maxWidth: '100%', display: 'block', borderRadius: '8px', border: '1px solid var(--border-color)' }}
-              />
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, pointerEvents: 'none' }}>
-                <ROIDrawer
-                  width={videoInfo.width}
-                  height={videoInfo.height}
-                  onROIChange={(rect) => {
-                    if (!rect) {
-                      setRoi(null);
-                      return;
-                    }
-                    setRoi(rect);
-                  }}
-                />
-              </div>
-            </div>
-            {roi && (
-              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>
-                Active ROI selected: ({roi.join(', ')})
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Results Gallery */}
-        <div className="results-grid">
-          {searchResults.map((item, idx) => (
+        {!videoPath ? (
+          <div className="empty-state">
             <div
-              key={idx}
-              className="glass-surface animate-fade-in"
-              style={{ overflow: 'hidden', animationDelay: `${(idx % 10) * 0.05}s`, cursor: 'pointer', transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.02)' } }}
-              onClick={() => {
-                setSelectedFrame(item);
-                setIsModalOpen(true);
-              }}
+              className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
+              onClick={() => fileInputRef.current.click()}
             >
-              <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: 'var(--bg-main)' }}>
-                <img
-                  src={`${API_BASE}/api/file?path=${encodeURIComponent(item.framePath)}`}
-                  alt="Detection result"
-                  onError={(e) => {
-                    // Fallback if the image doesn't exist or isn't in found_frames (e.g., XClip generic results)
-                    e.target.onerror = null;
-                    e.target.src = '/dummy.png';
-                  }}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
-              <div style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 500 }} title={item.filename}>
-                    {item.filename.length > 20 ? item.filename.substring(0, 20) + '...' : item.filename}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {Array.isArray(item.detections) && item.detections.map((det, dIdx) => (
-                    <span key={dIdx} className="result-tag" title={`Confidence: ${det.confidence}`}>
-                      {det.class_name || det.dominant_color || 'detection'}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <svg className="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M440-200h80v-167l64 64 56-57-160-160-160 160 57 56 63-63v167ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
+              </svg>
+              <div className="drop-zone-title">Drop your video here</div>
+              <div className="drop-zone-subtitle">or click to browse your files</div>
             </div>
-          ))}
-        </div>
+            {/* Optional hero image below */}
+            <div style={{ marginTop: '3rem', opacity: 0.5, pointerEvents: 'none', maxWidth: '300px' }}>
+              <img src="/hero.png" alt="" style={{ width: '100%', height: 'auto', filter: theme === 'dark' ? 'invert(1) hue-rotate(180deg)' : 'none' }} />
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Top Header / Query Builder */}
+            <header className="glass-surface" style={{ margin: '1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                  <label className="input-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    Semantic Search Query
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder={
+                      tracker === 'yolo' ? "e.g., 'yellow truck and white car'" :
+                        tracker === 'bytetrack' ? "e.g., 'white car going north'" :
+                          tracker === 'xclip-32' ? "e.g., 'person wearing a red jacket running'" :
+                            tracker === 'siglip' ? "e.g., 'person wearing a red jacket'" :
+                              "e.g., 'yellow truck and white car'"
+                    }
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    style={{ fontSize: '1.1rem', padding: '1rem' }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+                  />
+                  {searchHistory.length > 0 && (
+                    <div className="search-history">
+                      {searchHistory.map((item, idx) => (
+                        <div key={idx} className="search-history-chip" onClick={() => { setQuery(item); }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 -960 960 960" width="14" fill="currentColor"><path d="m382-80-43-43 297-297H120v-60h516L339-777l43-43 378 378L382-80Z" /></svg>
+                          {item}
+                          <span className="chip-remove" onClick={(e) => removeHistoryItem(e, item)}>×</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  className="btn btn-secondary"
+                  style={{ padding: '1rem', height: 'fit-content', backgroundColor: showQuerySettings ? 'var(--text-primary)' : '', color: showQuerySettings ? 'var(--bg-surface)' : '', marginTop: '1.6rem' }}
+                  onClick={() => setShowQuerySettings(!showQuerySettings)}
+                  title="Query Settings"
+                >
+                  <div style={{
+                    width: '1.2rem',
+                    height: '1.2rem',
+                    backgroundColor: 'currentColor',
+                    mask: 'url(/settings-icon.png) no-repeat center / contain',
+                    WebkitMask: 'url(/settings-icon.png) no-repeat center / contain'
+                  }} />
+                </button>
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '1rem 2rem', height: 'fit-content', marginTop: '1.6rem' }}
+                  onClick={handleSearchClick}
+                  disabled={isSearching || !videoPath || !query}
+                >
+                  {isSearching ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+
+              {showQuerySettings && (
+                <div className="animate-fade-in" style={{ padding: '1rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label className="input-label" style={{ marginBottom: 0 }}>XCLIP Batch Count:</label>
+                    <input
+                      type="number"
+                      className="input-field"
+                      value={xclipBatchCount}
+                      onChange={(e) => setXclipBatchCount(Number(e.target.value))}
+                      min="1"
+                      style={{ width: '80px', padding: '0.5rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label className="input-label" style={{ marginBottom: 0 }}>SigLIP Frame Count:</label>
+                    <input
+                      type="number"
+                      className="input-field"
+                      value={siglipFrameCount}
+                      onChange={(e) => setSiglipFrameCount(Number(e.target.value))}
+                      min="1"
+                      style={{ width: '80px', padding: '0.5rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      id="deduplicate-header"
+                      checked={deduplicate}
+                      onChange={(e) => setDeduplicate(e.target.checked)}
+                      style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
+                    />
+                    <label htmlFor="deduplicate-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Deduplicate Frames</label>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      id="segmentation-header"
+                      checked={segmentation}
+                      onChange={(e) => setSegmentation(e.target.checked)}
+                      style={{ accentColor: 'var(--primary-accent)', width: '16px', height: '16px' }}
+                    />
+                    <label htmlFor="segmentation-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Use Segmentation</label>
+                  </div>
+                </div>
+              )}
+            </header>
+
+            {/* Video Info & Stats Bar */}
+            <div className="glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem', padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', flexWrap: 'wrap' }}>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>Duration:</strong> {videoInfo ? formatDuration(videoInfo.duration) : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>Resolution:</strong> {videoInfo ? `${videoInfo.width}x${videoInfo.height}` : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>FPS:</strong> {videoInfo ? videoInfo.fps : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>Total Frames:</strong> {videoInfo ? videoInfo.frame_count?.toLocaleString() : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>Codec:</strong> {videoInfo ? videoInfo.codec : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>Bitrate:</strong> {videoInfo ? (parseInt(videoInfo.bitrate) / 1000000).toFixed(2) + ' Mbps' : '-'}</span>
+                  <span><strong style={{ color: 'var(--text-primary)' }}>File Size:</strong> {videoInfo ? videoInfo.size : '-'}</span>
+                </div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--success)', fontWeight: 500 }}>
+                  Found {searchResults.length} matching frames
+                </div>
+              </div>
+
+              {/* Detection Statistics Panel */}
+              {detectionStats && detectionStats.total > 0 && (
+                <div className="stats-panel" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                  <div className="stats-bar-container">
+                    <div className="stats-bar">
+                      {detectionStats.sorted.map(([name, count], idx) => (
+                        <div
+                          key={name}
+                          className="stats-segment"
+                          style={{ width: `${(count / detectionStats.total) * 100}%`, backgroundColor: STAT_COLORS[idx % STAT_COLORS.length] }}
+                          title={`${name}: ${count} (${Math.round((count / detectionStats.total) * 100)}%)`}
+                        />
+                      ))}
+                    </div>
+                    <div className="stats-legend">
+                      {detectionStats.sorted.slice(0, 6).map(([name, count], idx) => (
+                        <div key={name} className="stats-legend-item">
+                          <div className="stats-legend-dot" style={{ backgroundColor: STAT_COLORS[idx % STAT_COLORS.length] }} />
+                          <span>{name} <span className="stats-legend-count">{count}</span></span>
+                        </div>
+                      ))}
+                      {detectionStats.sorted.length > 6 && (
+                        <div className="stats-legend-item">
+                          <span style={{ opacity: 0.6 }}>+ {detectionStats.sorted.length - 6} more classes</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Video Preview & ROI Selection */}
+            {videoInfo && (
+              <div className="glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>Video Preview & ROI Selection</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', alignSelf: 'flex-start' }}>
+                  Hold <strong>Shift</strong> and drag on the video to draw a Region of Interest (ROI). Only detections inside this region will be matched. ROI filtering works only
+                  with YOLO and ByteTrack.
+                </p>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <video
+                    id="preview-video"
+                    src={`${API_BASE}/api/file?path=${encodeURIComponent(videoPath)}`}
+                    controls
+                    style={{ maxHeight: '500px', maxWidth: '100%', display: 'block', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+                  />
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, pointerEvents: 'none' }}>
+                    <ROIDrawer
+                      width={videoInfo.width}
+                      height={videoInfo.height}
+                      onROIChange={(rect) => {
+                        if (!rect) {
+                          setRoi(null);
+                          return;
+                        }
+                        setRoi(rect);
+                      }}
+                    />
+                  </div>
+                </div>
+                {roi && (
+                  <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>
+                    Active ROI selected: ({roi.join(', ')})
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Results Gallery */}
+            <div className="results-grid">
+              {isSearching ? (
+                // Skeleton loading state
+                Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={`skeleton-${idx}`} className="skeleton-card">
+                    <div className="skeleton-image"></div>
+                    <div className="skeleton-text">
+                      <div className="skeleton-line skeleton-line-short"></div>
+                      <div className="skeleton-line-tags">
+                        <div className="skeleton-tag"></div>
+                        <div className="skeleton-tag" style={{ width: '3rem' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                searchResults.map((item, idx) => {
+                  const filterObjects = searchMetadata?.filter_objects || [];
+                  const filterColors = searchMetadata?.filter_colors || [];
+
+                  // Filter the detections to only those relevant to the query for UI display
+                  const relevantDetections = Array.isArray(item.detections) ? item.detections.filter(det => {
+                    const className = det.class_name || 'unknown';
+                    const color = det.dominant_color;
+
+                    if (filterObjects.length > 0 && !filterObjects.includes(className)) return false;
+                    if (filterColors.length > 0 && color && !filterColors.includes(color)) return false;
+
+                    return true;
+                  }) : [];
+
+                  return (
+                    <div
+                      key={idx}
+                      className="result-card glass-surface animate-fade-in"
+                      style={{ animationDelay: `${(idx % 10) * 0.05}s` }}
+                      onClick={() => {
+                        setSelectedFrame(item);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', backgroundColor: 'var(--bg-main)' }}>
+                        <img
+                          src={`${API_BASE}/api/file?path=${encodeURIComponent(item.framePath)}`}
+                          alt="Detection result"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/dummy.png';
+                          }}
+                          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                        <div className="result-card-overlay">
+                          <div className="result-card-overlay-text">
+                            <strong>{item.filename.length > 20 ? item.filename.substring(0, 20) + '...' : item.filename}</strong>
+                            {relevantDetections.map((det, dIdx) => (
+                              <span key={dIdx}>• {det.class_name || det.dominant_color || 'detection'} ({det.confidence ? (det.confidence * 100).toFixed(0) + '%' : 'N/A'})<br /></span>
+                            ))}
+                            {item.detections.length > relevantDetections.length && (
+                              <span style={{ opacity: 0.7 }}>• + {item.detections.length - relevantDetections.length} other objects<br /></span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 500 }} title={item.filename}>
+                            {item.filename.length > 20 ? item.filename.substring(0, 20) + '...' : item.filename}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {relevantDetections.map((det, dIdx) => (
+                            <span key={dIdx} className="result-tag" title={`Confidence: ${det.confidence}`}>
+                              {det.class_name || det.dominant_color || 'detection'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </>
+        )}
       </main>
 
       <FrameSlideshowModal

@@ -256,6 +256,10 @@ async def run_query(
             # Simple conversion to generic dict since deduplication functions 
             # are tied to the UI class, we'll return raw for now or we could copy them over.
             results = log_parser.found_log_entries
+            metadata = {
+                "filter_objects": log_parser.filter_objects,
+                "filter_colors": log_parser.filter_colors
+            }
             
         elif tracker == "xclip-32":
             xclip_parser = XClipParser(
