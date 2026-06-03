@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const FrameSlideshowModal = ({ 
-  isOpen, 
-  onClose, 
-  frameItem, 
-  tracker, 
-  API_BASE, 
-  fps, 
+const FrameSlideshowModal = ({
+  isOpen,
+  onClose,
+  frameItem,
+  tracker,
+  API_BASE,
+  fps,
   interval,
   videoPath,
   outputDir
@@ -18,9 +18,9 @@ const FrameSlideshowModal = ({
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(2); // fps
-  
+
   const [loadedFrames, setLoadedFrames] = useState([]);
-  
+
   const timerRef = useRef(null);
 
   const baseDir = tracker === 'bytetrack' ? 'extracted_frames_b' : 'extracted_frames_yx';
@@ -38,18 +38,18 @@ const FrameSlideshowModal = ({
     // Generate the array of frame numbers
     const start = Math.max(0, centerFrameNumber - contextFrames);
     const end = centerFrameNumber + forwardFrames;
-    
+
     const frames = [];
-    
+
     // Normalize outputDir path
     const normalizedOutputDir = outputDir ? outputDir.replace(/\/+$/, '') : './outputs';
-    
+
     for (let i = start; i <= end; i++) {
       const paddedNum = i.toString().padStart(6, '0');
       const frameFilename = `frame_${paddedNum}.jpg`;
       const fullPath = `${normalizedOutputDir}/${baseDir}/${frameFilename}`;
       const foundPath = `${normalizedOutputDir}/found_frames/${frameFilename}`;
-      
+
       frames.push({
         number: i,
         filename: frameFilename,
@@ -58,9 +58,9 @@ const FrameSlideshowModal = ({
         isAnnotated: i === centerFrameNumber,
       });
     }
-    
+
     setLoadedFrames(frames);
-    
+
     // Set slider to the center frame
     const centerIndex = frames.findIndex(f => f.number === centerFrameNumber);
     setCurrentFrameIndex(centerIndex >= 0 ? centerIndex : 0);
@@ -85,6 +85,24 @@ const FrameSlideshowModal = ({
     }
     return () => clearInterval(timerRef.current);
   }, [isPlaying, playbackSpeed, loadedFrames.length]);
+
+  // Keyboard shortcuts for modal
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'ArrowLeft') {
+        setCurrentFrameIndex(prev => Math.max(0, prev - 1));
+        setIsPlaying(false);
+      } else if (e.key === 'ArrowRight') {
+        setCurrentFrameIndex(prev => Math.min(loadedFrames.length - 1, prev + 1));
+        setIsPlaying(false);
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setIsPlaying(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [loadedFrames.length]);
 
   const currentFrame = loadedFrames[currentFrameIndex] || null;
 
@@ -113,7 +131,7 @@ const FrameSlideshowModal = ({
     if (!currentFrame) return;
     const validFps = (fps && fps !== 'unknown' && fps > 0) ? fps : 30;
     const timestampSec = currentFrame.number * (interval / validFps);
-    
+
     const formData = new FormData();
     formData.append('video_path', videoPath);
     formData.append('timestamp', timestampSec);
@@ -140,9 +158,9 @@ const FrameSlideshowModal = ({
         {/* Image Area */}
         <div style={{ position: 'relative', width: '100%', backgroundColor: 'black', borderRadius: '4px', overflow: 'hidden', aspectRatio: '16/9', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {currentFrame && (
-            <img 
-              src={currentFrame.isAnnotated ? currentFrame.foundUrl : currentFrame.url} 
-              alt="Frame" 
+            <img
+              src={currentFrame.isAnnotated ? currentFrame.foundUrl : currentFrame.url}
+              alt="Frame"
               style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
               onError={(e) => { e.target.src = '/dummy.png'; }}
             />
@@ -158,11 +176,11 @@ const FrameSlideshowModal = ({
 
         {/* Scrubber */}
         <div style={{ margin: '1rem 0' }}>
-          <input 
-            type="range" 
-            min="0" 
-            max={loadedFrames.length > 0 ? loadedFrames.length - 1 : 0} 
-            value={currentFrameIndex} 
+          <input
+            type="range"
+            min="0"
+            max={loadedFrames.length > 0 ? loadedFrames.length - 1 : 0}
+            value={currentFrameIndex}
             onChange={(e) => {
               setCurrentFrameIndex(parseInt(e.target.value, 10));
               setIsPlaying(false);
@@ -173,14 +191,14 @@ const FrameSlideshowModal = ({
 
         {/* Controls Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-          
+
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <button className="btn btn-primary" onClick={() => setIsPlaying(!isPlaying)} style={{ flex: 1 }}>
               {isPlaying ? 'Pause' : 'Play'}
             </button>
-            <select 
-              className="input-field" 
-              value={playbackSpeed} 
+            <select
+              className="input-field"
+              value={playbackSpeed}
               onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
               style={{ flex: 1 }}
             >
@@ -204,16 +222,17 @@ const FrameSlideshowModal = ({
           <button className="btn btn-secondary" onClick={handleExport}>
             Export Frame
           </button>
-          
+
           <button className="btn btn-secondary" onClick={handleOpenSystemPlayer}>
             Open in System Player
           </button>
 
         </div>
       </div>
-      
+
       {/* Basic modal styling since we are adding inline, we can put some global styles here or in index.css */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;

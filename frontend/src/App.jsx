@@ -18,7 +18,10 @@ function App() {
   const [interval, setInterval] = useState(30);
   const [segmentation, setSegmentation] = useState(false);
   const [query, setQuery] = useState('');
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('neurovision-theme') || 'light'; }
+    catch { return 'light'; }
+  });
   const [outputDir, setOutputDir] = useState('./outputs/');
   const [taskId, setTaskId] = useState(null);
 
@@ -26,6 +29,7 @@ function App() {
   const [siglipFrameCount, setSiglipFrameCount] = useState(40);
   const [deduplicate, setDeduplicate] = useState(true);
   const [showQuerySettings, setShowQuerySettings] = useState(false);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0);
 
   const [roi, setRoi] = useState(null);
 
@@ -36,6 +40,7 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searchMetadata, setSearchMetadata] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const [selectedFrame, setSelectedFrame] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,16 +55,43 @@ function App() {
     catch { return []; }
   });
 
-  const fileInputRef = useRef(null);
+  // Processing log
+  const [processingLog, setProcessingLog] = useState([]);
+  const [showProcessingLog, setShowProcessingLog] = useState(false);
+  const logEndRef = useRef(null);
 
-  // Apply theme to document root
+  const fileInputRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  // Apply theme to document root and persist
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('neurovision-theme', theme); } catch {}
   }, [theme]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl+K or Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+      // Escape to close modals
+      if (e.key === 'Escape') {
+        if (isModalOpen) setIsModalOpen(false);
+        else if (isDirPickerOpen) setIsDirPickerOpen(false);
+        return;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, isDirPickerOpen]);
 
   const fetchVideoInfo = async (path) => {
     try {
@@ -137,6 +169,8 @@ function App() {
     setIsProcessing(true);
     setProgress(0);
     setStatusMessage('Starting processing...');
+    setProcessingLog([]);
+    setShowProcessingLog(true);
     addToast('Starting processing...', 'info');
 
     const formData = new FormData();
@@ -161,6 +195,11 @@ function App() {
         const taskData = JSON.parse(event.data);
         setProgress(taskData.progress);
         setStatusMessage(taskData.message);
+
+        // Append to processing log
+        if (taskData.message) {
+          setProcessingLog(prev => [...prev, { time: new Date().toLocaleTimeString(), message: taskData.message, progress: taskData.progress }]);
+        }
 
         if (taskData.status === 'completed' || taskData.status === 'error') {
           eventSource.close();
@@ -207,6 +246,7 @@ function App() {
 
     setIsSearching(true);
     setSearchResults([]);
+    setHasSearched(true);
 
     const formData = new FormData();
     formData.append('query', query);
@@ -277,6 +317,20 @@ function App() {
     });
   };
 
+  const clearResults = () => {
+    setSearchResults([]);
+    setSearchMetadata(null);
+    setHasSearched(false);
+    setQuery('');
+  };
+
+  // Auto-scroll processing log
+  useEffect(() => {
+    if (logEndRef.current && showProcessingLog) {
+      logEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [processingLog, showProcessingLog]);
+
   // Helper to format duration
   const formatDuration = (seconds) => {
     if (!seconds) return '00:00:00';
@@ -286,8 +340,17 @@ function App() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  // Filter results by confidence threshold
+  const filteredResults = useMemo(() => {
+    if (confidenceThreshold <= 0) return searchResults;
+    return searchResults.filter(item => {
+      if (!Array.isArray(item.detections)) return true;
+      return item.detections.some(det => (det.confidence || 0) >= confidenceThreshold / 100);
+    });
+  }, [searchResults, confidenceThreshold]);
+
   const detectionStats = useMemo(() => {
-    if (!searchResults.length) return null;
+    if (!filteredResults.length) return null;
     let total = 0;
     const counts = {};
 
@@ -295,7 +358,7 @@ function App() {
     const filterObjects = searchMetadata?.filter_objects || [];
     const filterColors = searchMetadata?.filter_colors || [];
 
-    searchResults.forEach(res => {
+    filteredResults.forEach(res => {
       if (res.detections) {
         res.detections.forEach(det => {
           const className = det.class_name || 'unknown';
@@ -306,8 +369,10 @@ function App() {
             return;
           }
           if (filterColors.length > 0 && color && !filterColors.includes(color)) {
-            // Wait, what if color is not set but object is? The backend query does IN (filter_colors)
-            // if filter_colors is present. So we skip if filter_colors has items and color is not one of them.
+            return;
+          }
+          // Confidence threshold filter
+          if (confidenceThreshold > 0 && (det.confidence || 0) < confidenceThreshold / 100) {
             return;
           }
 
@@ -319,7 +384,7 @@ function App() {
     });
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     return { total, sorted };
-  }, [searchResults, searchMetadata]);
+  }, [filteredResults, searchMetadata, confidenceThreshold]);
 
   return (
     <div className="app-container" onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }} onDragLeave={(e) => { if (e.currentTarget === e.target) setIsDragOver(false); }} onDrop={handleDrop}>
@@ -498,6 +563,7 @@ function App() {
                   <input
                     type="text"
                     className="input-field"
+                    ref={searchInputRef}
                     placeholder={
                       tracker === 'yolo' ? "e.g., 'yellow truck and white car'" :
                         tracker === 'bytetrack' ? "e.g., 'white car going north'" :
@@ -593,6 +659,19 @@ function App() {
                     />
                     <label htmlFor="segmentation-header" style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>Use Segmentation</label>
                   </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '220px' }}>
+                    <label className="input-label" style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>Min Confidence:</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={confidenceThreshold}
+                      onChange={(e) => setConfidenceThreshold(Number(e.target.value))}
+                      style={{ flex: 1, accentColor: 'var(--primary-accent)' }}
+                    />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500, minWidth: '35px' }}>{confidenceThreshold}%</span>
+                  </div>
                 </div>
               )}
             </header>
@@ -609,8 +688,22 @@ function App() {
                   <span><strong style={{ color: 'var(--text-primary)' }}>Bitrate:</strong> {videoInfo ? (parseInt(videoInfo.bitrate) / 1000000).toFixed(2) + ' Mbps' : '-'}</span>
                   <span><strong style={{ color: 'var(--text-primary)' }}>File Size:</strong> {videoInfo ? videoInfo.size : '-'}</span>
                 </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--success)', fontWeight: 500 }}>
-                  Found {searchResults.length} matching frames
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {filteredResults.length > 0 && (
+                    <span className="results-badge">
+                      {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
+                      {confidenceThreshold > 0 && ` (≥${confidenceThreshold}%)`}
+                    </span>
+                  )}
+                  {hasSearched && (
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
+                      onClick={clearResults}
+                    >
+                      Clear Results
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -699,8 +792,28 @@ function App() {
                     </div>
                   </div>
                 ))
+              ) : filteredResults.length === 0 && hasSearched ? (
+                // No results empty state
+                <div className="no-results-state" style={{ gridColumn: '1 / -1' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="64px" viewBox="0 -960 960 960" width="64px" fill="currentColor" style={{ opacity: 0.3 }}>
+                    <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+                  </svg>
+                  <h3 style={{ color: 'var(--text-primary)', marginTop: '1rem' }}>No results found</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '400px', textAlign: 'center' }}>
+                    Try adjusting your search query, lowering the confidence threshold, or using a different detection engine.
+                  </p>
+                  {confidenceThreshold > 0 && (
+                    <button
+                      className="btn btn-secondary"
+                      style={{ marginTop: '1rem' }}
+                      onClick={() => setConfidenceThreshold(0)}
+                    >
+                      Reset Confidence Filter
+                    </button>
+                  )}
+                </div>
               ) : (
-                searchResults.map((item, idx) => {
+                filteredResults.map((item, idx) => {
                   const filterObjects = searchMetadata?.filter_objects || [];
                   const filterColors = searchMetadata?.filter_colors || [];
 
@@ -766,6 +879,41 @@ function App() {
                 })
               )}
             </div>
+
+            {/* Processing Log Panel */}
+            {processingLog.length > 0 && (
+              <div className="processing-log-panel glass-surface" style={{ margin: '0 1.5rem 1.5rem 1.5rem' }}>
+                <div
+                  className="processing-log-header"
+                  onClick={() => setShowProcessingLog(!showProcessingLog)}
+                >
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+                      <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"/>
+                    </svg>
+                    Processing Log ({processingLog.length} entries)
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"
+                    style={{ transform: showProcessingLog ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+                    <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/>
+                  </svg>
+                </div>
+                {showProcessingLog && (
+                  <div className="processing-log-body">
+                    {processingLog.map((entry, idx) => (
+                      <div key={idx} className="processing-log-entry">
+                        <span className="log-time">{entry.time}</span>
+                        <span className="log-message">{entry.message}</span>
+                        {entry.progress > 0 && (
+                          <span className="log-progress">{entry.progress}%</span>
+                        )}
+                      </div>
+                    ))}
+                    <div ref={logEndRef} />
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
