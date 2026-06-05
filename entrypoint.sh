@@ -12,7 +12,7 @@ python3 -c "import torch; print('CUDA Available:', torch.cuda.is_available()); p
 
 # Run the application
 cd /app
-python3 src/project/main.py
+uvicorn src.project.api.main:app --host [IP_ADDRESS] --port 8000 --reload --log-level debug
 
 # Keep container running if the app crashes (for debugging)
 # exec "$@"

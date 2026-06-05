@@ -92,7 +92,13 @@ class XClipParser:
             # Extract text embeddings
             with torch.no_grad():
                 text_outputs = self.model.get_text_features(**text_inputs)
-            print(f'Text outputs: {text_outputs}')  
+                
+            # Hugging Face API returns an object with pooler_output in newer versions
+            if hasattr(text_outputs, "pooler_output") and text_outputs.pooler_output is not None:
+                text_outputs = text_outputs.pooler_output
+            elif hasattr(text_outputs, "last_hidden_state") and text_outputs.last_hidden_state is not None:
+                text_outputs = text_outputs.last_hidden_state
+                
             print(f'Text outputs shape: {text_outputs.shape}')
             return text_outputs
         except Exception as e:

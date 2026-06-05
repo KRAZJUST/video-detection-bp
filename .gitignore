@@ -13,6 +13,7 @@ src/project/*.log
 src/project/detections.*
 src/project/venv/
 src/project/env/
+.env/
 
 src/project/detections.db
 src/project/outputs/
@@ -21,3 +22,16 @@ src/tests/*
 
 .vscode/
 app_profile.prof
+
+src/project/outputs/*
+src/project/uploads/
+*/outputs/*
+/outputs/
+detections.*
+detections.db
+vector_database/*
+src/project/vector_database/*
+src/project/outputs/*
+
+yolo11n.pt
+yolo11n-seg.pt
